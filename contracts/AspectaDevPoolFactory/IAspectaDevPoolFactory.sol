@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.25;
 
 import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
@@ -96,4 +98,10 @@ interface IAspectaDevPoolFactory is UUPSUpgradeable, OwnableUpgradeable {
     function getStakingList(
         address user
     ) external view returns (address[] memory, uint256[] memory);
+
+    /**
+     * @dev Upgrade the contract
+     * @param newImplementation New implementation address
+     */
+    function _authorizeUpgrade(address) internal onlyOwner {}
 }
