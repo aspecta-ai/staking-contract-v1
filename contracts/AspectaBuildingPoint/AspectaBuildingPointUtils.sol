@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.25;
 
-import "./AspectaDevToken.sol";
+import "./AspectaBuildingPoint.sol";
 
-library AspectaDevTokenUtils {
+library AspectaBuildingPointUtils {
     /**
      * @dev Pull tokens from an address to this contract.
      * @param _token Token to transfer
@@ -12,7 +12,7 @@ library AspectaDevTokenUtils {
      * @param _amount Amount of tokens to transfer
      */
     function pullTokens(
-        AspectaDevToken _token,
+        AspectaBuildingPoint _token,
         address _from,
         uint256 _amount
     ) internal {
@@ -31,7 +31,7 @@ library AspectaDevTokenUtils {
      * @param _amount Amount of tokens to transfer
      */
     function pushTokens(
-        AspectaDevToken _token,
+        AspectaBuildingPoint _token,
         address _to,
         uint256 _amount
     ) internal {
@@ -45,7 +45,7 @@ library AspectaDevTokenUtils {
      * @param _token Token to burn
      * @param _amount Amount of tokens to burn
      */
-    function burnTokens(AspectaDevToken _token, uint256 _amount) internal {
+    function burnTokens(AspectaBuildingPoint _token, uint256 _amount) internal {
         if (_amount > 0) {
             _token.burn(_amount);
         }
