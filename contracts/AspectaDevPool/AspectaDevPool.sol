@@ -10,11 +10,7 @@ import {AspectaDevPoolStorageV1} from "./AspectaDevPoolStorage.sol";
  * @title AspectaDevPool
  * @dev Contract for dev pools
  */
-contract AspectaDevPool is
-    Initializable,
-    AspectaDevPoolStorageV1,
-    IAspectaDevPool
-{
+contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function initialize(
         address _developer,
         uint256 _shareCoeff,

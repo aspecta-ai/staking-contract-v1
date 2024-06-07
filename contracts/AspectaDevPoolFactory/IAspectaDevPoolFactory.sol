@@ -3,6 +3,18 @@
 pragma solidity ^0.8.25;
 
 interface IAspectaDevPoolFactory {
+    // --------------------- beacon ---------------------
+    /**
+     * @notice Get the address of the implementation of the pool
+     */
+    function getImplementation() public view returns (address);
+
+    /**
+     * @notice Get the address of the beacon
+     */
+    function getBeacon() public view returns (address);
+
+    // -------------------- business ---------------------
     /// @notice Emmitted when a new pool is created
     event DevPoolCreated(address indexed dev, address indexed poolAddress);
 
@@ -33,6 +45,30 @@ interface IAspectaDevPoolFactory {
         uint256 claimedAmount
     );
 
+    // ---- setters for the default values of the pool ----
+    /**
+     * @notice Set the default shareCoeff
+     * @param New default shareCoeff
+     */
+    function setDefaultShareCoeff(
+        uint256 _defaultShareCoeff
+    ) public returns (uint256);
+
+    /**
+     * @notice Set the default inflationRate
+     * @param New default inflationRate
+     */
+    function setDefaultInflationRate(
+        uint256 _defaultInflationRate
+    ) public returns (uint256);
+
+    /**
+     * @notice Set the default maxPPM
+     * @param New default maxPPM
+     */
+    function setDefaultMaxPPM(uint256 _defaultMaxPPM) public returns (uint256);
+
+    // ----------- functions for the factory ------------
     /**
      * @dev Create a new pool for a dev
      * @notice This function will be called in `stake` if pool does not exist

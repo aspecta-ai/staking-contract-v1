@@ -21,6 +21,22 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    // --------------------- beacon ---------------------
+    /// @notice Immutable beacon contract
+    UpgradeableBeacon immutable beacon;
+
+    // -------------------- business --------------------
+    // ----------- default values of the pool -----------
+    /// @notice Default share coefficient
+    uint256 public defaultShareCoeff;
+
+    /// @notice Default inflation rate
+    uint256 internal defaultInflationRate;
+
+    /// @notice Default max PPM
+    uint256 internal defaultMaxPPM;
+
+    // --------- state variables of the factory ---------
     /// @notice Contract address of the DEV token
     address public aspectaDevToken;
 

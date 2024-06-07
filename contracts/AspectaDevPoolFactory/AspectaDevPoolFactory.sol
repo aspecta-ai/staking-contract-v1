@@ -2,25 +2,36 @@
 
 pragma solidity ^0.8.25;
 
+import "openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol";
 import "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import "./IAspectaDevPoolFactory.sol";
 import "../AspectaDevPool/AspectaDevPool.sol";
-import "../AspectaDevToken/AspectaDevToken.sol";
+import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
 /**
  * @title AspectaDevPoolFactory
  * @dev Factory contract to create and manage interfaces for dev pools
  */
-contract AspectaDevPoolFactory is IAspectaDevPoolFactory {
+contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     function initialize(
         address initialOwner,
-        address aspTokenAddress
+        address aspTokenAddress,
+        address poolLogic,
+        uint256 _defaultShareCoeff,
+        uint256 _defaultInflationRate,
+        uint256 _defaultMaxPPM
     ) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
-        aspectaDevToken = AspectaDevToken(aspTokenAddress);
+
+        beacon = new UpgradeableBeacon(poolLogic, msg.sender);
+
+        aspectaDevToken = AspectaBuildingPoint(aspTokenAddress);
+        defaultShareCoeff = _defaultShareCoeff;
+        defaultInflationRate = _defaultInflationRate;
+        defaultMaxPPM = _defaultMaxPPM;
     }
 
     /**
@@ -41,19 +52,28 @@ contract AspectaDevPoolFactory is IAspectaDevPoolFactory {
             devPools[dev] == address(0),
             "AspectaDevPoolFactory: Pool already exists for dev"
         );
-        // TODO: AspectaDevPool constructor may take more parameters
-        AspectaDevPool pool = new AspectaDevPool(dev);
-        devPools[dev] = address(pool);
-        allPools.push(address(pool));
+        // TODO: AspectaDevPool initialize may take more parameters
+        BeaconProxy poolProxy = new BeaconProxy(
+            address(beacon),
+            abi.encodeWithSelector(
+                AspectaDevPool(address(0)).initialize.selector,
+                dev,
+                defaultShareCoeff,
+                defaultInflationRate,
+                defaultMaxPPM
+            )
+        );
+        devPools[dev] = address(poolProxy);
+        allPools.push(address(poolProxy));
 
         // Grant operator role to dev
         aspectaDevToken.grantRole(
             aspectaDevToken.getRoleOperater(),
-            address(pool)
+            address(poolProxy)
         );
 
-        emit DevPoolCreated(dev, address(pool));
-        return address(pool);
+        emit DevPoolCreated(dev, address(poolProxy));
+        return address(poolProxy);
     }
 
     /**
@@ -183,5 +203,56 @@ contract AspectaDevPoolFactory is IAspectaDevPoolFactory {
             shares[i] = AspectaDevPool(devPools[dev]).getShares(user);
         }
         return (stakedDevs.values(), shares);
+    }
+
+    // --------------------- beacon ---------------------
+    /**
+     * @notice Get the implementation address of the beacon
+     * @return Implementation address
+     */
+    function getImplementation() public view returns (address) {
+        return beacon.implementation();
+    }
+
+    /**
+     * @notice Get the beacon address
+     * @return Beacon address
+     */
+    function getBeacon() public view returns (address) {
+        return address(beacon);
+    }
+
+    // --------------------- setters ---------------------
+    /**
+     * @notice Set the default share coefficient
+     * @param _defaultShareCoeff New default share coefficient
+     */
+    function setDefaultShareCoeff(
+        uint256 _defaultShareCoeff
+    ) public onlyOwner returns (uint256) {
+        defaultShareCoeff = _defaultShareCoeff;
+        return defaultShareCoeff;
+    }
+
+    /**
+     * @notice Set the default inflation rate
+     * @param _defaultInflationRate New default inflation rate
+     */
+    function setDefaultInflationRate(
+        uint256 _defaultInflationRate
+    ) public onlyOwner returns (uint256) {
+        defaultInflationRate = _defaultInflationRate;
+        return defaultInflationRate;
+    }
+
+    /**
+     * @notice Set the default maxPPM
+     * @param _defaultMaxPPM New default maxPPM
+     */
+    function setDefaultMaxPPM(
+        uint256 _defaultMaxPPM
+    ) public onlyOwner returns (uint256) {
+        defaultMaxPPM = _defaultMaxPPM;
+        return defaultMaxPPM;
     }
 }
