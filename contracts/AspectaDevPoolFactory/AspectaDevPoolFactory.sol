@@ -24,6 +24,14 @@ contract AspectaDevPoolFactory is IAspectaDevPoolFactory {
     }
 
     /**
+     * @dev Upgrade the contract
+     * @param newImplementation New implementation address
+     */
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyOwner {}
+
+    /**
      * @dev Create a new pool for a dev
      * @notice This function will be called in `stake` if pool does not exist
      * @param dev Dev address

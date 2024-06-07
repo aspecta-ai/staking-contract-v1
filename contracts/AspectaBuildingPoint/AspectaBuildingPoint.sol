@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 // Compatible with OpenZeppelin Contracts ^5.0.0
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.25;
 
 import "openzeppelin-contracts/contracts/token/ERC20/ERC20.sol";
 import "openzeppelin-contracts/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "openzeppelin-contracts/contracts/access/AccessControl.sol";
 
 /**
- * @title AspectaDevToken
- * @dev ERC20 token contract for AspectaDevToken
+ * @title AspectaBuildingPoint
+ * @dev ERC20 token contract for AspectaBuildingPoint
  */
-contract AspectaDevToken is ERC20, ERC20Burnable, AccessControl {
+contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
     bytes32 public constant OPERATER_ROLE = keccak256("OPERATER_ROLE");
 
-    constructor(address defaultAdmin) ERC20("AspectaDevToken", "DEV") {
+    constructor(address defaultAdmin) ERC20("Aspecta Building Point", "BP") {
         _mint(msg.sender, 10 * 10 ** decimals());
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(OPERATER_ROLE, defaultAdmin);
