@@ -2,25 +2,7 @@
 
 pragma solidity ^0.8.25;
 
-import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
-
-interface IAspectaDevPoolFactory is UUPSUpgradeable, OwnableUpgradeable {
-    using EnumerableSet for EnumerableSet.AddressSet;
-
-    /// @notice Contract address of the DEV token
-    address public aspectaDevToken;
-
-    /// @notice All pools created by this factory
-    address[] allPools;
-
-    /// @notice Dev address to pool address mapping
-    mapping(address => address) devPools;
-
-    /// @notice Staker address to staking dev address mapping
-    mapping(address => EnumerableSet.AddressSet) stakedDevSet;
-
+interface IAspectaDevPoolFactory {
     /// @notice Emmitted when a new pool is created
     event DevPoolCreated(address indexed dev, address indexed poolAddress);
 
@@ -98,10 +80,4 @@ interface IAspectaDevPoolFactory is UUPSUpgradeable, OwnableUpgradeable {
     function getStakingList(
         address user
     ) external view returns (address[] memory, uint256[] memory);
-
-    /**
-     * @dev Upgrade the contract
-     * @param newImplementation New implementation address
-     */
-    function _authorizeUpgrade(address) internal onlyOwner {}
 }
