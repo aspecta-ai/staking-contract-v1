@@ -2,10 +2,9 @@
 
 pragma solidity ^0.8.25;
 
-import {EIP712} from "openzeppelin-contracts/contracts/utils/cryptography/EIP712.sol";
 import {OwnableUpgradeable} from "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import {ERC20Upgradeable} from "openzeppelin-contracts-upgradeable/contracts/token/ERC20/ERC20Upgradeable.sol";
-import {IAspectaProtocol} from "./IAspectaProtocol.sol";
+import {IAspectaDevPool} from "./IAspectaDevPool.sol";
 
 /**
  * @title AspectaDevPoolStorageV1
@@ -17,8 +16,7 @@ import {IAspectaProtocol} from "./IAspectaProtocol.sol";
 abstract contract AspectaDevPoolStorageV1 is
     ERC20Upgradeable,
     OwnableUpgradeable,
-    EIP712,
-    IAspectaProtocol
+    IAspectaDevPool
 {
     address public developer;
 
