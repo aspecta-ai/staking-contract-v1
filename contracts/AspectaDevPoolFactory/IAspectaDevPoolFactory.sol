@@ -72,13 +72,6 @@ interface IAspectaDevPoolFactory {
 
     // ----------- functions for the factory ------------
     /**
-     * @dev Create a new pool for a dev
-     * @notice This function will be called in `stake` if pool does not exist
-     * @param dev Dev address
-     */
-    function createPool(address dev) internal returns (address);
-
-    /**
      * @dev Stake tokens for a dev
      * @param dev Dev address
      * @param amount Amount to stake

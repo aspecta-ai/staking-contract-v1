@@ -47,7 +47,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @notice This function will be called in `stake` if pool does not exist
      * @param dev Dev address
      */
-    function createPool(address dev) internal override returns (address) {
+    function createPool(address dev) internal returns (address) {
         require(
             devPools[dev] == address(0),
             "AspectaDevPoolFactory: Pool already exists for dev"

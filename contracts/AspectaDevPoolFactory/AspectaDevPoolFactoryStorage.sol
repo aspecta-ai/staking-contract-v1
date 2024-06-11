@@ -40,7 +40,7 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
 
     // --------- state variables of the factory ---------
     /// @notice BP token contract
-    AspectaBuildingPoint public aspectaBildingPoint;
+    AspectaBuildingPoint public aspectaBuildingPoint;
 
     /// @notice All pools created by this factory
     address[] allPools;
