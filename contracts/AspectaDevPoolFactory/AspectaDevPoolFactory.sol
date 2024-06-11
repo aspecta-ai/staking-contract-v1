@@ -4,7 +4,7 @@ pragma solidity ^0.8.25;
 
 import "openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol";
 import "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
-import "./IAspectaDevPoolFactory.sol";
+import "./AspectaDevPoolFactoryStorage.sol";
 import "../AspectaDevPool/AspectaDevPool.sol";
 import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
@@ -82,9 +82,12 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @param amount Amount to stake
      */
     function stake(address dev, uint256 amount) external override {
+        address devPoolAddr;
         // If pool does not exist, create one
         if (devPools[dev] == address(0)) {
-            address devPoolAddr = createPool(dev);
+            devPoolAddr = createPool(dev);
+        } else {
+            devPoolAddr = devPools[dev];
         }
 
         // Stake tokens in dev pool
@@ -140,9 +143,10 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Claim rewards for a dev/staker with all staked devs
      */
     function claimRewards() external override {
-        EnumerableSet.AddressSet stakedDevs = stakedDevSet[msg.sender];
+        EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[msg.sender];
+        uint256 claimedAmount;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
-            dev = stakedDevs.at(i);
+            address dev = stakedDevs.at(i);
             claimedAmount = AspectaDevPool(devPools[dev]).claimRewards(
                 msg.sender
             );
@@ -160,6 +164,8 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             devs.length <= 10,
             "AspectaDevPoolFactory: Max 10 devs can be claimed at a time"
         );
+        address dev;
+        uint256 claimedAmount;
         for (uint32 i = 0; i < devs.length; i++) {
             dev = devs[i];
             claimedAmount = AspectaDevPool(devPools[dev]).claimRewards(
@@ -177,8 +183,9 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function getTotalUnclaimedRewards(
         address user
     ) external view override returns (uint256) {
-        EnumerableSet.AddressSet stakedDevs = stakedDevSet[user];
+        EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[user];
         uint256 totalUnclaimedRewards = 0;
+        address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
             totalUnclaimedRewards += AspectaDevPool(devPools[dev])
@@ -195,8 +202,10 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function getStakingList(
         address user
     ) external view override returns (address[] memory, uint256[] memory) {
-        EnumerableSet.AddressSet stakedDevs = stakedDevSet[user];
+        EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[user];
         uint256[] memory shares = new uint256[](stakedDevs.length());
+        address dev;
+
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
             shares[i] = AspectaDevPool(devPools[dev]).getShares(user);

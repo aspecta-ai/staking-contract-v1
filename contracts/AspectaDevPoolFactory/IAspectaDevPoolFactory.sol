@@ -7,12 +7,12 @@ interface IAspectaDevPoolFactory {
     /**
      * @notice Get the address of the implementation of the pool
      */
-    function getImplementation() public view returns (address);
+    function getImplementation() external view returns (address);
 
     /**
      * @notice Get the address of the beacon
      */
-    function getBeacon() public view returns (address);
+    function getBeacon() external view returns (address);
 
     // -------------------- business ---------------------
     /// @notice Emmitted when a new pool is created
@@ -48,25 +48,27 @@ interface IAspectaDevPoolFactory {
     // ---- setters for the default values of the pool ----
     /**
      * @notice Set the default shareCoeff
-     * @param New default shareCoeff
+     * @param _defaultShareCoeff New default shareCoeff
      */
     function setDefaultShareCoeff(
         uint256 _defaultShareCoeff
-    ) public returns (uint256);
+    ) external returns (uint256);
 
     /**
      * @notice Set the default inflationRate
-     * @param New default inflationRate
+     * @param _defaultInflationRate New default inflationRate
      */
     function setDefaultInflationRate(
         uint256 _defaultInflationRate
-    ) public returns (uint256);
+    ) external returns (uint256);
 
     /**
      * @notice Set the default maxPPM
-     * @param New default maxPPM
+     * @param _defaultMaxPPM New default maxPPM
      */
-    function setDefaultMaxPPM(uint256 _defaultMaxPPM) public returns (uint256);
+    function setDefaultMaxPPM(
+        uint256 _defaultMaxPPM
+    ) external returns (uint256);
 
     // ----------- functions for the factory ------------
     /**
@@ -98,7 +100,7 @@ interface IAspectaDevPoolFactory {
      * @dev Claim rewards in multiple devs
      * @param devs List of devs addresses
      */
-    function claimRewards(address[] devs) external;
+    function claimRewards(address[] calldata devs) external;
 
     /**
      * @dev Get total unclaimed rewards for a dev/staker

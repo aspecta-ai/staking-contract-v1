@@ -3,10 +3,10 @@
 pragma solidity ^0.8.25;
 
 /**
- * @title AspectaProtocol Interface
- * @dev Interface for the AspectaProtocol contract
+ * @title IAspectaDevPool Interface
+ * @dev Interface for the IAspectaDevPool contract
  */
-interface IAspectaProtocol {
+interface IAspectaDevPool {
     struct EIP712Signature {
         uint8 v; // The recovery ID.
         bytes32 r; // The x-coordinate of the nonce R.
