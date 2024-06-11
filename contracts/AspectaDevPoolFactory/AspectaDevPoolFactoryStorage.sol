@@ -4,8 +4,10 @@ pragma solidity ^0.8.25;
 
 import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
 import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
+import "openzeppelin-contracts/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
 import "./IAspectaDevPoolFactory.sol";
+import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
 /**
  * @title AspectaDevPoolFactoryStorageV1
@@ -37,8 +39,8 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     uint256 internal defaultMaxPPM;
 
     // --------- state variables of the factory ---------
-    /// @notice Contract address of the DEV token
-    address public aspectaDevToken;
+    /// @notice BP token contract
+    AspectaBuildingPoint public aspectaBildingPoint;
 
     /// @notice All pools created by this factory
     address[] allPools;

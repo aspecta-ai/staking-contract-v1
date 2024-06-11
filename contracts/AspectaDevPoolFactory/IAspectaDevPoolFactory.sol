@@ -86,9 +86,8 @@ interface IAspectaDevPoolFactory {
     /**
      * @dev Withdraw tokens for a dev
      * @param dev Dev address
-     * @param amount Amount to withdraw
      */
-    function withdraw(address dev, uint256 amount) external;
+    function withdraw(address dev) external;
 
     /**
      * @dev Claim rewards for a dev/staker with all staked devs

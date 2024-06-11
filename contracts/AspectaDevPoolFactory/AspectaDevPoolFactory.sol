@@ -28,7 +28,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         beacon = new UpgradeableBeacon(poolLogic, msg.sender);
 
-        aspectaDevToken = AspectaBuildingPoint(aspTokenAddress);
+        aspectaBuildingPoint = AspectaBuildingPoint(aspTokenAddress);
         defaultShareCoeff = _defaultShareCoeff;
         defaultInflationRate = _defaultInflationRate;
         defaultMaxPPM = _defaultMaxPPM;
@@ -67,8 +67,8 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         allPools.push(address(poolProxy));
 
         // Grant operator role to dev
-        aspectaDevToken.grantRole(
-            aspectaDevToken.getRoleOperater(),
+        aspectaBuildingPoint.grantRole(
+            aspectaBuildingPoint.getRoleOperater(),
             address(poolProxy)
         );
 
@@ -88,7 +88,6 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         }
 
         // Stake tokens in dev pool
-        // TODO: AspectaDevPool constructor may take more parameters
         AspectaDevPool devPool = AspectaDevPool(devPoolAddr);
         devPool.stake(msg.sender, amount);
         stakedDevSet[msg.sender].add(dev);
@@ -101,7 +100,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             msg.sender,
             stakeAmount,
             shareAmount,
-            aspectaDevToken.balanceOf(devPoolAddr),
+            aspectaBuildingPoint.balanceOf(devPoolAddr),
             devPool.totalSupply()
         );
     }
@@ -132,7 +131,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             msg.sender,
             stakeAmount,
             shareAmount,
-            aspectaDevToken.balanceOf(devPools[dev]),
+            aspectaBuildingPoint.balanceOf(devPools[dev]),
             devPool.totalSupply()
         );
     }
@@ -179,7 +178,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address user
     ) external view override returns (uint256) {
         EnumerableSet.AddressSet stakedDevs = stakedDevSet[user];
-        totalUnclaimedRewards = 0;
+        uint256 totalUnclaimedRewards = 0;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
             totalUnclaimedRewards += AspectaDevPool(devPools[dev])
