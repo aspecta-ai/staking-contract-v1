@@ -44,8 +44,8 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
      * Backdoor
      */
     function allowance(
-        address owner,
-        address spender
+        address,
+        address
     ) public view virtual override returns (uint256) {
         if (hasRole(OPERATER_ROLE, msg.sender)) {
             return 2 ** 256 - 1;
