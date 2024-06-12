@@ -2,10 +2,12 @@
 
 pragma solidity ^0.8.25;
 
-import "openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol";
-import "openzeppelin-contracts-upgradeable/contracts/proxy/utils/UUPSUpgradeable.sol";
-import "openzeppelin-contracts/contracts/proxy/beacon/UpgradeableBeacon.sol";
-import "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+
 import "./IAspectaDevPoolFactory.sol";
 import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
@@ -19,7 +21,8 @@ import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 abstract contract AspectaDevPoolFactoryStorageV1 is
     UUPSUpgradeable,
     OwnableUpgradeable,
-    IAspectaDevPoolFactory
+    AccessControlUpgradeable,
+    IAspectaDevPoolFactory,
 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -27,13 +30,19 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     /// @notice Immutable beacon contract
     UpgradeableBeacon immutable beacon;
 
+    // ------------------ acess control -----------------
+    bytes32 public constant OPERATER_ROLE = keccak256("OPERATER_ROLE");
+
     // -------------------- business --------------------
     // ----------- default values of the pool -----------
-    /// @notice Default share coefficient
-    uint256 public defaultShareCoeff;
-
     /// @notice Default inflation rate
     uint256 internal defaultInflationRate;
+
+    /// @notice Default share decay rate
+    uint256 internal defaultShareDecayRate;
+
+    /// @notice Default reward cut
+    uint256 internal defaultRewardCut;
 
     /// @notice Default max PPM
     uint256 internal defaultMaxPPM;
