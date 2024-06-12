@@ -15,6 +15,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     uint32 private constant MAX_PPT = 1e9;
 
     function initialize(
+        address _factory,
         address _developer,
         address _aspToken,
         uint256 _inflationRate,
@@ -24,6 +25,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     ) public initializer {
         __ERC20_init("Aspecta Dev Pool", "ADP");
         __Ownable_init(msg.sender);
+        factory = _factory;
         developer = _developer;
         aspectaToken = _aspToken;
         inflationRate = _inflationRate;
@@ -63,7 +65,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
                 MAX_PPT /
                 FIXED_POINT_SCALING_FACTOR;
             IAspectaBuildingPoint(aspectaToken).mint(staker, reward);
-            IAspectaDevPoolFactory(owner()).emitStakeRewardClaimed(developer, staker, reward);
+            IAspectaDevPoolFactory(factory).emitStakeRewardClaimed(developer, staker, reward);
         }
         stakerState.lastRewardPerShare = rewardPerShare;
     }
@@ -79,7 +81,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             FIXED_POINT_SCALING_FACTOR;
         IAspectaBuildingPoint(aspectaToken).mint(tx.origin, reward);
         devLastRewardPerShare = rewardPerShare;
-        IAspectaDevPoolFactory(owner()).emitDevRewardClaimed(developer, reward);
+        IAspectaDevPoolFactory(factory).emitDevRewardClaimed(developer, reward);
     }
 
     function _expectedTotalShare(
@@ -111,7 +113,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         _mint(staker, shareAmount);
         stakerStates[staker].stakeAmount += _amount;
         stakerStates[staker].unlockTime = block.timestamp + defaultLockPeriod;
-        IAspectaDevPoolFactory(owner()).emitDevStaked(developer, staker, _amount, shareAmount, token.balanceOf(address(this)), totalSupply());
+        IAspectaDevPoolFactory(factory).emitDevStaked(developer, staker, _amount, shareAmount, token.balanceOf(address(this)), totalSupply());
     }
 
     function _withdraw(uint256 _amount) internal {
@@ -131,7 +133,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         shareCoeff =
             (totalSupply() * FIXED_POINT_SCALING_FACTOR) /
             _expectedTotalShare(token.balanceOf(address(this)));
-        IAspectaDevPoolFactory(owner()).emitStakeWithdrawn(developer, staker, stakeAmount, shareAmount, token.balanceOf(address(this)), totalSupply());
+        IAspectaDevPoolFactory(factory).emitStakeWithdrawn(developer, staker, stakeAmount, shareAmount, token.balanceOf(address(this)), totalSupply());
     }
 
     function stake(uint256 _amount) external {

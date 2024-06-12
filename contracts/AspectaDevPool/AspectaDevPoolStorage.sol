@@ -18,6 +18,8 @@ abstract contract AspectaDevPoolStorageV1 is
     OwnableUpgradeable,
     IAspectaDevPool
 {
+    address public factory;
+
     address public developer;
 
     address public aspectaToken;
