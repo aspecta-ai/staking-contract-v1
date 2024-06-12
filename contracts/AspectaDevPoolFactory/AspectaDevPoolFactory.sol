@@ -268,6 +268,10 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         return (stakedDevs.values(), shares);
     }
 
+    function getPool(address dev) external view returns (address) {
+        return devPools[dev];
+    }
+
     // --------------------- beacon ---------------------
     /**
      * @notice Get the implementation address of the beacon

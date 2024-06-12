@@ -5,12 +5,14 @@ import "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
 import {AspectaDevPool} from "../../contracts/AspectaDevPool/AspectaDevPool.sol";
 import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
+import {AspectaDevPoolFactory} from "../../contracts/AspectaDevPoolFactory/AspectaDevPoolFactory.sol";
 
 contract AspectaDevPoolTest is Test {
     uint256 private constant MAX_PPB = 1e9;
 
-    AspectaDevPool devPool;
     AspectaBuildingPoint aspToken;
+    AspectaDevPoolFactory factory;
+    AspectaDevPool devPool;
 
     address alice;
     uint256 alicePK;
@@ -30,7 +32,7 @@ contract AspectaDevPoolTest is Test {
         (carol, carolPK) = makeAddrAndKey("carol");
         (derek, derekPK) = makeAddrAndKey("derek");
 
-        vm.startPrank(alice);
+        vm.startPrank(alice, alice);
 
         // Create a fork of the network
         vm.createSelectFork("https://bsc-testnet-rpc.publicnode.com");
@@ -39,19 +41,32 @@ contract AspectaDevPoolTest is Test {
         aspToken = new AspectaBuildingPoint(address(alice));
 
         // Deploy AspectaProtocol contract
+        factory = new AspectaDevPoolFactory();
+        aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
         devPool = new AspectaDevPool();
-        devPool.initialize(
-            factory,
+        factory.initialize(
             alice,
             address(aspToken),
+            address(devPool),
             (3 * MAX_PPB) / 1e7,
             1e3,
-            (3 * MAX_PPB) / 10
+            (3 * MAX_PPB) / 10,
+            0 seconds
         );
-        devPool.updateBuildIndex(8e9);
 
-        // Grant ASP token operater role to AspectaProtocol
-        aspToken.grantRole(aspToken.getOperaterRole(), address(devPool));
+        // devPool.initialize(
+        //     address(factory),
+        //     alice,
+        //     address(aspToken),
+        //     (3 * MAX_PPB) / 1e7,
+        //     1e3,
+        //     (3 * MAX_PPB) / 10,
+        //     7 days
+        // );
+        aspToken.mint(alice, 1e18);
+        factory.stake(alice, 1e18);
+        factory.updateBuildIndex(alice, 8e9);
+        devPool = AspectaDevPool(factory.getPool(alice));
     }
 
     function equalWithTolerance(
@@ -81,8 +96,6 @@ contract AspectaDevPoolTest is Test {
         // bob stakes
         vm.startPrank(bob, bob);
         devPool.stake(unitStake);
-        console.log("bob share", devPool.balanceOf(bob));
-        console.log("total share", devPool.totalSupply());
         // carol stakes
         vm.startPrank(carol, carol);
         devPool.stake(unitStake);
