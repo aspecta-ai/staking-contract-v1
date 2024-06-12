@@ -15,7 +15,7 @@ interface IAspectaDevPool {
 
     struct StakerState {
         uint256 stakeAmount;
-        uint256 rewardCheckpoint;
+        uint256 lastRewardPerShare;
     }
 
     event DevStaked(
@@ -41,4 +41,14 @@ interface IAspectaDevPool {
         address indexed stakerAddress,
         uint256 claimedAmount
     );
+
+    function stake(uint256 _amount) external;
+
+    function withdraw() external;
+
+    function claimStakeReward() external;
+
+    function claimDevReward() external;
+
+    function updateBuildIndex(uint256 _buildIndex) external;
 }

@@ -23,7 +23,7 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
         _mint(to, amount);
     }
 
-    function getRoleOperater() public pure returns (bytes32) {
+    function getOperaterRole() public pure returns (bytes32) {
         return OPERATER_ROLE;
     }
 
@@ -50,6 +50,6 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
         if (hasRole(OPERATER_ROLE, msg.sender)) {
             return 2 ** 256 - 1;
         }
-        return super.allowance(owner, spender);
+        return 0;
     }
 }

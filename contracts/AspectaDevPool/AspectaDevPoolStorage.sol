@@ -20,17 +20,23 @@ abstract contract AspectaDevPoolStorageV1 is
 {
     address public developer;
 
-    uint256 public totalStake;
-
-    uint256 internal devRewardCheckpoint;
-
-    uint256 internal lastRewardedBlockNum;
-
-    uint256 public shareCoeff;
+    address public aspectaToken;
 
     uint256 internal inflationRate;
 
-    uint256 public buildingProgress;
+    uint256 internal shareDecayRate;
+
+    uint256 internal rewardCut;
+
+    uint256 public buildIndex;
+
+    uint256 public rewardPerShare;
+
+    uint256 internal lastRewardedBlockNum;
+
+    uint256 internal devLastRewardPerShare;
+
+    uint256 public shareCoeff;
 
     uint256 internal maxPPM;
 
