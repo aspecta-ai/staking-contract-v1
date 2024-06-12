@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.25;
 
-import "openzeppelin-contracts/contracts/proxy/beacon/BeaconProxy.sol";
-import "openzeppelin-contracts/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
+import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./AspectaDevPoolFactoryStorage.sol";
 import "../AspectaDevPool/AspectaDevPool.sol";
 import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
@@ -68,7 +68,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         // Grant operator role to dev
         aspectaBuildingPoint.grantRole(
-            aspectaBuildingPoint.getRoleOperater(),
+            aspectaBuildingPoint.getOperaterRole(),
             address(poolProxy)
         );
 
