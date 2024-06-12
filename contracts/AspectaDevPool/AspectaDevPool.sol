@@ -161,12 +161,11 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function updateBuildIndex(uint256 _buildIndex) external onlyOwner {
         buildIndex = _buildIndex;
     }
+    
+    /// Getters
 
     function getClaimableStakeReward() external view returns (uint256) {
         uint256 blockNum = block.number;
-        if (blockNum <= lastRewardedBlockNum) {
-            return;
-        }
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
         );
@@ -182,9 +181,6 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     function getClaimableDevReward() external view returns (uint256) {
         uint256 blockNum = block.number;
-        if (blockNum <= lastRewardedBlockNum) {
-            return;
-        }
         uint256 reward = (totalStake *
             (blockNum - lastRewardedBlockNum) *
             inflationRate *
@@ -192,6 +188,6 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             MAX_PPT /
             MAX_PPT;
         uint256 currentRewardPerShare = rewardPerShare + (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
-        return totalSupply() * rewardCut * (currentRewardPerShare - devLastRewardPerShare) / MAX_PPT / FIXED_POINT_SCALING_FACTOR;
+        return rewardCut * totalSupply() * (currentRewardPerShare - devLastRewardPerShare) / MAX_PPT / FIXED_POINT_SCALING_FACTOR;
     }
 }
