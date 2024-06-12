@@ -54,15 +54,6 @@ contract AspectaDevPoolTest is Test {
             0 seconds
         );
 
-        // devPool.initialize(
-        //     address(factory),
-        //     alice,
-        //     address(aspToken),
-        //     (3 * MAX_PPB) / 1e7,
-        //     1e3,
-        //     (3 * MAX_PPB) / 10,
-        //     7 days
-        // );
         aspToken.mint(alice, 1e18);
         factory.stake(alice, 1e18);
         factory.updateBuildIndex(alice, 8e9);
@@ -129,8 +120,6 @@ contract AspectaDevPoolTest is Test {
         // record derek's reward
         devPool.claimStakeReward();
         uint256 derekReward = aspToken.balanceOf(derek);
-        console.log("derek share", devPool.balanceOf(derek));
-        console.log("total share", devPool.totalSupply());
 
         // carol claims reward again
         vm.startPrank(carol, carol);
@@ -143,19 +132,84 @@ contract AspectaDevPoolTest is Test {
         /*
          * Withdraw does not effect new staker's reward at the same total stake
          */
-        // derek claims reward
-
         // bob withdraw, stake again, and claim reward after unit time
         vm.startPrank(bob, bob);
         devPool.withdraw();
         devPool.stake(unitStake);
-        console.log("bob share", devPool.balanceOf(bob));
-        console.log("total share", devPool.totalSupply());
         vm.roll(block.number + unitTime);
         uint256 bobBalance = aspToken.balanceOf(bob);
         devPool.claimStakeReward();
         // reward should be same as derek
         uint256 bobReward = aspToken.balanceOf(bob) - bobBalance;
         equalWithTolerance(bobReward, derekReward, 1e18);
+    }
+
+    function testRewardConsistency() public {
+        uint256 unitStake = 1000e18;
+        uint256 unitTime = 300;
+        aspToken.mint(bob, unitStake);
+        aspToken.mint(carol, unitStake);
+        aspToken.mint(derek, unitStake);
+
+        /*
+         * Total reward should be consistent regardless of claim time
+         */
+
+        /// Case 1: claim once at the end
+        // derek stakes
+        vm.startPrank(derek, derek);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // derek claims reward
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+        uint256 derekReward = aspToken.balanceOf(derek);
+
+        // Clean up
+        devPool.withdraw();
+        vm.startPrank(bob, bob);
+        devPool.withdraw();
+        vm.startPrank(carol, carol);
+        devPool.withdraw();
+
+        /// Case 2: claim multiple times
+        // derek stakes, claim reward
+        vm.startPrank(derek, derek);
+        devPool.stake(unitStake);
+        uint256 derekBalance = aspToken.balanceOf(derek);
+        vm.roll(block.number + unitTime);
+        devPool.claimStakeReward();
+
+        // bob stakes, derek claim reward
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+
+        // carol stakes, derek claim reward
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+
+        // derek should have same reward
+        equalWithTolerance(
+            aspToken.balanceOf(derek) - derekBalance,
+            derekReward,
+            1e18
+        );
     }
 }
