@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.25;
-import {Initializable} from "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {AspectaDevPoolStorageV1} from "./AspectaDevPoolStorage.sol";
 import {IAspectaBuildingPoint} from "../AspectaBuildingPoint/IAspectaBuildingPoint.sol";
 import {IAspectaDevPoolFactory} from "../AspectaDevPoolFactory/IAspectaDevPoolFactory.sol";
@@ -12,7 +12,7 @@ import {IAspectaDevPoolFactory} from "../AspectaDevPoolFactory/IAspectaDevPoolFa
  */
 contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     uint256 private constant FIXED_POINT_SCALING_FACTOR = 1e12;
-    uint32 private constant MAX_PPT = 1e9;
+    uint32 private constant MAX_PPB = 1e9;
 
     function initialize(
         address _factory,
@@ -21,7 +21,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 _inflationRate,
         uint256 _shareDecayRate,
         uint256 _rewardCut,
-        uint256 _defaultLockPeriod,
+        uint256 _defaultLockPeriod
     ) public initializer {
         __ERC20_init("Aspecta Dev Pool", "ADP");
         __Ownable_init(msg.sender);
@@ -48,8 +48,8 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             (blockNum - lastRewardedBlockNum) *
             inflationRate *
             buildIndex) /
-            MAX_PPT /
-            MAX_PPT;
+            MAX_PPB /
+            MAX_PPB;
         rewardPerShare += (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
         lastRewardedBlockNum = blockNum;
     }
@@ -59,13 +59,17 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         StakerState storage stakerState = stakerStates[staker];
         uint256 shareAmount = balanceOf(staker);
         if (shareAmount > 0) {
-            uint256 reward = ((MAX_PPT - rewardCut) *
+            uint256 reward = ((MAX_PPB - rewardCut) *
                 (rewardPerShare - stakerState.lastRewardPerShare) *
                 shareAmount) /
-                MAX_PPT /
+                MAX_PPB /
                 FIXED_POINT_SCALING_FACTOR;
             IAspectaBuildingPoint(aspectaToken).mint(staker, reward);
-            IAspectaDevPoolFactory(factory).emitStakeRewardClaimed(developer, staker, reward);
+            IAspectaDevPoolFactory(factory).emitStakeRewardClaimed(
+                developer,
+                staker,
+                reward
+            );
         }
         stakerState.lastRewardPerShare = rewardPerShare;
     }
@@ -75,9 +79,9 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             tx.origin == developer,
             "AspectaDevPool: Only developer can claim dev reward"
         );
-        uint256 reward = totalSupply() * (rewardCut *
-            (rewardPerShare - devLastRewardPerShare)) /
-            MAX_PPT /
+        uint256 reward = (totalSupply() *
+            (rewardCut * (rewardPerShare - devLastRewardPerShare))) /
+            MAX_PPB /
             FIXED_POINT_SCALING_FACTOR;
         IAspectaBuildingPoint(aspectaToken).mint(tx.origin, reward);
         devLastRewardPerShare = rewardPerShare;
@@ -113,10 +117,17 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         _mint(staker, shareAmount);
         stakerStates[staker].stakeAmount += _amount;
         stakerStates[staker].unlockTime = block.timestamp + defaultLockPeriod;
-        IAspectaDevPoolFactory(factory).emitDevStaked(developer, staker, _amount, shareAmount, token.balanceOf(address(this)), totalSupply());
+        IAspectaDevPoolFactory(factory).emitDevStaked(
+            developer,
+            staker,
+            _amount,
+            shareAmount,
+            token.balanceOf(address(this)),
+            totalSupply()
+        );
     }
 
-    function _withdraw(uint256 _amount) internal {
+    function _withdraw() internal {
         require(
             stakerStates[tx.origin].unlockTime <= block.timestamp,
             "AspectaDevPool: Stake is locked"
@@ -133,7 +144,14 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         shareCoeff =
             (totalSupply() * FIXED_POINT_SCALING_FACTOR) /
             _expectedTotalShare(token.balanceOf(address(this)));
-        IAspectaDevPoolFactory(factory).emitStakeWithdrawn(developer, staker, stakeAmount, shareAmount, token.balanceOf(address(this)), totalSupply());
+        IAspectaDevPoolFactory(factory).emitStakeWithdrawn(
+            developer,
+            staker,
+            stakeAmount,
+            shareAmount,
+            token.balanceOf(address(this)),
+            totalSupply()
+        );
     }
 
     function stake(uint256 _amount) external {
@@ -161,7 +179,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function updateBuildIndex(uint256 _buildIndex) external onlyOwner {
         buildIndex = _buildIndex;
     }
-    
+
     /// Getters
 
     function getClaimableStakeReward() external view returns (uint256) {
@@ -173,21 +191,39 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             (blockNum - lastRewardedBlockNum) *
             inflationRate *
             buildIndex) /
-            MAX_PPT /
-            MAX_PPT;
-        uint256 currentRewardPerShare = rewardPerShare + (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
-        return (MAX_PPT - rewardCut) * balanceOf(tx.origin) * (currentRewardPerShare - stakerStates[tx.origin].lastRewardPerShare) / MAX_PPT / FIXED_POINT_SCALING_FACTOR;
+            MAX_PPB /
+            MAX_PPB;
+        uint256 currentRewardPerShare = rewardPerShare +
+            (reward * FIXED_POINT_SCALING_FACTOR) /
+            totalSupply();
+        return
+            ((MAX_PPB - rewardCut) *
+                balanceOf(tx.origin) *
+                (currentRewardPerShare -
+                    stakerStates[tx.origin].lastRewardPerShare)) /
+            MAX_PPB /
+            FIXED_POINT_SCALING_FACTOR;
     }
 
     function getClaimableDevReward() external view returns (uint256) {
         uint256 blockNum = block.number;
+        uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
+            address(this)
+        );
         uint256 reward = (totalStake *
             (blockNum - lastRewardedBlockNum) *
             inflationRate *
             buildIndex) /
-            MAX_PPT /
-            MAX_PPT;
-        uint256 currentRewardPerShare = rewardPerShare + (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
-        return rewardCut * totalSupply() * (currentRewardPerShare - devLastRewardPerShare) / MAX_PPT / FIXED_POINT_SCALING_FACTOR;
+            MAX_PPB /
+            MAX_PPB;
+        uint256 currentRewardPerShare = rewardPerShare +
+            (reward * FIXED_POINT_SCALING_FACTOR) /
+            totalSupply();
+        return
+            (rewardCut *
+                totalSupply() *
+                (currentRewardPerShare - devLastRewardPerShare)) /
+            MAX_PPB /
+            FIXED_POINT_SCALING_FACTOR;
     }
 }

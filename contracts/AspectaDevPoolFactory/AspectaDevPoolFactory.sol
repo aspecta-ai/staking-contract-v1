@@ -22,7 +22,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 _defaultInflationRate,
         uint256 _defaultShareDecayRate,
         uint256 _defaultRewardCut,
-        uint256 _defaultMaxPPM
+        uint256 _defaultLockPeriod
     ) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
@@ -35,7 +35,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         defaultInflationRate = _defaultInflationRate;
         defaultShareDecayRate = _defaultShareDecayRate;
         defaultRewardCut = _defaultRewardCut;
-        defaultMaxPPM = _defaultMaxPPM;
+        defaultLockPeriod = _defaultLockPeriod;
     }
 
     /**
@@ -62,12 +62,13 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             address(beacon),
             abi.encodeWithSelector(
                 AspectaDevPool(address(0)).initialize.selector,
+                address(this),
                 dev,
                 address(aspectaBuildingPoint),
                 defaultInflationRate,
                 defaultShareDecayRate,
                 defaultRewardCut,
-                defaultMaxPPM
+                defaultLockPeriod
             )
         );
         devPools[dev] = address(poolProxy);
@@ -129,7 +130,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Claim rewards for a staker with all staked devs
      */
     function claimStakeReward() external override {
-        EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[msg.sender];
+        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[msg.sender];
         address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
@@ -182,7 +183,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address stakerAddress,
         uint256 claimedAmount
     ) public override onlyRole(OPERATER_ROLE) {
-        emit RewardClaimed(devAddress, stakerAddress, claimedAmount);
+        emit StakeRewardClaimed(devAddress, stakerAddress, claimedAmount);
     }
 
     function emitDevRewardClaimed(
@@ -237,7 +238,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function getTotalUnclaimedRewards(
         address user
     ) external view override returns (uint256) {
-        EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[user];
+        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[user];
         uint256 totalUnclaimedRewards = 0;
         address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
@@ -286,17 +287,6 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
     // --------------------- setters ---------------------
     /**
-     * @notice Set the default share coefficient
-     * @param _defaultShareCoeff New default share coefficient
-     */
-    function setDefaultShareCoeff(
-        uint256 _defaultShareCoeff
-    ) public onlyOwner returns (uint256) {
-        defaultShareCoeff = _defaultShareCoeff;
-        return defaultShareCoeff;
-    }
-
-    /**
      * @notice Set the default inflation rate
      * @param _defaultInflationRate New default inflation rate
      */
@@ -305,16 +295,5 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     ) public onlyOwner returns (uint256) {
         defaultInflationRate = _defaultInflationRate;
         return defaultInflationRate;
-    }
-
-    /**
-     * @notice Set the default maxPPM
-     * @param _defaultMaxPPM New default maxPPM
-     */
-    function setDefaultMaxPPM(
-        uint256 _defaultMaxPPM
-    ) public onlyOwner returns (uint256) {
-        defaultMaxPPM = _defaultMaxPPM;
-        return defaultMaxPPM;
     }
 }
