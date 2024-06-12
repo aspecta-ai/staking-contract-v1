@@ -186,7 +186,9 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     /// Getters
 
-    function getClaimableStakeReward() external view returns (uint256) {
+    function getClaimableStakeReward(
+        address staker
+    ) external view returns (uint256) {
         uint256 blockNum = block.number;
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
@@ -202,9 +204,9 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             totalSupply();
         return
             ((MAX_PPB - rewardCut) *
-                balanceOf(tx.origin) *
+                balanceOf(staker) *
                 (currentRewardPerShare -
-                    stakerStates[tx.origin].lastRewardPerShare)) /
+                    stakerStates[staker].lastRewardPerShare)) /
             MAX_PPB /
             FIXED_POINT_SCALING_FACTOR;
     }

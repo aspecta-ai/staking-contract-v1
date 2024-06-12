@@ -244,7 +244,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
             totalUnclaimedRewards += AspectaDevPool(devPools[dev])
-                .getClaimableStakeReward();
+                .getClaimableStakeReward(user);
         }
         return totalUnclaimedRewards;
     }
