@@ -75,7 +75,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             tx.origin == developer,
             "AspectaDevPool: Only developer can claim dev reward"
         );
-        uint256 reward = (rewardCut *
+        uint256 reward = totalSupply() * (rewardCut *
             (rewardPerShare - devLastRewardPerShare)) /
             MAX_PPT /
             FIXED_POINT_SCALING_FACTOR;
@@ -160,5 +160,38 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     function updateBuildIndex(uint256 _buildIndex) external onlyOwner {
         buildIndex = _buildIndex;
+    }
+
+    function getClaimableStakeReward() external view returns (uint256) {
+        uint256 blockNum = block.number;
+        if (blockNum <= lastRewardedBlockNum) {
+            return;
+        }
+        uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
+            address(this)
+        );
+        uint256 reward = (totalStake *
+            (blockNum - lastRewardedBlockNum) *
+            inflationRate *
+            buildIndex) /
+            MAX_PPT /
+            MAX_PPT;
+        uint256 currentRewardPerShare = rewardPerShare + (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
+        return (MAX_PPT - rewardCut) * balanceOf(tx.origin) * (currentRewardPerShare - stakerStates[tx.origin].lastRewardPerShare) / MAX_PPT / FIXED_POINT_SCALING_FACTOR;
+    }
+
+    function getClaimableDevReward() external view returns (uint256) {
+        uint256 blockNum = block.number;
+        if (blockNum <= lastRewardedBlockNum) {
+            return;
+        }
+        uint256 reward = (totalStake *
+            (blockNum - lastRewardedBlockNum) *
+            inflationRate *
+            buildIndex) /
+            MAX_PPT /
+            MAX_PPT;
+        uint256 currentRewardPerShare = rewardPerShare + (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
+        return totalSupply() * rewardCut * (currentRewardPerShare - devLastRewardPerShare) / MAX_PPT / FIXED_POINT_SCALING_FACTOR;
     }
 }
