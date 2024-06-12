@@ -20,6 +20,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 _inflationRate,
         uint256 _shareDecayRate,
         uint256 _rewardCut,
+        uint256 _defaultLockPeriod,
     ) public initializer {
         __ERC20_init("Aspecta Dev Pool", "ADP");
         __Ownable_init(msg.sender);
@@ -28,6 +29,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         inflationRate = _inflationRate;
         shareDecayRate = _shareDecayRate;
         rewardCut = _rewardCut;
+        defaultLockPeriod = _defaultLockPeriod;
         lastRewardedBlockNum = block.number;
         shareCoeff = FIXED_POINT_SCALING_FACTOR;
     }
@@ -108,10 +110,15 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         token.transferFrom(staker, address(this), _amount);
         _mint(staker, shareAmount);
         stakerStates[staker].stakeAmount += _amount;
+        stakerStates[staker].unlockTime = block.timestamp + defaultLockPeriod;
         IAspectaDevPoolFactory(owner()).emitDevStaked(developer, staker, _amount, shareAmount, token.balanceOf(address(this)), totalSupply());
     }
 
     function _withdraw(uint256 _amount) internal {
+        require(
+            stakerStates[tx.origin].unlockTime <= block.timestamp,
+            "AspectaDevPool: Stake is locked"
+        );
         IAspectaBuildingPoint token = IAspectaBuildingPoint(aspectaToken);
         address staker = tx.origin;
         StakerState storage stakerState = stakerStates[tx.origin];
