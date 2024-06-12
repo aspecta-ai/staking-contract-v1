@@ -7,7 +7,7 @@ import {AspectaDevPool} from "../../contracts/AspectaDevPool/AspectaDevPool.sol"
 import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
 contract AspectaDevPoolTest is Test {
-    uint256 private constant MAX_PPT = 1e9;
+    uint256 private constant MAX_PPB = 1e9;
 
     AspectaDevPool devPool;
     AspectaBuildingPoint aspToken;
@@ -41,11 +41,12 @@ contract AspectaDevPoolTest is Test {
         // Deploy AspectaProtocol contract
         devPool = new AspectaDevPool();
         devPool.initialize(
+            factory,
             alice,
             address(aspToken),
-            (3 * MAX_PPT) / 1e7,
+            (3 * MAX_PPB) / 1e7,
             1e3,
-            (3 * MAX_PPT) / 10,
+            (3 * MAX_PPB) / 10
         );
         devPool.updateBuildIndex(8e9);
 
@@ -98,9 +99,9 @@ contract AspectaDevPoolTest is Test {
         devPool.claimStakeReward();
 
         // bob and carol should receive reward, no reward for new staker derek
-        // bob staked earlier, should get more reward
         assertGt(aspToken.balanceOf(bob), 0);
         assertGt(aspToken.balanceOf(carol), 0);
+        // bob staked earlier, should get more reward
         assertGt(aspToken.balanceOf(bob), aspToken.balanceOf(carol));
 
         /*
