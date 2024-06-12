@@ -38,8 +38,6 @@ abstract contract AspectaDevPoolStorageV1 is
 
     uint256 public shareCoeff;
 
-    uint256 internal maxPPM;
-
     mapping(address => StakerState) public stakerStates;
 
     uint256[50] private __gap;

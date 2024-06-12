@@ -38,12 +38,15 @@ interface IAspectaDevPoolFactory {
         uint256 totalShare
     );
 
-    /// @notice Emmitted when rewards are claimed
-    event RewardClaimed(
+    /// @notice Emmitted when stake rewards are claimed
+    event StakeRewardClaimed(
         address indexed devAddress,
         address indexed stakerAddress,
         uint256 claimedAmount
     );
+
+    /// @notice Emmitted when dev rewards are claimed
+    event DevRewardClaimed(address indexed devAddress, uint256 claimedAmount);
 
     // ---- setters for the default values of the pool ----
     /**

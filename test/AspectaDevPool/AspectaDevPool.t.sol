@@ -7,7 +7,7 @@ import {AspectaDevPool} from "../../contracts/AspectaDevPool/AspectaDevPool.sol"
 import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
 contract AspectaDevPoolTest is Test {
-    uint256 private constant MAX_PPM = 1e10;
+    uint256 private constant MAX_PPT = 1e9;
 
     AspectaDevPool devPool;
     AspectaBuildingPoint aspToken;
@@ -43,10 +43,9 @@ contract AspectaDevPoolTest is Test {
         devPool.initialize(
             alice,
             address(aspToken),
-            (3 * MAX_PPM) / 1e7,
+            (3 * MAX_PPT) / 1e7,
             1e3,
-            (3 * MAX_PPM) / 10,
-            MAX_PPM
+            (3 * MAX_PPT) / 10,
         );
         devPool.updateBuildIndex(8e9);
 
