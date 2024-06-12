@@ -2,8 +2,8 @@
 
 pragma solidity ^0.8.25;
 import "forge-std/console.sol";
-import {Initializable} from "openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol";
-import {Math} from "openzeppelin-contracts/contracts/utils/math/Math.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {AspectaBuildingPointUtils} from "../AspectaBuildingPoint/AspectaBuildingPointUtils.sol";
 import {AspectaDevPoolStorageV1} from "./AspectaDevPoolStorage.sol";
 import {IAspectaBuildingPoint} from "../AspectaBuildingPoint/IAspectaBuildingPoint.sol";
