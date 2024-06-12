@@ -1,9 +1,13 @@
 {
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.588.0",
+    "@nomicfoundation/hardhat-ethers": "^3.0.6",
     "@nomicfoundation/hardhat-foundry": "^1.1.2",
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts-upgradeable": "^5.0.2",
+    "@openzeppelin/hardhat-upgrades": "^3.1.1",
     "dotenv": "^16.4.5",
+    "ethers": "^6.13.0",
     "hardhat": "^2.22.5"
   },
   "devDependencies": {
