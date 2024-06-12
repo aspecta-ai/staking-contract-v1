@@ -19,18 +19,22 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address initialOwner,
         address aspTokenAddress,
         address poolLogic,
-        uint256 _defaultShareCoeff,
         uint256 _defaultInflationRate,
+        uint256 _defaultShareDecayRate,
+        uint256 _defaultRewardCut,
         uint256 _defaultMaxPPM
     ) public initializer {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
+        _grantRole(OPERATER_ROLE, initialOwner);
 
         beacon = new UpgradeableBeacon(poolLogic, msg.sender);
 
         aspectaBuildingPoint = AspectaBuildingPoint(aspTokenAddress);
-        defaultShareCoeff = _defaultShareCoeff;
         defaultInflationRate = _defaultInflationRate;
+        defaultShareDecayRate = _defaultShareDecayRate;
+        defaultRewardCut = _defaultRewardCut;
         defaultMaxPPM = _defaultMaxPPM;
     }
 
@@ -52,25 +56,31 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             devPools[dev] == address(0),
             "AspectaDevPoolFactory: Pool already exists for dev"
         );
-        // TODO: AspectaDevPool initialize may take more parameters
+
+        // Create a new pool for the dev
         BeaconProxy poolProxy = new BeaconProxy(
             address(beacon),
             abi.encodeWithSelector(
                 AspectaDevPool(address(0)).initialize.selector,
                 dev,
-                defaultShareCoeff,
+                address(aspectaBuildingPoint),
                 defaultInflationRate,
+                defaultShareDecayRate,
+                defaultRewardCut,
                 defaultMaxPPM
             )
         );
         devPools[dev] = address(poolProxy);
         allPools.push(address(poolProxy));
 
-        // Grant operator role to dev
+        // Grant operator role of AspectaBuildingPoint to pool
         aspectaBuildingPoint.grantRole(
             aspectaBuildingPoint.getOperaterRole(),
             address(poolProxy)
         );
+
+        // Grant operator role of factory to pool
+        grantRole(OPERATER_ROLE, address(poolProxy));
 
         emit DevPoolCreated(dev, address(poolProxy));
         return address(poolProxy);
@@ -92,20 +102,8 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         // Stake tokens in dev pool
         AspectaDevPool devPool = AspectaDevPool(devPoolAddr);
-        devPool.stake(msg.sender, amount);
+        devPool.stake(amount);
         stakedDevSet[msg.sender].add(dev);
-
-        // Emit event
-        uint256 stakeAmount = devPool.getStakes(msg.sender);
-        uint256 shareAmount = devPool.getShares(msg.sender);
-        emit DevStaked(
-            dev,
-            msg.sender,
-            stakeAmount,
-            shareAmount,
-            aspectaBuildingPoint.balanceOf(devPoolAddr),
-            devPool.totalSupply()
-        );
     }
 
     /**
@@ -118,39 +116,24 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             "AspectaDevPoolFactory: Pool does not exist for dev"
         );
 
-        // TODO: AspectaDevPool constructor may take more parameters
         AspectaDevPool devPool = AspectaDevPool(devPools[dev]);
-        uint256 stakeAmount = devPool.getStakes(msg.sender);
-        uint256 shareAmount = devPool.getShares(msg.sender);
 
         // Withdraw all staked tokens from dev pool
-        devPool.withdraw(msg.sender);
+        devPool.withdraw();
 
         // Remove dev from staked devs
         stakedDevSet[msg.sender].remove(dev);
-
-        emit StakeWithdrawn(
-            dev,
-            msg.sender,
-            stakeAmount,
-            shareAmount,
-            aspectaBuildingPoint.balanceOf(devPools[dev]),
-            devPool.totalSupply()
-        );
     }
 
     /**
-     * @dev Claim rewards for a dev/staker with all staked devs
+     * @dev Claim rewards for a staker with all staked devs
      */
-    function claimRewards() external override {
+    function claimStakeReward() external override {
         EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[msg.sender];
-        uint256 claimedAmount;
+        address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
-            address dev = stakedDevs.at(i);
-            claimedAmount = AspectaDevPool(devPools[dev]).claimRewards(
-                msg.sender
-            );
-            emit RewardClaimed(dev, msg.sender, claimedAmount);
+            dev = stakedDevs.at(i);
+            AspectaDevPool(devPools[dev]).claimStakeReward();
         }
     }
 
@@ -159,22 +142,93 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @notice Allows the owner to claim rewards for max 10 devs at a time
      * @param devs Dev addresses
      */
-    function claimRewards(address[] calldata devs) external override {
+    function claimStakeReward(address[] calldata devs) external override {
         require(
             devs.length <= 10,
             "AspectaDevPoolFactory: Max 10 devs can be claimed at a time"
         );
         address dev;
-        uint256 claimedAmount;
         for (uint32 i = 0; i < devs.length; i++) {
             dev = devs[i];
-            claimedAmount = AspectaDevPool(devPools[dev]).claimRewards(
-                msg.sender
-            );
-            emit RewardClaimed(dev, msg.sender, claimedAmount);
+            AspectaDevPool(devPools[dev]).claimStakeReward();
         }
     }
 
+    /**
+     * @dev Claim rewards for a dev
+     */
+    function claimDevReward() external override {
+        AspectaDevPool(devPools[msg.sender]).claimDevReward();
+    }
+
+    /**
+     * @dev Update the build index
+     * @param _buildIndex New build index
+     */
+    function updateBuildIndex(
+        address dev,
+        uint256 _buildIndex
+    ) external override onlyOwner {
+        require(
+            devPools[dev] != address(0),
+            "AspectaDevPoolFactory: Pool does not exist for dev"
+        );
+        AspectaDevPool(devPools[dev]).updateBuildIndex(_buildIndex);
+    }
+
+    // ------------------- event router ------------------
+    function emitStakeRewardClaimed(
+        address devAddress,
+        address stakerAddress,
+        uint256 claimedAmount
+    ) public override onlyRole(OPERATER_ROLE) {
+        emit RewardClaimed(devAddress, stakerAddress, claimedAmount);
+    }
+
+    function emitDevRewardClaimed(
+        address devAddress,
+        uint256 claimedAmount
+    ) public override onlyRole(OPERATER_ROLE) {
+        emit DevRewardClaimed(devAddress, claimedAmount);
+    }
+
+    function emitDevStaked(
+        address devAddress,
+        address stakerAddress,
+        uint256 stakeAmount,
+        uint256 shareAmount,
+        uint256 totalStake,
+        uint256 totalShare
+    ) public override onlyRole(OPERATER_ROLE) {
+        emit DevStaked(
+            devAddress,
+            stakerAddress,
+            stakeAmount,
+            shareAmount,
+            totalStake,
+            totalShare
+        );
+    }
+
+    function emitStakeWithdrawn(
+        address devAddress,
+        address stakerAddress,
+        uint256 stakeAmount,
+        uint256 shareAmount,
+        uint256 totalStake,
+        uint256 totalShare
+    ) public override onlyRole(OPERATER_ROLE) {
+        emit StakeWithdrawn(
+            devAddress,
+            stakerAddress,
+            stakeAmount,
+            shareAmount,
+            totalStake,
+            totalShare
+        );
+    }
+
+    // --------------------- getters ---------------------
     /**
      * @dev Get total unclaimed rewards for a dev/staker
      * @param user Dev/Staker address
