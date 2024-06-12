@@ -233,7 +233,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     /**
      * @dev Get total unclaimed rewards for a dev/staker
      * @param user Dev/Staker address
-     * @return Total unclaimed rewards
+     * @return totalUnclaimedRewards Total unclaimed rewards
      */
     function getTotalUnclaimedRewards(
         address user
@@ -244,7 +244,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
             totalUnclaimedRewards += AspectaDevPool(devPools[dev])
-                .getUnclaimedRewards(user);
+                .getClaimableStakeReward();
         }
         return totalUnclaimedRewards;
     }
@@ -257,13 +257,13 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function getStakingList(
         address user
     ) external view override returns (address[] memory, uint256[] memory) {
-        EnumerableSet.AddressSet memory stakedDevs = stakedDevSet[user];
+        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[user];
         uint256[] memory shares = new uint256[](stakedDevs.length());
         address dev;
 
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
-            shares[i] = AspectaDevPool(devPools[dev]).getShares(user);
+            shares[i] = AspectaDevPool(devPools[dev]).balanceOf(user);
         }
         return (stakedDevs.values(), shares);
     }

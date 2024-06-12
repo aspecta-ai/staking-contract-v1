@@ -41,11 +41,13 @@ contract AspectaDevPoolTest is Test {
         // Deploy AspectaProtocol contract
         devPool = new AspectaDevPool();
         devPool.initialize(
+            address(0),
             alice,
             address(aspToken),
             (3 * MAX_PPT) / 1e7,
             1e3,
             (3 * MAX_PPT) / 10,
+            28 days
         );
         devPool.updateBuildIndex(8e9);
 
