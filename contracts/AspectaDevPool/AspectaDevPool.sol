@@ -141,9 +141,13 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         _burn(staker, shareAmount);
         stakerState.stakeAmount = 0;
 
-        shareCoeff =
-            (totalSupply() * FIXED_POINT_SCALING_FACTOR) /
-            _expectedTotalShare(token.balanceOf(address(this)));
+        if (token.balanceOf(address(this)) > 0) {
+            shareCoeff =
+                (totalSupply() * FIXED_POINT_SCALING_FACTOR) /
+                _expectedTotalShare(token.balanceOf(address(this)));
+        } else {
+            shareCoeff = FIXED_POINT_SCALING_FACTOR;
+        }
         IAspectaDevPoolFactory(factory).emitStakeWithdrawn(
             developer,
             staker,

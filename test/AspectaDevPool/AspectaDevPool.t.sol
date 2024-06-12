@@ -26,6 +26,8 @@ contract AspectaDevPoolTest is Test {
     address derek;
     uint256 derekPK;
 
+    uint256 rewardCut = (6 * MAX_PPB) / 10;
+
     function setUp() public {
         (alice, alicePK) = makeAddrAndKey("alice");
         (bob, bobPK) = makeAddrAndKey("bob");
@@ -50,12 +52,13 @@ contract AspectaDevPoolTest is Test {
             address(devPool),
             (3 * MAX_PPB) / 1e7,
             1e3,
-            (3 * MAX_PPB) / 10,
+            rewardCut,
             0 seconds
         );
 
         aspToken.mint(alice, 1e18);
         factory.stake(alice, 1e18);
+        factory.withdraw(alice);
         factory.updateBuildIndex(alice, 8e9);
         devPool = AspectaDevPool(factory.getPool(alice));
     }
@@ -205,11 +208,58 @@ contract AspectaDevPoolTest is Test {
         vm.startPrank(derek, derek);
         devPool.claimStakeReward();
 
-        // derek should have same reward
+        /// derek should have same reward
         equalWithTolerance(
             aspToken.balanceOf(derek) - derekBalance,
             derekReward,
             1e18
         );
+    }
+
+    function testDevReward() public {
+        uint256 unitStake = 1000e18;
+        uint256 unitTime = 300;
+        aspToken.mint(bob, unitStake);
+        aspToken.mint(carol, unitStake);
+        aspToken.mint(derek, unitStake);
+
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // derek stakes
+        vm.startPrank(derek, derek);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // bob claims dev reward
+        vm.startPrank(bob, bob);
+        vm.expectRevert("AspectaDevPool: Only developer can claim dev reward");
+        devPool.claimDevReward();
+
+        // alice claims dev reward
+        vm.startPrank(alice, alice);
+        uint256 aliceBalance = aspToken.balanceOf(alice);
+        devPool.claimDevReward();
+        uint256 devReward = aspToken.balanceOf(alice) - aliceBalance;
+
+        // alice should be the sum of dev reward / (1 - reward cut)
+        vm.startPrank(bob, bob);
+        devPool.claimStakeReward();
+        vm.startPrank(carol, carol);
+        devPool.claimStakeReward();
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+        uint256 totalReward = aspToken.balanceOf(bob) +
+            aspToken.balanceOf(carol) +
+            aspToken.balanceOf(derek);
+        totalReward = (totalReward * rewardCut) / (MAX_PPB - rewardCut);
+        equalWithTolerance(devReward, totalReward, 1e18);
     }
 }
