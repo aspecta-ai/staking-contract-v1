@@ -4,10 +4,8 @@ pragma solidity ^0.8.25;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
-import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
-
 import "./IAspectaDevPoolFactory.sol";
 import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
@@ -27,8 +25,8 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     using EnumerableSet for EnumerableSet.AddressSet;
 
     // --------------------- beacon ---------------------
-    /// @notice Immutable beacon contract
-    UpgradeableBeacon immutable beacon;
+    /// @notice beacon contract
+    UpgradeableBeacon beacon;
 
     // ------------------ acess control -----------------
     bytes32 public constant OPERATER_ROLE = keccak256("OPERATER_ROLE");
