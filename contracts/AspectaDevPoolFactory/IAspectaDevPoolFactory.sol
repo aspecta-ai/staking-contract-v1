@@ -124,12 +124,17 @@ interface IAspectaDevPoolFactory {
     ) external;
 
     /**
-     * @dev Get total unclaimed rewards for a dev/staker
-     * @param user Dev/Staker address
+     * @dev Get total claimable reward for a staker
+     * @param staker Staker address
      */
-    function getTotalUnclaimedRewards(
-        address user
+    function getTotalClaimableStakeReward(
+        address staker
     ) external view returns (uint256);
+
+    /**
+     * @dev Get total claimable stake reward for a dev
+     */
+    function getTotalClaimableDevReward() external view returns (uint256);
 
     /**
      * @dev Get total staked amount for a dev/staker

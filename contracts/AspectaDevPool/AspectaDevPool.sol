@@ -129,14 +129,14 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     }
 
     function _withdraw() internal {
+        address staker = tx.origin;
         require(
-            stakerStates[tx.origin].unlockTime <= block.timestamp,
+            stakerStates[staker].unlockTime <= block.timestamp,
             "AspectaDevPool: Stake is locked"
         );
         IAspectaBuildingPoint token = IAspectaBuildingPoint(aspectaToken);
-        address staker = tx.origin;
-        StakerState storage stakerState = stakerStates[tx.origin];
-        uint256 shareAmount = balanceOf(msg.sender);
+        StakerState storage stakerState = stakerStates[staker];
+        uint256 shareAmount = balanceOf(staker);
         uint256 stakeAmount = stakerState.stakeAmount;
         token.transfer(staker, stakeAmount);
         _burn(staker, shareAmount);

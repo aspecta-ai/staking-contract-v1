@@ -229,22 +229,35 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
     // --------------------- getters ---------------------
     /**
-     * @dev Get total unclaimed rewards for a dev/staker
-     * @param user Dev/Staker address
-     * @return totalUnclaimedRewards Total unclaimed rewards
+     * @dev Get total claimable stake reward for a staker
+     * @param staker Staker address
+     * @return totalClaimableStakeReward Total claimable stake reward
      */
-    function getTotalUnclaimedRewards(
-        address user
+    function getTotalClaimableStakeReward(
+        address staker
     ) external view override returns (uint256) {
-        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[user];
-        uint256 totalUnclaimedRewards = 0;
+        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[staker];
+        uint256 totalClaimableStakeReward = 0;
         address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
-            totalUnclaimedRewards += IAspectaDevPool(devPools[dev])
-                .getClaimableStakeReward(user);
+            totalClaimableStakeReward += IAspectaDevPool(devPools[dev])
+                .getClaimableStakeReward(staker);
         }
-        return totalUnclaimedRewards;
+        return totalClaimableStakeReward;
+    }
+
+    /**
+     * @dev Get total claimable stake reward for a dev
+     * @return totalClaimableDevReward Total claimable dev reward
+     */
+    function getTotalClaimableDevReward()
+        external
+        view
+        override
+        returns (uint256)
+    {
+        return IAspectaDevPool(devPools[msg.sender]).getClaimableDevReward();
     }
 
     /**

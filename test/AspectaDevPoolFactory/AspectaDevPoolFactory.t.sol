@@ -65,9 +65,6 @@ contract AspectaDevPoolFactoryTest is Test {
             (6 * MAX_PPB) / 10,
             0 seconds
         );
-        console.log("Factory address: ", address(factory));
-        console.log("DevPool address: ", address(devPool));
-
     }
 
     function testAllFactory() public {
@@ -137,51 +134,51 @@ contract AspectaDevPoolFactoryTest is Test {
         // Alice claims rewards
         vm.startPrank(alice, alice);
         factory.claimStakeReward();
-        assertEq(devPool.getClaimableStakeReward(alice), 0);
+        assertEq(factory.getTotalClaimableStakeReward(alice), 0);
 
         // Dev claims rewards
         vm.startPrank(dev, dev);
         factory.claimDevReward();
-        assertEq(devPool.getClaimableDevReward(), 0);
+        assertEq(factory.getTotalClaimableDevReward(), 0);
 
         /// ----------------------------------
         /// ---------- Test Withdraw ---------
         /// ----------------------------------
 
-        // // Alice withdraws
-        // vm.startPrank(alice, alice);
-        // factory.withdraw(dev);
-        // assertEq(devPool.getStakes(), 0);
-        // assertEq(aspBuildingPoint.balanceOf(alice), aliceStakes);
-        // assertEq(devPool.balanceOf(alice), 0);
-        // assertEq(
-        //     aspBuildingPoint.balanceOf(address(devPool)),
-        //     bobStakes + carolStakes
-        // );
-        // // assertEq(devPool.totalSupply(), bobShares + carolShares);
-        // aliceStakedDevs = factory.getStakedDevs(alice);
-        // assertEq(aliceStakedDevs.length, 0);
+        // Alice withdraws
+        vm.startPrank(alice, alice);
+        factory.withdraw(dev);
+        assertEq(devPool.getStakes(), 0);
+        assertEq(aspBuildingPoint.balanceOf(alice), aliceStakes);
+        assertEq(devPool.balanceOf(alice), 0);
+        assertEq(
+            aspBuildingPoint.balanceOf(address(devPool)),
+            bobStakes + carolStakes
+        );
+        assertEq(devPool.totalSupply(), bobShares + carolShares);
+        aliceStakedDevs = factory.getStakedDevs(alice);
+        assertEq(aliceStakedDevs.length, 0);
 
-        // // Bob withdraws
-        // vm.startPrank(bob, bob);
-        // factory.withdraw(dev);
-        // assertEq(devPool.getStakes(), 0);
-        // assertEq(aspBuildingPoint.balanceOf(bob), bobStakes);
-        // assertEq(devPool.balanceOf(bob), 0);
-        // assertEq(aspBuildingPoint.balanceOf(address(devPool)), carolStakes);
-        // // assertEq(devPool.totalSupply(), carolShares);
-        // bobStakedDevs = factory.getStakedDevs(bob);
-        // assertEq(bobStakedDevs.length, 0);
+        // Bob withdraws
+        vm.startPrank(bob, bob);
+        factory.withdraw(dev);
+        assertEq(devPool.getStakes(), 0);
+        assertEq(aspBuildingPoint.balanceOf(bob), bobStakes);
+        assertEq(devPool.balanceOf(bob), 0);
+        assertEq(aspBuildingPoint.balanceOf(address(devPool)), carolStakes);
+        assertEq(devPool.totalSupply(), carolShares);
+        bobStakedDevs = factory.getStakedDevs(bob);
+        assertEq(bobStakedDevs.length, 0);
 
-        // // Carol withdraws
-        // vm.startPrank(carol, carol);
-        // factory.withdraw(dev);
-        // assertEq(devPool.getStakes(), 0);
-        // assertEq(aspBuildingPoint.balanceOf(carol), carolStakes);
-        // assertEq(devPool.balanceOf(carol), 0);
-        // assertEq(aspBuildingPoint.balanceOf(address(devPool)), 0);
-        // carolStakedDevs = factory.getStakedDevs(carol);
-        // assertEq(carolStakedDevs.length, 0);
+        // Carol withdraws
+        vm.startPrank(carol, carol);
+        factory.withdraw(dev);
+        assertEq(devPool.getStakes(), 0);
+        assertEq(aspBuildingPoint.balanceOf(carol), carolStakes);
+        assertEq(devPool.balanceOf(carol), 0);
+        assertEq(aspBuildingPoint.balanceOf(address(devPool)), 0);
+        carolStakedDevs = factory.getStakedDevs(carol);
+        assertEq(carolStakedDevs.length, 0);
     }
 
     function testNonExistPoolWithdraw() public {
@@ -189,10 +186,15 @@ contract AspectaDevPoolFactoryTest is Test {
         factory.withdraw(dev);
     }
 
-    // function testNonStakerClaimRewards() public {
-    //     vm.startPrank(asp, asp);
-    //     factory.createPool(dev);
-    //     vm.expectRevert(bytes("AspectaDevPoolFactory: Staker has no stakes"));
-    //     factory.claimRewards();
-    // }
+    function testNonOperatorEmits() public {
+        vm.startPrank(alice, alice);
+        vm.expectRevert();
+        factory.emitDevRewardClaimed(dev, 100);
+    }
+
+    function testNonOwnerUpdateBuildIndex() public {
+        vm.startPrank(alice, alice);
+        vm.expectRevert();
+        factory.updateBuildIndex(dev, 100);
+    }
 }
