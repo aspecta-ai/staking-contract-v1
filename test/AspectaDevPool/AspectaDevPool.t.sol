@@ -39,10 +39,10 @@ contract AspectaDevPoolTest is Test {
         // Create a fork of the network
         vm.createSelectFork("https://bsc-testnet-rpc.publicnode.com");
 
-        // Deploy ASP token
+        // Deploy BP token
         aspToken = new AspectaBuildingPoint(address(alice));
 
-        // Deploy AspectaProtocol contract
+        // Deploy factory contract
         factory = new AspectaDevPoolFactory();
         aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
         devPool = new AspectaDevPool();

@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 import "./AspectaDevPoolFactoryStorage.sol";
 import "../AspectaDevPool/AspectaDevPool.sol";
+import "../AspectaDevPool/IAspectaDevPool.sol";
 import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
 /**
@@ -27,7 +28,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
-        _grantRole(OPERATER_ROLE, initialOwner);
+        _grantRole(OPERATOR_ROLE, initialOwner);
 
         beacon = new UpgradeableBeacon(poolLogic, msg.sender);
 
@@ -51,7 +52,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @notice This function will be called in `stake` if pool does not exist
      * @param dev Dev address
      */
-    function createPool(address dev) internal returns (address) {
+    function _createPool(address dev) internal returns (address) {
         require(
             devPools[dev] == address(0),
             "AspectaDevPoolFactory: Pool already exists for dev"
@@ -76,12 +77,12 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         // Grant operator role of AspectaBuildingPoint to pool
         aspectaBuildingPoint.grantRole(
-            aspectaBuildingPoint.getOperaterRole(),
+            aspectaBuildingPoint.getOperatorRole(),
             address(poolProxy)
         );
 
         // Grant operator role of factory to pool
-        grantRole(OPERATER_ROLE, address(poolProxy));
+        _grantRole(OPERATOR_ROLE, address(poolProxy));
 
         emit DevPoolCreated(dev, address(poolProxy));
         return address(poolProxy);
@@ -96,14 +97,13 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address devPoolAddr;
         // If pool does not exist, create one
         if (devPools[dev] == address(0)) {
-            devPoolAddr = createPool(dev);
+            devPoolAddr = _createPool(dev);
         } else {
             devPoolAddr = devPools[dev];
         }
 
         // Stake tokens in dev pool
-        AspectaDevPool devPool = AspectaDevPool(devPoolAddr);
-        devPool.stake(amount);
+        IAspectaDevPool(devPoolAddr).stake(amount);
         stakedDevSet[msg.sender].add(dev);
     }
 
@@ -117,10 +117,8 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             "AspectaDevPoolFactory: Pool does not exist for dev"
         );
 
-        AspectaDevPool devPool = AspectaDevPool(devPools[dev]);
-
         // Withdraw all staked tokens from dev pool
-        devPool.withdraw();
+        IAspectaDevPool(devPools[dev]).withdraw();
 
         // Remove dev from staked devs
         stakedDevSet[msg.sender].remove(dev);
@@ -134,7 +132,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
-            AspectaDevPool(devPools[dev]).claimStakeReward();
+            IAspectaDevPool(devPools[dev]).claimStakeReward();
         }
     }
 
@@ -151,7 +149,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev;
         for (uint32 i = 0; i < devs.length; i++) {
             dev = devs[i];
-            AspectaDevPool(devPools[dev]).claimStakeReward();
+            IAspectaDevPool(devPools[dev]).claimStakeReward();
         }
     }
 
@@ -159,7 +157,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Claim rewards for a dev
      */
     function claimDevReward() external override {
-        AspectaDevPool(devPools[msg.sender]).claimDevReward();
+        IAspectaDevPool(devPools[msg.sender]).claimDevReward();
     }
 
     /**
@@ -174,7 +172,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             devPools[dev] != address(0),
             "AspectaDevPoolFactory: Pool does not exist for dev"
         );
-        AspectaDevPool(devPools[dev]).updateBuildIndex(_buildIndex);
+        IAspectaDevPool(devPools[dev]).updateBuildIndex(_buildIndex);
     }
 
     // ------------------- event router ------------------
@@ -182,14 +180,14 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address devAddress,
         address stakerAddress,
         uint256 claimedAmount
-    ) public override onlyRole(OPERATER_ROLE) {
+    ) public override onlyRole(OPERATOR_ROLE) {
         emit StakeRewardClaimed(devAddress, stakerAddress, claimedAmount);
     }
 
     function emitDevRewardClaimed(
         address devAddress,
         uint256 claimedAmount
-    ) public override onlyRole(OPERATER_ROLE) {
+    ) public override onlyRole(OPERATOR_ROLE) {
         emit DevRewardClaimed(devAddress, claimedAmount);
     }
 
@@ -200,7 +198,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 shareAmount,
         uint256 totalStake,
         uint256 totalShare
-    ) public override onlyRole(OPERATER_ROLE) {
+    ) public override onlyRole(OPERATOR_ROLE) {
         emit DevStaked(
             devAddress,
             stakerAddress,
@@ -218,7 +216,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 shareAmount,
         uint256 totalStake,
         uint256 totalShare
-    ) public override onlyRole(OPERATER_ROLE) {
+    ) public override onlyRole(OPERATOR_ROLE) {
         emit StakeWithdrawn(
             devAddress,
             stakerAddress,
@@ -243,7 +241,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
-            totalUnclaimedRewards += AspectaDevPool(devPools[dev])
+            totalUnclaimedRewards += IAspectaDevPool(devPools[dev])
                 .getClaimableStakeReward(user);
         }
         return totalUnclaimedRewards;
@@ -268,8 +266,22 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         return (stakedDevs.values(), shares);
     }
 
+    /**
+     * @dev Get dev pool
+     * @return pool Dev pool address
+     */
     function getPool(address dev) external view returns (address) {
         return devPools[dev];
+    }
+
+    /**
+     * @dev Get all staked devs for a staker
+     * @return pools All dev pool addresses
+     */
+    function getStakedDevs(
+        address user
+    ) external view returns (address[] memory) {
+        return stakedDevSet[user].values();
     }
 
     // --------------------- beacon ---------------------

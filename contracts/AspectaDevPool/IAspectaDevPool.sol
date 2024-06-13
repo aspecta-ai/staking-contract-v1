@@ -19,30 +19,6 @@ interface IAspectaDevPool {
         uint256 unlockTime;
     }
 
-    event DevStaked(
-        address indexed devAddress,
-        address indexed stakerAddress,
-        uint256 stakeAmount,
-        uint256 shareAmount,
-        uint256 totalStake,
-        uint256 totalShare
-    );
-
-    event StakeWithdrawn(
-        address indexed devAddress,
-        address indexed stakerAddress,
-        uint256 stakeAmount,
-        uint256 shareAmount,
-        uint256 totalStake,
-        uint256 totalShare
-    );
-
-    event RewardClaimed(
-        address indexed devAddress,
-        address indexed stakerAddress,
-        uint256 claimedAmount
-    );
-
     function stake(uint256 _amount) external;
 
     function withdraw() external;
@@ -52,4 +28,8 @@ interface IAspectaDevPool {
     function claimDevReward() external;
 
     function updateBuildIndex(uint256 _buildIndex) external;
+
+    function getClaimableStakeReward(address staker) external view returns (uint256);
+
+    function getClaimableDevReward() external view returns (uint256);
 }

@@ -29,8 +29,8 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     /// @notice beacon contract
     UpgradeableBeacon beacon;
 
-    // ------------------ acess control -----------------
-    bytes32 public constant OPERATER_ROLE = keccak256("OPERATER_ROLE");
+    // ------------------ access control -----------------
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
 
     // -------------------- business --------------------
     // ----------- default values of the pool -----------

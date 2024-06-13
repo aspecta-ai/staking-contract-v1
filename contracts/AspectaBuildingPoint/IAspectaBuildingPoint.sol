@@ -15,7 +15,7 @@ interface IAspectaBuildingPoint {
 
     function mint(address _to, uint256 _amount) external;
 
-    function getOperaterRole() external view returns (bytes32);
+    function getOperatorRole() external view returns (bytes32);
 
     function transfer(address _to, uint256 _value) external returns (bool);
 

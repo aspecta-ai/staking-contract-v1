@@ -11,22 +11,22 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
  * @dev ERC20 token contract for AspectaBuildingPoint
  */
 contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
-    bytes32 public constant OPERATER_ROLE = keccak256("OPERATER_ROLE");
+    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
     constructor(address defaultAdmin) ERC20("Aspecta Building Point", "BP") {
         _mint(msg.sender, 10 * 10 ** decimals());
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
-        _grantRole(OPERATER_ROLE, defaultAdmin);
-        _setRoleAdmin(OPERATER_ROLE, FACTORY_ROLE);
+        _grantRole(OPERATOR_ROLE, defaultAdmin);
+        _setRoleAdmin(OPERATOR_ROLE, FACTORY_ROLE);
     }
 
-    function mint(address to, uint256 amount) public onlyRole(OPERATER_ROLE) {
+    function mint(address to, uint256 amount) public onlyRole(OPERATOR_ROLE) {
         _mint(to, amount);
     }
 
-    function getOperaterRole() public pure returns (bytes32) {
-        return OPERATER_ROLE;
+    function getOperatorRole() public pure returns (bytes32) {
+        return OPERATOR_ROLE;
     }
 
     function getFactoryRole() public pure returns (bytes32) {
@@ -34,12 +34,12 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
     }
 
     /**
-     * @notice Transfer is only allowed by OPERATER_ROLE
+     * @notice Transfer is only allowed by OPERATOR_ROLE
      */
     function transfer(
         address to,
         uint256 value
-    ) public virtual override onlyRole(OPERATER_ROLE) returns (bool) {
+    ) public virtual override onlyRole(OPERATOR_ROLE) returns (bool) {
         address owner = _msgSender();
         super._transfer(owner, to, value);
         return true;
@@ -49,7 +49,7 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
         address from,
         address to,
         uint256 value
-    ) public virtual override onlyRole(OPERATER_ROLE) returns (bool) {
+    ) public virtual override onlyRole(OPERATOR_ROLE) returns (bool) {
         //address spender = _msgSender();
         //_spendAllowance(from, spender, value);
         super._transfer(from, to, value);
