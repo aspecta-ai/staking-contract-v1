@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "test": "forge test",
+    "deploy": "npx hardhat run scripts/deploy.ts"
+  },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.588.0",
     "@nomicfoundation/hardhat-ethers": "^3.0.6",

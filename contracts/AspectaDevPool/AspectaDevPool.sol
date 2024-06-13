@@ -6,6 +6,7 @@ import {Math} from "@openzeppelin/contracts/utils/math/Math.sol";
 import {AspectaDevPoolStorageV1} from "./AspectaDevPoolStorage.sol";
 import {IAspectaBuildingPoint} from "../AspectaBuildingPoint/IAspectaBuildingPoint.sol";
 import {IAspectaDevPoolFactory} from "../AspectaDevPoolFactory/IAspectaDevPoolFactory.sol";
+
 /**
  * @title AspectaDevPool
  * @dev Contract for dev pools
