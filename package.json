@@ -1,7 +1,7 @@
 {
   "scripts": {
     "test": "forge test",
-    "deploy": "npx hardhat run scripts/deploy.ts"
+    "deploy": "node read_private_key.js && npx hardhat run scripts/deploy.ts --network mainnet"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.588.0",

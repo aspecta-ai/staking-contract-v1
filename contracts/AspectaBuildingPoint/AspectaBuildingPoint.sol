@@ -1,20 +1,23 @@
 // SPDX-License-Identifier: MIT
-// Compatible with OpenZeppelin Contracts ^5.0.0
+
 pragma solidity ^0.8.25;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import "./AspectaBuildingPointStorage.sol";
 
 /**
  * @title AspectaBuildingPoint
  * @dev ERC20 token contract for AspectaBuildingPoint
  */
-contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
-    bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
-    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
+contract AspectaBuildingPoint is Initializable, AspectaBuildingPointStorageV1 {
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
-    constructor(address defaultAdmin) ERC20("Aspecta Building Point", "BP") {
+    function initialize(address defaultAdmin) public initializer {
+        __ERC20_init("Aspecta Building Point", "BP");
+        __AccessControl_init();
         _mint(msg.sender, 10 * 10 ** decimals());
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(OPERATOR_ROLE, defaultAdmin);
@@ -55,4 +58,12 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
         super._transfer(from, to, value);
         return true;
     }
+
+    /**
+     * @dev Upgrade the contract
+     * @param newImplementation New implementation address
+     */
+    function _authorizeUpgrade(
+        address newImplementation
+    ) internal override onlyRole(DEFAULT_ADMIN_ROLE) {}
 }

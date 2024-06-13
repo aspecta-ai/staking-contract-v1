@@ -1,11 +1,9 @@
 import 'dotenv/config';
 import { ethers, upgrades } from 'hardhat';
 
-import { getSecretValue } from './utils';
+import { privateKey } from '../private-key';
 
 async function main() {
-    const awsRegion = process.env.AWS_REGION;
-    const secretName = process.env.AWS_SECRET_NAME;
     const jsonRPCURL = process.env.JSON_RPC_URL;
 
     const defaultInflationRate = process.env.DEFAULT_INFLATION_RATE;
@@ -14,12 +12,6 @@ async function main() {
     const defaultLockPeriod = process.env.DEFAULT_LOCK_PERIOD;
 
     // Check if the required environment variables are set
-    if (!awsRegion) {
-        throw new Error('AWS_REGION is not set');
-    }
-    if (!secretName) {
-        throw new Error('AWS_SECRET_NAME is not set');
-    }
     if (!jsonRPCURL) {
         throw new Error('JSON_RPC_URL is not set');
     }
@@ -36,12 +28,6 @@ async function main() {
     if (!defaultLockPeriod) {
         throw new Error('DEFAULT_LOCK_PERIOD is not set');
     }
-
-    // Read the private key from AWS Secrets Manager
-    const privateKey = await getSecretValue(
-        secretName as string,
-        awsRegion as string,
-    );
 
     // Create a provider instance
     const provider = new ethers.JsonRpcProvider(jsonRPCURL as string);
@@ -63,10 +49,10 @@ async function main() {
 
     const AspectaBuildingPoint = await ethers.getContractFactory(
         'AspectaBuildingPoint',
-        signer,
     );
-    const aspectaBuildingPoint = await AspectaBuildingPoint.deploy(
-        await signer.getAddress(),
+    const aspectaBuildingPoint = await upgrades.deployProxy(
+        AspectaBuildingPoint,
+        [await signer.getAddress()],
     );
     await aspectaBuildingPoint.waitForDeployment();
     console.log(
@@ -74,11 +60,7 @@ async function main() {
         await aspectaBuildingPoint.getAddress(),
     );
 
-    const AspectaDevPool = await ethers.getContractFactory(
-        'AspectaDevPool',
-        signer,
-    );
-
+    const AspectaDevPool = await ethers.getContractFactory('AspectaDevPool');
     const aspectaDevPool = await AspectaDevPool.deploy();
     await aspectaDevPool.waitForDeployment();
     console.log(
@@ -88,7 +70,6 @@ async function main() {
 
     const AspectaDevPoolFactory = await ethers.getContractFactory(
         'AspectaDevPoolFactory',
-        signer,
     );
     const aspectaDevPoolFactory = await upgrades.deployProxy(
         AspectaDevPoolFactory,

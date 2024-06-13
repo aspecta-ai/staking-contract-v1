@@ -22,3 +22,4 @@ out/
 
 # vscode files
 /.vscode
+private-key.ts
