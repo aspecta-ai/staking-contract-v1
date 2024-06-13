@@ -5,12 +5,14 @@ import "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
 import {AspectaDevPool} from "../../contracts/AspectaDevPool/AspectaDevPool.sol";
 import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
+import {AspectaDevPoolFactory} from "../../contracts/AspectaDevPoolFactory/AspectaDevPoolFactory.sol";
 
 contract AspectaDevPoolTest is Test {
-    uint256 private constant MAX_PPM = 1e10;
+    uint256 private constant MAX_PPB = 1e9;
 
-    AspectaDevPool devPool;
     AspectaBuildingPoint aspToken;
+    AspectaDevPoolFactory factory;
+    AspectaDevPool devPool;
 
     address alice;
     uint256 alicePK;
@@ -24,13 +26,15 @@ contract AspectaDevPoolTest is Test {
     address derek;
     uint256 derekPK;
 
+    uint256 rewardCut = (6 * MAX_PPB) / 10;
+
     function setUp() public {
         (alice, alicePK) = makeAddrAndKey("alice");
         (bob, bobPK) = makeAddrAndKey("bob");
         (carol, carolPK) = makeAddrAndKey("carol");
         (derek, derekPK) = makeAddrAndKey("derek");
 
-        vm.startPrank(alice);
+        vm.startPrank(alice, alice);
 
         // Create a fork of the network
         vm.createSelectFork("https://bsc-testnet-rpc.publicnode.com");
@@ -39,19 +43,24 @@ contract AspectaDevPoolTest is Test {
         aspToken = new AspectaBuildingPoint(address(alice));
 
         // Deploy AspectaProtocol contract
+        factory = new AspectaDevPoolFactory();
+        aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
         devPool = new AspectaDevPool();
-        devPool.initialize(
+        factory.initialize(
             alice,
             address(aspToken),
-            (3 * MAX_PPM) / 1e7,
+            address(devPool),
+            (3 * MAX_PPB) / 1e7,
             1e3,
-            (3 * MAX_PPM) / 10,
-            MAX_PPM
+            rewardCut,
+            0 seconds
         );
-        devPool.updateBuildIndex(8e9);
 
-        // Grant ASP token operater role to AspectaProtocol
-        aspToken.grantRole(aspToken.getOperaterRole(), address(devPool));
+        aspToken.mint(alice, 1e18);
+        factory.stake(alice, 1e18);
+        factory.withdraw(alice);
+        factory.updateBuildIndex(alice, 8e9);
+        devPool = AspectaDevPool(factory.getPool(alice));
     }
 
     function equalWithTolerance(
@@ -81,8 +90,6 @@ contract AspectaDevPoolTest is Test {
         // bob stakes
         vm.startPrank(bob, bob);
         devPool.stake(unitStake);
-        console.log("bob share", devPool.balanceOf(bob));
-        console.log("total share", devPool.totalSupply());
         // carol stakes
         vm.startPrank(carol, carol);
         devPool.stake(unitStake);
@@ -99,9 +106,9 @@ contract AspectaDevPoolTest is Test {
         devPool.claimStakeReward();
 
         // bob and carol should receive reward, no reward for new staker derek
-        // bob staked earlier, should get more reward
         assertGt(aspToken.balanceOf(bob), 0);
         assertGt(aspToken.balanceOf(carol), 0);
+        // bob staked earlier, should get more reward
         assertGt(aspToken.balanceOf(bob), aspToken.balanceOf(carol));
 
         /*
@@ -116,8 +123,6 @@ contract AspectaDevPoolTest is Test {
         // record derek's reward
         devPool.claimStakeReward();
         uint256 derekReward = aspToken.balanceOf(derek);
-        console.log("derek share", devPool.balanceOf(derek));
-        console.log("total share", devPool.totalSupply());
 
         // carol claims reward again
         vm.startPrank(carol, carol);
@@ -130,19 +135,131 @@ contract AspectaDevPoolTest is Test {
         /*
          * Withdraw does not effect new staker's reward at the same total stake
          */
-        // derek claims reward
-
         // bob withdraw, stake again, and claim reward after unit time
         vm.startPrank(bob, bob);
         devPool.withdraw();
         devPool.stake(unitStake);
-        console.log("bob share", devPool.balanceOf(bob));
-        console.log("total share", devPool.totalSupply());
         vm.roll(block.number + unitTime);
         uint256 bobBalance = aspToken.balanceOf(bob);
         devPool.claimStakeReward();
         // reward should be same as derek
         uint256 bobReward = aspToken.balanceOf(bob) - bobBalance;
         equalWithTolerance(bobReward, derekReward, 1e18);
+    }
+
+    function testRewardConsistency() public {
+        uint256 unitStake = 1000e18;
+        uint256 unitTime = 300;
+        aspToken.mint(bob, unitStake);
+        aspToken.mint(carol, unitStake);
+        aspToken.mint(derek, unitStake);
+
+        /*
+         * Total reward should be consistent regardless of claim time
+         */
+
+        /// Case 1: claim once at the end
+        // derek stakes
+        vm.startPrank(derek, derek);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // derek claims reward
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+        uint256 derekReward = aspToken.balanceOf(derek);
+
+        // Clean up
+        devPool.withdraw();
+        vm.startPrank(bob, bob);
+        devPool.withdraw();
+        vm.startPrank(carol, carol);
+        devPool.withdraw();
+
+        /// Case 2: claim multiple times
+        // derek stakes, claim reward
+        vm.startPrank(derek, derek);
+        devPool.stake(unitStake);
+        uint256 derekBalance = aspToken.balanceOf(derek);
+        vm.roll(block.number + unitTime);
+        devPool.claimStakeReward();
+
+        // bob stakes, derek claim reward
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+
+        // carol stakes, derek claim reward
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+
+        /// derek should have same reward
+        equalWithTolerance(
+            aspToken.balanceOf(derek) - derekBalance,
+            derekReward,
+            1e18
+        );
+    }
+
+    function testDevReward() public {
+        uint256 unitStake = 1000e18;
+        uint256 unitTime = 300;
+        aspToken.mint(bob, unitStake);
+        aspToken.mint(carol, unitStake);
+        aspToken.mint(derek, unitStake);
+
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // derek stakes
+        vm.startPrank(derek, derek);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        // bob claims dev reward
+        vm.startPrank(bob, bob);
+        vm.expectRevert("AspectaDevPool: Only developer can claim dev reward");
+        devPool.claimDevReward();
+
+        // alice claims dev reward
+        vm.startPrank(alice, alice);
+        uint256 aliceBalance = aspToken.balanceOf(alice);
+        devPool.claimDevReward();
+        uint256 devReward = aspToken.balanceOf(alice) - aliceBalance;
+
+        // alice should be the sum of dev reward / (1 - reward cut)
+        vm.startPrank(bob, bob);
+        devPool.claimStakeReward();
+        vm.startPrank(carol, carol);
+        devPool.claimStakeReward();
+        vm.startPrank(derek, derek);
+        devPool.claimStakeReward();
+        uint256 totalReward = aspToken.balanceOf(bob) +
+            aspToken.balanceOf(carol) +
+            aspToken.balanceOf(derek);
+        totalReward = (totalReward * rewardCut) / (MAX_PPB - rewardCut);
+        equalWithTolerance(devReward, totalReward, 1e18);
     }
 }

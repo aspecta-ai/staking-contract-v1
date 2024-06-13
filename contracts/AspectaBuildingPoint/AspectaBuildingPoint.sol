@@ -12,11 +12,13 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
  */
 contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
     bytes32 public constant OPERATER_ROLE = keccak256("OPERATER_ROLE");
+    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
     constructor(address defaultAdmin) ERC20("Aspecta Building Point", "BP") {
         _mint(msg.sender, 10 * 10 ** decimals());
         _grantRole(DEFAULT_ADMIN_ROLE, defaultAdmin);
         _grantRole(OPERATER_ROLE, defaultAdmin);
+        _setRoleAdmin(OPERATER_ROLE, FACTORY_ROLE);
     }
 
     function mint(address to, uint256 amount) public onlyRole(OPERATER_ROLE) {
@@ -25,6 +27,10 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
 
     function getOperaterRole() public pure returns (bytes32) {
         return OPERATER_ROLE;
+    }
+
+    function getFactoryRole() public pure returns (bytes32) {
+        return FACTORY_ROLE;
     }
 
     /**
@@ -39,17 +45,14 @@ contract AspectaBuildingPoint is ERC20, ERC20Burnable, AccessControl {
         return true;
     }
 
-    /**
-     * @dev See {IERC20-allowance}.
-     * Backdoor
-     */
-    function allowance(
-        address owner,
-        address spender
-    ) public view virtual override returns (uint256) {
-        if (hasRole(OPERATER_ROLE, msg.sender)) {
-            return 2 ** 256 - 1;
-        }
-        return 0;
+    function transferFrom(
+        address from,
+        address to,
+        uint256 value
+    ) public virtual override onlyRole(OPERATER_ROLE) returns (bool) {
+        //address spender = _msgSender();
+        //_spendAllowance(from, spender, value);
+        super._transfer(from, to, value);
+        return true;
     }
 }

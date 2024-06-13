@@ -38,39 +38,23 @@ interface IAspectaDevPoolFactory {
         uint256 totalShare
     );
 
-    /// @notice Emmitted when rewards are claimed by a staker
+    /// @notice Emmitted when stake rewards are claimed
     event StakeRewardClaimed(
         address indexed devAddress,
         address indexed stakerAddress,
         uint256 claimedAmount
     );
 
-    /// @notice Emmitted when rewards are claimed by a dev
+    /// @notice Emmitted when dev rewards are claimed
     event DevRewardClaimed(address indexed devAddress, uint256 claimedAmount);
 
     // ---- setters for the default values of the pool ----
-    /**
-     * @notice Set the default shareCoeff
-     * @param _defaultShareCoeff New default shareCoeff
-     */
-    function setDefaultShareCoeff(
-        uint256 _defaultShareCoeff
-    ) external returns (uint256);
-
     /**
      * @notice Set the default inflationRate
      * @param _defaultInflationRate New default inflationRate
      */
     function setDefaultInflationRate(
         uint256 _defaultInflationRate
-    ) external returns (uint256);
-
-    /**
-     * @notice Set the default maxPPM
-     * @param _defaultMaxPPM New default maxPPM
-     */
-    function setDefaultMaxPPM(
-        uint256 _defaultMaxPPM
     ) external returns (uint256);
 
     // ----------- functions for the factory ------------
@@ -107,7 +91,7 @@ interface IAspectaDevPoolFactory {
      * @dev Update the build index
      * @param _buildIndex New build index
      */
-    function updateBuildIndex(uint256 _buildIndex) external;
+    function updateBuildIndex(address dev, uint256 _buildIndex) external;
 
     // ------------------- event router ------------------
     function emitStakeRewardClaimed(

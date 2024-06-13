@@ -18,27 +18,29 @@ abstract contract AspectaDevPoolStorageV1 is
     OwnableUpgradeable,
     IAspectaDevPool
 {
+    address public factory;
+
     address public developer;
 
     address public aspectaToken;
 
-    uint256 internal inflationRate;
+    uint256 public inflationRate;
 
-    uint256 internal shareDecayRate;
+    uint256 public shareDecayRate;
 
-    uint256 internal rewardCut;
+    uint256 public rewardCut;
+
+    uint256 public defaultLockPeriod;
 
     uint256 public buildIndex;
 
-    uint256 public rewardPerShare;
+    uint256 internal rewardPerShare;
 
     uint256 internal lastRewardedBlockNum;
 
     uint256 internal devLastRewardPerShare;
 
-    uint256 public shareCoeff;
-
-    uint256 internal maxPPM;
+    uint256 internal shareCoeff;
 
     mapping(address => StakerState) public stakerStates;
 

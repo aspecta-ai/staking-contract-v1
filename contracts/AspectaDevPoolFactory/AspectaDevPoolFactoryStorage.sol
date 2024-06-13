@@ -3,6 +3,7 @@
 pragma solidity ^0.8.25;
 
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
@@ -20,7 +21,7 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     UUPSUpgradeable,
     OwnableUpgradeable,
     AccessControlUpgradeable,
-    IAspectaDevPoolFactory,
+    IAspectaDevPoolFactory
 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
@@ -42,8 +43,8 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     /// @notice Default reward cut
     uint256 internal defaultRewardCut;
 
-    /// @notice Default max PPM
-    uint256 internal defaultMaxPPM;
+    /// @notice Default lock period
+    uint256 internal defaultLockPeriod;
 
     // --------- state variables of the factory ---------
     /// @notice BP token contract

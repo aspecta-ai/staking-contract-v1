@@ -16,6 +16,7 @@ interface IAspectaDevPool {
     struct StakerState {
         uint256 stakeAmount;
         uint256 lastRewardPerShare;
+        uint256 unlockTime;
     }
 
     event DevStaked(
