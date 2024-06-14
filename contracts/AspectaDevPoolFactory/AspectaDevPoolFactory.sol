@@ -16,6 +16,11 @@ import "../AspectaBuildingPoint/AspectaBuildingPoint.sol";
 contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     using EnumerableSet for EnumerableSet.AddressSet;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address initialOwner,
         address aspTokenAddress,

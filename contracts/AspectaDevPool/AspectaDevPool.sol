@@ -16,6 +16,11 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     uint256 private constant FIXED_POINT_SCALING_FACTOR = 1e12;
     uint32 private constant MAX_PPB = 1e9;
 
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     function initialize(
         address _factory,
         address _developer,
