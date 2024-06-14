@@ -17,8 +17,9 @@ cargo install --git https://github.com/foundry-rs/foundry forge --bins --locked
 3. Install Node.js **LTS**
 
 ```
-curl -sL https://deb.nodesource.com/setup_22.x | sudo -E bash -
-sudo apt-get install -y nodejs npm
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+nvm ls-remote
+nvm install xxxxxx
 ```
 
 4. Install Node.js Modules
