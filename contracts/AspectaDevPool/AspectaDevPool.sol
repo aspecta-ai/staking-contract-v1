@@ -200,15 +200,18 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
         );
-        uint256 reward = (totalStake *
-            (blockNum - lastRewardedBlockNum) *
-            inflationRate *
-            buildIndex) /
-            MAX_PPB /
-            MAX_PPB;
-        uint256 currentRewardPerShare = rewardPerShare +
-            (reward * FIXED_POINT_SCALING_FACTOR) /
-            totalSupply();
+        uint256 currentRewardPerShare = rewardPerShare;
+        if (totalStake > 0) {
+            uint256 reward = (totalStake *
+                (blockNum - lastRewardedBlockNum) *
+                inflationRate *
+                buildIndex) /
+                MAX_PPB /
+                MAX_PPB;
+            currentRewardPerShare +=
+                (reward * FIXED_POINT_SCALING_FACTOR) /
+                totalSupply();
+        }
         return
             ((MAX_PPB - rewardCut) *
                 balanceOf(staker) *
@@ -223,15 +226,19 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
         );
-        uint256 reward = (totalStake *
-            (blockNum - lastRewardedBlockNum) *
-            inflationRate *
-            buildIndex) /
-            MAX_PPB /
-            MAX_PPB;
-        uint256 currentRewardPerShare = rewardPerShare +
-            (reward * FIXED_POINT_SCALING_FACTOR) /
-            totalSupply();
+        uint256 currentRewardPerShare = rewardPerShare;
+        if (totalStake > 0) {
+            uint256 reward = (totalStake *
+                (blockNum - lastRewardedBlockNum) *
+                inflationRate *
+                buildIndex) /
+                MAX_PPB /
+                MAX_PPB;
+            currentRewardPerShare +=
+                rewardPerShare +
+                (reward * FIXED_POINT_SCALING_FACTOR) /
+                totalSupply();
+        }
         return
             (rewardCut *
                 totalSupply() *
@@ -246,11 +253,9 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
      * @return stakeAmount Staker's stake amount
      * @return unlockTime Staker's unlock time
      */
-    function getStakerState(address staker)
-        external
-        view
-        returns (uint256, uint256)
-    {
+    function getStakerState(
+        address staker
+    ) external view returns (uint256, uint256) {
         return (
             stakerStates[staker].stakeAmount,
             stakerStates[staker].unlockTime
