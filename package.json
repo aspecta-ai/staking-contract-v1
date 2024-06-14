@@ -1,7 +1,10 @@
 {
   "scripts": {
     "test": "forge test",
-    "deploy": "node read_private_key.js && npx hardhat run scripts/deploy.ts --network mainnet"
+    "deploy": "node read_private_key.js && npx hardhat run scripts/deploy.ts --network mainnet",
+    "upgrade-bp": "node read_private_key.js && npx hardhat run scripts/AspectaBuildingPoint/upgrade.ts --network mainnet",
+    "upgrade-bc": "node read_private_key.js && npx hardhat run scripts/AspectaDevPool/upgrade.ts --network mainnet",
+    "upgrade-pf": "node read_private_key.js && npx hardhat run scripts/AspectaDevPoolFactory/upgrade.ts --network mainnet"
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.588.0",

@@ -40,3 +40,25 @@ forge test
 ```
 npm run deploy
 ```
+
+# Upgrade Contract
+
+**You need to modify the existing contract, instead of creating a new contract.**
+
+1. Upgrade the AspectaBuildingPoint contract
+
+```
+npm run upgrade-bp
+```
+
+2. Upgrade the AspectaDevPool contract
+
+```
+npm run upgrade-bc
+```
+
+3. Upgrade the AspectaDevPoolFactory contract
+
+```
+npm run upgrade-pf
+```
