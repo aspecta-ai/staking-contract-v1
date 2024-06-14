@@ -42,17 +42,17 @@ contract AspectaDevPoolTest is Test {
         vm.createSelectFork(vm.envString("JSON_RPC_URL"));
 
         // Deploy BP token
-        address bp_proxy = Upgrades.deployUUPSProxy(
+        address bpProxy = Upgrades.deployUUPSProxy(
             "AspectaBuildingPoint.sol",
             abi.encodeCall(AspectaBuildingPoint.initialize, alice)
         );
-        aspToken = AspectaBuildingPoint(bp_proxy);
+        aspToken = AspectaBuildingPoint(bpProxy);
 
         // Deploy beacon contract
         address beacon = Upgrades.deployBeacon("AspectaDevPool.sol", alice);
 
         // Deploy factory contract
-        address pf_proxy = Upgrades.deployUUPSProxy(
+        address pfProxy = Upgrades.deployUUPSProxy(
             "AspectaDevPoolFactory.sol",
             abi.encodeCall(
                 AspectaDevPoolFactory.initialize,
@@ -67,7 +67,7 @@ contract AspectaDevPoolTest is Test {
                 )
             )
         );
-        factory = AspectaDevPoolFactory(pf_proxy);
+        factory = AspectaDevPoolFactory(pfProxy);
         aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
 
         aspToken.mint(alice, 1e18);
