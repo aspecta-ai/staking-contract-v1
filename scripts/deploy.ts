@@ -86,6 +86,11 @@ async function main() {
         'AspectaDevPoolFactory deployed to:',
         await aspectaDevPoolFactory.getAddress(),
     );
+
+    await aspectaBuildingPoint.grantRole(
+        await aspectaBuildingPoint.getFactoryRole(),
+        await aspectaDevPoolFactory.getAddress(),
+    );
 }
 
 main()
