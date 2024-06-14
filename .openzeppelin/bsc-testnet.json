@@ -2,20 +2,20 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x7fA9b37EEb55f5f0fF8487e40F6E1cdAfABB8625",
-      "txHash": "0x67577a408b1b7c7fb6d368f524ce6abd689f649f2af81b737967bb5d99b2eff4",
+      "address": "0x8E9f8E1270F1AD2De269680308CF481BDF3B51A6",
+      "txHash": "0x6be3a24fe605c022f0d459823e0bb7712c47716e95f8ce5328d1ac1b8e82325e",
       "kind": "uups"
     },
     {
-      "address": "0x476CfE40253ACe980CF76f998CD544270371aDd3",
-      "txHash": "0x3d1b0d642748714da42c8c15cdcb18c5b6d7502928e28ecc4fd158bef57960b1",
+      "address": "0xcfA9C03B28ef8a7a6fDDEe5B5f147E367D80B937",
+      "txHash": "0x8b4cb5e87c33f0711aefeeef136af8936cb11582fe511d156051319eb558e975",
       "kind": "uups"
     }
   ],
   "impls": {
-    "7a555afa35b72245b1a9c5e7d2e9a47d7de5a43e71da22f04633304849504e46": {
-      "address": "0x92b65BE576F5353b344A0e1FfFe9f094e99Da029",
-      "txHash": "0x286bad4308477464dff23877c4299c50b87f8cfa116a5ce627e8d3102eff3846",
+    "e33a3b2ebf8fa493bd3314d13c110d05b41325f7df8f2bb4e91c579bb90abfe4": {
+      "address": "0x418aCddcEefdE73514508AaA65BcfE0d3Bd52194",
+      "txHash": "0x4dceda736b446eda609510f40116529656611595f12e64e1788f35251526e0a3",
       "layout": {
         "solcVersion": "0.8.25",
         "storage": [
@@ -25,7 +25,7 @@
             "slot": "0",
             "type": "t_array(t_uint256)50_storage",
             "contract": "AspectaBuildingPointStorageV1",
-            "src": "contracts/AspectaBuildingPoint/AspectaBuildingPointStorage.sol:23"
+            "src": "contracts/AspectaBuildingPoint/AspectaBuildingPointStorage.sol:24"
           }
         ],
         "types": {
@@ -232,9 +232,330 @@
         }
       }
     },
-    "48cb749c9ff865aac028471e0380ac113e73eae583a0c9c5678002a646b5e03b": {
-      "address": "0x914886bD46b33524334B2540FaDF3DF2B78cA45D",
-      "txHash": "0x634c2f5fffe769535e2842b0e0afa978224c4e3b1f2daf808895862e8bd18ad0",
+    "43faa5d194e907b3fe2a2f92d9901f81a97b1736666f0a59f8269c78b9fa3f6b": {
+      "address": "0x96f66Dd0b9b08DcbBD07225b7dA19E2D82442586",
+      "txHash": "0xf8ae9e87c6177e582155e6f7b65f43ed8124b880aadafa1bd37851c48bc5916b",
+      "layout": {
+        "solcVersion": "0.8.25",
+        "storage": [
+          {
+            "label": "factory",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:21"
+          },
+          {
+            "label": "developer",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:23"
+          },
+          {
+            "label": "aspectaToken",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:25"
+          },
+          {
+            "label": "inflationRate",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:27"
+          },
+          {
+            "label": "shareDecayRate",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:29"
+          },
+          {
+            "label": "rewardCut",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:31"
+          },
+          {
+            "label": "defaultLockPeriod",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:33"
+          },
+          {
+            "label": "buildIndex",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:35"
+          },
+          {
+            "label": "rewardPerShare",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:37"
+          },
+          {
+            "label": "lastRewardedBlockNum",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:39"
+          },
+          {
+            "label": "devLastRewardPerShare",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:41"
+          },
+          {
+            "label": "shareCoeff",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:43"
+          },
+          {
+            "label": "stakerStates",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_mapping(t_address,t_struct(StakerState)6726_storage)",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:45"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:47"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)286_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)150_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)99_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_mapping(t_address,t_struct(StakerState)6726_storage)": {
+            "label": "mapping(address => struct IAspectaDevPool.StakerState)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(StakerState)6726_storage": {
+            "label": "struct IAspectaDevPool.StakerState",
+            "members": [
+              {
+                "label": "stakeAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "lastRewardPerShare",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "d47e5c1ea1491ef094c9456948d7d6ea71a409276be7dc1c3c7c169d6ebaeebd": {
+      "address": "0x90AE1A5b7F9e4986d31267C9886F88d440688EAc",
+      "txHash": "0x3d3b1c85328416635839b11ba706c96dd6c05e48581d3385760f1bd899a34dfd",
       "layout": {
         "solcVersion": "0.8.25",
         "storage": [
@@ -282,7 +603,7 @@
             "label": "aspectaBuildingPoint",
             "offset": 0,
             "slot": "5",
-            "type": "t_contract(AspectaBuildingPoint)5835",
+            "type": "t_contract(AspectaBuildingPoint)5847",
             "contract": "AspectaDevPoolFactoryStorageV1",
             "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:51"
           },
@@ -416,7 +737,7 @@
             "label": "uint256[50]",
             "numberOfBytes": "1600"
           },
-          "t_contract(AspectaBuildingPoint)5835": {
+          "t_contract(AspectaBuildingPoint)5847": {
             "label": "contract AspectaBuildingPoint",
             "numberOfBytes": "20"
           },

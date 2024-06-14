@@ -61,12 +61,10 @@ async function main() {
     );
 
     const AspectaDevPool = await ethers.getContractFactory('AspectaDevPool');
-    const aspectaDevPool = await AspectaDevPool.deploy();
-    await aspectaDevPool.waitForDeployment();
-    console.log(
-        'AspectaDevPool deployed to:',
-        await aspectaDevPool.getAddress(),
-    );
+
+    const beacon = await upgrades.deployBeacon(AspectaDevPool);
+    await beacon.waitForDeployment();
+    console.log('Beacon deployed to:', await beacon.getAddress());
 
     const AspectaDevPoolFactory = await ethers.getContractFactory(
         'AspectaDevPoolFactory',
@@ -76,7 +74,7 @@ async function main() {
         [
             await signer.getAddress(),
             await aspectaBuildingPoint.getAddress(),
-            await aspectaDevPool.getAddress(),
+            await beacon.getAddress(),
             defaultInflationRate,
             defaultShareDecayRate,
             defaultRewardCut,
@@ -85,7 +83,7 @@ async function main() {
     );
     await aspectaDevPoolFactory.waitForDeployment();
     console.log(
-        'aspectaDevPoolFactory deployed to:',
+        'AspectaDevPoolFactory deployed to:',
         await aspectaDevPoolFactory.getAddress(),
     );
 }

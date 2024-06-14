@@ -19,7 +19,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function initialize(
         address initialOwner,
         address aspTokenAddress,
-        address poolLogic,
+        address beaconAddress,
         uint256 _defaultInflationRate,
         uint256 _defaultShareDecayRate,
         uint256 _defaultRewardCut,
@@ -30,7 +30,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
         _grantRole(OPERATOR_ROLE, initialOwner);
 
-        beacon = new UpgradeableBeacon(poolLogic, msg.sender);
+        beacon = UpgradeableBeacon(beaconAddress);
 
         aspectaBuildingPoint = AspectaBuildingPoint(aspTokenAddress);
         defaultInflationRate = _defaultInflationRate;
