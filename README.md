@@ -14,12 +14,13 @@ curl --proto '=https' --tlsv1.3 https://sh.rustup.rs -sSf | sh
 cargo install --git https://github.com/foundry-rs/foundry forge --bins --locked
 ```
 
-3. Install Node.js **LTS**
+3. Install the **LATEST** Node.js **LTS**
 
 ```
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-nvm ls-remote
-nvm install xxxxxx
+source ~/.bashrc  # or ~/.zshrc
+nvm ls-remote  # list all available versions
+nvm install xxxxxx  # e.g. nvm install v20.14.0
 ```
 
 4. Install Node.js Modules

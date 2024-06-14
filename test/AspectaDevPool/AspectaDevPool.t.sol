@@ -1,8 +1,10 @@
 // SPDX-License-Identifier: MIT
+
 pragma solidity ^0.8.25;
 
 import "forge-std/console.sol";
 import {Test} from "forge-std/Test.sol";
+import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import {AspectaDevPool} from "../../contracts/AspectaDevPool/AspectaDevPool.sol";
 import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
 import {AspectaDevPoolFactory} from "../../contracts/AspectaDevPoolFactory/AspectaDevPoolFactory.sol";
@@ -37,29 +39,42 @@ contract AspectaDevPoolTest is Test {
         vm.startPrank(alice, alice);
 
         // Create a fork of the network
-        vm.createSelectFork("https://bsc-testnet-rpc.publicnode.com");
+        vm.createSelectFork(vm.envString("JSON_RPC_URL"));
 
         // Deploy BP token
-        aspToken = new AspectaBuildingPoint(address(alice));
+        address bp_proxy = Upgrades.deployUUPSProxy(
+            "AspectaBuildingPoint.sol",
+            abi.encodeCall(AspectaBuildingPoint.initialize, alice)
+        );
+        aspToken = AspectaBuildingPoint(bp_proxy);
+
+        // Deploy beacon contract
+        address beacon = Upgrades.deployBeacon("AspectaDevPool.sol", alice);
 
         // Deploy factory contract
-        factory = new AspectaDevPoolFactory();
-        aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
-        devPool = new AspectaDevPool();
-        factory.initialize(
-            alice,
-            address(aspToken),
-            address(devPool),
-            (3 * MAX_PPB) / 1e7,
-            1e3,
-            rewardCut,
-            0 seconds
+        address pf_proxy = Upgrades.deployUUPSProxy(
+            "AspectaDevPoolFactory.sol",
+            abi.encodeCall(
+                AspectaDevPoolFactory.initialize,
+                (
+                    alice,
+                    address(aspToken),
+                    beacon,
+                    (3 * MAX_PPB) / 1e7,
+                    1e3,
+                    rewardCut,
+                    0 seconds
+                )
+            )
         );
+        factory = AspectaDevPoolFactory(pf_proxy);
+        aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
 
         aspToken.mint(alice, 1e18);
         factory.stake(alice, 1e18);
         factory.withdraw(alice);
         factory.updateBuildIndex(alice, 8e9);
+
         devPool = AspectaDevPool(factory.getPool(alice));
     }
 
