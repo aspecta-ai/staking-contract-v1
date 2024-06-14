@@ -1,7 +1,6 @@
 import 'dotenv/config';
 import { ethers, upgrades } from 'hardhat';
-
-import { privateKey } from '../private-key';
+import hre from 'hardhat';
 
 async function main() {
     const jsonRPCURL = process.env.JSON_RPC_URL;
@@ -30,10 +29,10 @@ async function main() {
     }
 
     // Create a provider instance
-    const provider = new ethers.JsonRpcProvider(jsonRPCURL as string);
+    const provider = hre.ethers.provider;
 
     // Create a signer instance
-    const signer = new ethers.Wallet(privateKey, provider);
+    const signer = await hre.ethers.provider.getSigner();
 
     let network = await provider.getNetwork();
     console.log('Network:', network['name']);
