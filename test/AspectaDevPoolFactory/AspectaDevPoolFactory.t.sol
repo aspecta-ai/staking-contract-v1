@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: UNLICENSED
+
 pragma solidity ^0.8.25;
 
 import {Test, console} from "forge-std/Test.sol";
-
+import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
 
@@ -44,27 +45,42 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(asp, asp);
 
         // Create a fork of the network
-        vm.createSelectFork("https://bsc-testnet-rpc.publicnode.com");
+        vm.createSelectFork(vm.envString("JSON_RPC_URL"));
 
         // Deploy BP token
-        aspBuildingPoint = new AspectaBuildingPoint(address(asp));
+        address proxy = Upgrades.deployUUPSProxy(
+            "AspectaBuildingPoint.sol",
+            abi.encodeCall(AspectaBuildingPoint.initialize, asp)
+        );
+        aspBuildingPoint = AspectaBuildingPoint(proxy);
+
+        // Deploy beacon contract
+        address beacon = Upgrades.deployBeacon("AspectaDevPool.sol", asp);
 
         // Deploy factory contract
-        factory = new AspectaDevPoolFactory();
+        address pfProxy = Upgrades.deployUUPSProxy(
+            "AspectaDevPoolFactory.sol",
+            abi.encodeCall(
+                AspectaDevPoolFactory.initialize,
+                (
+                    asp,
+                    address(aspBuildingPoint),
+                    address(beacon),
+                    (3 * MAX_PPB) / 1e7,
+                    1e3,
+                    (6 * MAX_PPB) / 10,
+                    0 seconds
+                )
+            )
+        );
+        factory = AspectaDevPoolFactory(pfProxy);
+
         aspBuildingPoint.grantRole(
             aspBuildingPoint.getFactoryRole(),
             address(factory)
         );
-        devPool = new AspectaDevPool();
-        factory.initialize(
-            asp,
-            address(aspBuildingPoint),
-            address(devPool),
-            (3 * MAX_PPB) / 1e7,
-            1e3,
-            (6 * MAX_PPB) / 10,
-            0 seconds
-        );
+
+        vm.stopPrank();
     }
 
     function testAllFactory() public {
@@ -182,6 +198,7 @@ contract AspectaDevPoolFactoryTest is Test {
     }
 
     function testNonExistPoolWithdraw() public {
+        vm.startPrank(asp, asp);
         vm.expectRevert();
         factory.withdraw(dev);
     }
