@@ -32,6 +32,24 @@ contract AspectaBuildingPoint is Initializable, AspectaBuildingPointStorageV1 {
         return OPERATOR_ROLE;
     }
 
+    function batchMint(
+        address[] calldata toList,
+        uint256[] calldata amountList
+    ) public onlyRole(OPERATOR_ROLE) {
+        require(
+            toList.length <=100,
+            "AspectaBuildingPoint: Exceeds limit of 100 addresses"
+        );
+        require(
+            toList.length == amountList.length,
+            "AspectaBuildingPoint: Invalid input"
+        );
+
+        for (uint32 i = 0; i < toList.length; i++) {
+            _mint(toList[i], amountList[i]);
+        }
+    }
+
     function getFactoryRole() public pure returns (bytes32) {
         return FACTORY_ROLE;
     }

@@ -235,7 +235,41 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             FIXED_POINT_SCALING_FACTOR;
     }
 
+    /**
+     * @dev Get staker's state
+     * @param staker Staker's address
+     * @return stakeAmount Staker's stake amount
+     * @return unlockTime Staker's unlock time
+     */
+    function getStakerState(address staker)
+        external
+        view
+        returns (uint256, uint256)
+    {
+        return (
+            stakerStates[staker].stakeAmount,
+            stakerStates[staker].unlockTime
+        );
+    }
+
     function getStakes() external view returns (uint256) {
         return stakerStates[tx.origin].stakeAmount;
+    }
+
+    /**
+     * @dev Get staker's share amount
+     * @param staker Staker's address
+     * @return stakeAmount Staker's share amount
+     */
+    function getStakerShare(address staker) external view returns (uint256) {
+        return balanceOf(staker);
+    }
+
+    /**
+     * @dev Get building progress
+     * @return Building progress
+     */
+    function getBuildingProgress() external view returns (uint256) {
+        return buildIndex;
     }
 }

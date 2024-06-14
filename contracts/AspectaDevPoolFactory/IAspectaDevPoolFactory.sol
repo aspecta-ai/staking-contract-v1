@@ -123,6 +123,55 @@ interface IAspectaDevPoolFactory {
         uint256 totalShare
     ) external;
 
+    /// getters
+    /**
+     * @dev Get default lock period
+     * @return Default lock period
+     */
+     function getDefaultLockPeriod() external view returns (uint256);
+
+    /**
+     * @dev User stake stats
+     * @param user Dev/Staker address
+     * @return Available balance
+     * @return Total staking amount
+     * @return Total staked amount
+     * @return Unclaimed staking rewards
+     * @return Unclaimed staked rewards
+     */
+    function getUserStakeStats(
+        address user
+    ) external view returns (uint256, uint256, uint256, uint256, uint256);
+
+    /**
+     * @dev Get the amount of stakes developers received
+     * @param devs Address list of the developers
+     * @return List of their total staked amount
+     */
+    function getDevsTotalStaking(
+        address[] calldata devs
+    ) external view returns (uint256[] memory);
+
+    /**
+     * @dev Get user's stakes history in all developers
+     * @param user staker's address
+     * @param devs list of developers
+     * @return List of stake amount
+     * @return List of unclaimed staking rewards
+     * @return List of stake unlock time
+     */
+    function getUserStakedList(
+        address user,
+        address[] calldata devs
+    )
+        external
+        view
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory
+        );
+
     /**
      * @dev Get total claimable reward for a staker
      * @param staker Staker address

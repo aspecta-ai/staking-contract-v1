@@ -228,6 +228,123 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     }
 
     // --------------------- getters ---------------------
+
+    /**
+     * @dev Get default lock period
+     * @return Default lock period
+     */
+     function getDefaultLockPeriod() external view returns (uint256) {
+        return defaultLockPeriod;
+    }
+
+    /**
+     * @dev User stake stats
+     * @param user Dev/Staker address
+     * @return Available balance
+     * @return Total staking amount
+     * @return Total staked amount
+     * @return Unclaimed staking rewards
+     * @return Unclaimed staked rewards
+     */
+    function getUserStakeStats(
+        address user
+    ) external view returns (uint256, uint256, uint256, uint256, uint256) {
+        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[user];
+
+        uint256 stakingAmount;
+        uint256 totalStakingAmount = 0;
+        uint256 totalStakedAmount = 0;
+        uint256 unclaimedStakingRewards = 0;
+        uint256 unclaimedStakedRewards = 0;
+
+        if (devPools[user] != address(0)) {
+            totalStakedAmount = aspectaBuildingPoint.balanceOf(devPools[user]);
+            unclaimedStakedRewards = AspectaDevPool(
+                devPools[user]
+            ).getClaimableDevReward();
+        }
+
+        address dev;
+        for (uint32 i = 0; i < stakedDevs.length(); i++) {
+            dev = stakedDevs.at(i);
+
+            (stakingAmount, ) = AspectaDevPool(devPools[dev]).getStakerState(user);
+            totalStakingAmount += stakingAmount;
+            unclaimedStakingRewards += AspectaDevPool(
+                devPools[dev]
+            ).getClaimableStakeReward(user);
+        }
+
+        return (
+            aspectaBuildingPoint.balanceOf(user),
+            totalStakingAmount,
+            totalStakedAmount,
+            unclaimedStakingRewards,
+            unclaimedStakedRewards
+        );
+    }
+
+    /**
+     * @dev Get the amount of stakes developers received
+     * @param devs Address list of the developers
+     * @return List of their total staked amount
+     */
+    function getDevsTotalStaking(
+        address[] calldata devs
+    ) external view returns (uint256[] memory) {
+        require(
+            devs.length <= 100,
+            "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
+        );
+
+        uint256[] memory totalStaking = new uint256[](devs.length);
+        for (uint32 i = 0; i < devs.length; i++) {
+            totalStaking[i] = aspectaBuildingPoint.balanceOf(devPools[devs[i]]);
+        }
+        return totalStaking;
+    }
+
+    /**
+     * @dev Get user's stakes history in all developers
+     * @param user staker's address
+     * @param devs list of developers
+     * @return List of stake amount
+     * @return List of unclaimed staking rewards
+     * @return List of stake unlock time
+     */
+    function getUserStakedList(
+        address user,
+        address[] calldata devs
+    )
+        external
+        view
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory
+        )
+    {
+        require(
+            devs.length <= 100,
+            "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
+        );
+
+        AspectaDevPool devPool;
+
+        uint256[] memory stakeAmounts = new uint256[](devs.length);
+        uint256[] memory unclaimedStakingRewards = new uint256[](devs.length);
+        uint256[] memory unlockTimes = new uint256[](devs.length);
+
+        for (uint32 i = 0; i < devs.length; i++) {
+            devPool = AspectaDevPool(devPools[devs[i]]);
+
+            unclaimedStakingRewards[i] = devPool.getClaimableStakeReward(user);
+            (stakeAmounts[i], unlockTimes[i]) = devPool.getStakerState(user);
+        }
+
+        return (stakeAmounts, unclaimedStakingRewards, unlockTimes);
+    }
+
     /**
      * @dev Get total claimable stake reward for a staker
      * @param staker Staker address
