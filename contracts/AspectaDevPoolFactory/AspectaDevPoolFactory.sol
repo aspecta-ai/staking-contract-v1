@@ -204,6 +204,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 totalStake,
         uint256 totalShare
     ) public override onlyRole(OPERATOR_ROLE) {
+        totalStakingAmount += stakeAmount;
         emit DevStaked(
             devAddress,
             stakerAddress,
@@ -222,6 +223,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 totalStake,
         uint256 totalShare
     ) public override onlyRole(OPERATOR_ROLE) {
+        totalStakingAmount -= stakeAmount;
         emit StakeWithdrawn(
             devAddress,
             stakerAddress,
@@ -348,6 +350,13 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         }
 
         return (stakeAmounts, unclaimedStakingRewards, unlockTimes);
+    }
+
+    /**
+     * @dev Get total staking amount
+     */
+    function getTotalStaking() external view returns(uint256) {
+        return totalStakingAmount;
     }
 
     /**
