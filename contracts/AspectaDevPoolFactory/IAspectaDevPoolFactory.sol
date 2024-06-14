@@ -192,4 +192,9 @@ interface IAspectaDevPoolFactory {
     function getStakingList(
         address user
     ) external view returns (address[] memory, uint256[] memory);
+
+    /**
+     * @dev Get total staking amount
+     */
+    function getTotalStaking() external view returns(uint256);
 }
