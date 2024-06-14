@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "forge test",
+    "test": "forge clean && forge test",
     "deploy": "node read_private_key.js && npx hardhat run scripts/deploy.ts --network mainnet",
     "upgrade-bp": "node read_private_key.js && npx hardhat run scripts/AspectaBuildingPoint/upgrade.ts --network mainnet",
     "upgrade-bc": "node read_private_key.js && npx hardhat run scripts/AspectaDevPool/upgrade.ts --network mainnet",
