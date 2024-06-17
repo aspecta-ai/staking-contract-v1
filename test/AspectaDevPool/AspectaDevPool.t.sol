@@ -277,4 +277,112 @@ contract AspectaDevPoolTest is Test {
         totalReward = (totalReward * rewardCut) / (MAX_PPB - rewardCut);
         equalWithTolerance(devReward, totalReward, 1e18);
     }
+
+    /// Getter test cases
+    function testGetClaimableStakeReward() public {
+        uint256 unitStake = 1000e18;
+        uint256 unitTime = 300;
+        aspToken.mint(bob, unitStake);
+        aspToken.mint(carol, unitStake);
+
+        /*
+         * Basic stake and claim reward
+         * Earlier staker should get more reward
+         * New stakers don't have reward initially
+         */
+        // bob has no reward before staking
+        assertEq(devPool.getClaimableStakeReward(bob), 0);
+
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+
+        vm.roll(block.number + unitTime);
+
+        uint256 bobReward = devPool.getClaimableStakeReward(bob);
+        uint256 carolReward = devPool.getClaimableStakeReward(carol);
+
+        // bob has more claimable reward than carol
+        assertGt(bobReward, carolReward);
+
+        // Clean up
+        devPool.withdraw();
+        vm.startPrank(bob, bob);
+        devPool.withdraw();
+        vm.startPrank(carol, carol);
+        devPool.withdraw();
+
+        // bob and carol should have no claimable reward
+        assertEq(devPool.getClaimableStakeReward(bob), 0);
+        assertEq(devPool.getClaimableStakeReward(carol), 0);
+
+        // bob and carol's balance should be stake + reward
+        assertEq(aspToken.balanceOf(bob), unitStake + bobReward);
+        assertEq(aspToken.balanceOf(carol), unitStake + carolReward);
+    }
+
+    function testGetClaimableDevReward() public {
+        uint256 unitStake = 1000e18;
+        uint256 unitTime = 300;
+
+        aspToken.mint(bob, unitStake);
+        aspToken.mint(carol, unitStake);
+
+        // Create a new pool
+        vm.startPrank(bob, bob);
+        factory.stake(bob, 1e18);
+        factory.withdraw(bob);
+        factory.updateBuildIndex(bob, 8e9);
+        devPool = AspectaDevPool(factory.getPool(bob));
+
+        // vm.roll(block.number + unitTime); // TODO: bug fix(_updateRewardPool) [FAIL. Reason: panic: division or modulo by zero (0x12)]
+
+        uint256 devReward1 = devPool.getClaimableDevReward();
+        assertEq(devReward1, 0);
+
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+        vm.roll(block.number + unitTime);
+
+        uint256 devReward2 = devPool.getClaimableDevReward();
+        assertGt(devReward2, 0);
+
+        // bob claims dev reward
+        vm.startPrank(bob, bob);
+        uint256 bobBalance = aspToken.balanceOf(bob);
+        devPool.claimDevReward();
+        assertEq(aspToken.balanceOf(bob) - bobBalance, devReward2);
+
+        // dev reward grows with time
+        vm.roll(block.number + unitTime);
+        assertEq(devPool.getClaimableDevReward(), 2 * devReward2);
+
+        // Clean up
+        vm.startPrank(carol, carol);
+        devPool.withdraw();
+        assertEq(devPool.getClaimableDevReward(), 0);
+    }
+
+    function testGetStakerState() public {
+        uint256 unitStake = 1000e18;
+        aspToken.mint(bob, unitStake);
+
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+
+        (uint256 stakeAmount, uint256 unlockTime) = devPool.getStakerState(bob);
+        assertEq(stakeAmount, unitStake);
+        assertEq(unlockTime, block.timestamp + factory.getDefaultLockPeriod());
+
+        // Clean up
+        devPool.withdraw();
+        (stakeAmount, unlockTime) = devPool.getStakerState(bob);
+        assertEq(stakeAmount, 0);
+        assertEq(unlockTime, factory.getDefaultLockPeriod());
+    }
 }

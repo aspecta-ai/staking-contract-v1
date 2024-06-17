@@ -51,6 +51,11 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
         );
+        if (totalStake == 0) {
+            lastRewardedBlockNum = blockNum;
+            return;
+        }
+
         uint256 reward = (totalStake *
             (blockNum - lastRewardedBlockNum) *
             inflationRate *
@@ -147,6 +152,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         token.transfer(staker, stakeAmount);
         _burn(staker, shareAmount);
         stakerState.stakeAmount = 0;
+        stakerState.unlockTime = 0;
 
         if (token.balanceOf(address(this)) > 0) {
             shareCoeff =

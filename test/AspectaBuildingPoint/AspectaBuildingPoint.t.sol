@@ -41,8 +41,11 @@ contract AspectaBuildingPointTest is Test {
         assertEq(aspToken.name(), "Aspecta Building Point");
     }
 
-    function test_mint() public view {
+    function testMint() public {
         assertEq(aspToken.name(), "Aspecta Building Point");
+
+        aspToken.mint(alice, 1e18);
+        assertEq(aspToken.balanceOf(alice), 1e18);
     }
 
     function testBatchMint() public {
