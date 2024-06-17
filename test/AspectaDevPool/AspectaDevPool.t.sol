@@ -335,10 +335,13 @@ contract AspectaDevPoolTest is Test {
         vm.startPrank(bob, bob);
         factory.stake(bob, 1e18);
         factory.withdraw(bob);
+
+        // Update build index
+        vm.startPrank(alice, alice);
         factory.updateBuildIndex(bob, 8e9);
         devPool = AspectaDevPool(factory.getPool(bob));
 
-        // vm.roll(block.number + unitTime); // TODO: bug fix(_updateRewardPool) [FAIL. Reason: panic: division or modulo by zero (0x12)]
+        vm.roll(block.number + unitTime);
 
         uint256 devReward1 = devPool.getClaimableDevReward();
         assertEq(devReward1, 0);
