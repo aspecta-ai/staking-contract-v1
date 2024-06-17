@@ -359,12 +359,14 @@ contract AspectaDevPoolTest is Test {
         uint256 bobBalance = aspToken.balanceOf(bob);
         devPool.claimDevReward();
         assertEq(aspToken.balanceOf(bob) - bobBalance, devReward2);
+        assertEq(devPool.getClaimableDevReward(), 0);
 
         // dev reward grows with time
         vm.roll(block.number + unitTime);
-        assertEq(devPool.getClaimableDevReward(), 2 * devReward2);
+        assertEq(devPool.getClaimableDevReward(), devReward2);
 
         // Clean up
+        devPool.claimDevReward();
         vm.startPrank(carol, carol);
         devPool.withdraw();
         assertEq(devPool.getClaimableDevReward(), 0);
