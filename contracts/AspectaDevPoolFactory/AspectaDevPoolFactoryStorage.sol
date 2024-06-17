@@ -59,10 +59,10 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     /// @notice Staker address to staking dev address mapping
     mapping(address => EnumerableSet.AddressSet) stakedDevSet;
 
+    /// @notice Total staking amount
+    uint256 public totalStakingAmount;
+
     /// @dev Gap for upgrade safety
     /// @dev See [https://docs.openzeppelin.com/upgrades-plugins/1.x/writing-upgradeable#storage-gaps]
     uint256[50] private __gap;
-
-    /// @notice Total staking amount
-    uint256 public totalStakingAmount;
 }

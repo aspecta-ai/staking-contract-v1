@@ -16,7 +16,7 @@ contract AspectaDevPoolFactoryTest is Test {
     using EnumerableSet for EnumerableSet.AddressSet;
 
     AspectaDevPoolFactory factory;
-    AspectaBuildingPoint aspBuildingPoint;
+    AspectaBuildingPoint aspToken;
     AspectaDevPool devPool;
 
     address asp;
@@ -52,7 +52,7 @@ contract AspectaDevPoolFactoryTest is Test {
             "AspectaBuildingPoint.sol",
             abi.encodeCall(AspectaBuildingPoint.initialize, asp)
         );
-        aspBuildingPoint = AspectaBuildingPoint(proxy);
+        aspToken = AspectaBuildingPoint(proxy);
 
         // Deploy beacon contract
         address beacon = Upgrades.deployBeacon("AspectaDevPool.sol", asp);
@@ -64,7 +64,7 @@ contract AspectaDevPoolFactoryTest is Test {
                 AspectaDevPoolFactory.initialize,
                 (
                     asp,
-                    address(aspBuildingPoint),
+                    address(aspToken),
                     address(beacon),
                     (3 * MAX_PPB) / 1e7,
                     1e3,
@@ -75,8 +75,8 @@ contract AspectaDevPoolFactoryTest is Test {
         );
         factory = AspectaDevPoolFactory(pfProxy);
 
-        aspBuildingPoint.grantRole(
-            aspBuildingPoint.getFactoryRole(),
+        aspToken.grantRole(
+            aspToken.getFactoryRole(),
             address(factory)
         );
 
@@ -95,9 +95,9 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256 carolStakes = 3 * amount;
 
         vm.startPrank(asp, asp);
-        aspBuildingPoint.mint(alice, aliceStakes);
-        aspBuildingPoint.mint(bob, bobStakes);
-        aspBuildingPoint.mint(carol, carolStakes);
+        aspToken.mint(alice, aliceStakes);
+        aspToken.mint(bob, bobStakes);
+        aspToken.mint(carol, carolStakes);
 
         // Alice stakes for dev
         vm.startPrank(alice, alice);
@@ -121,7 +121,7 @@ contract AspectaDevPoolFactoryTest is Test {
 
         // Check if the total stake is correct
         assertEq(
-            aspBuildingPoint.balanceOf(address(devPool)),
+            aspToken.balanceOf(address(devPool)),
             aliceStakes + bobStakes + carolStakes
         );
 
@@ -165,10 +165,10 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(alice, alice);
         factory.withdraw(dev);
         assertEq(devPool.getStakes(), 0);
-        assertEq(aspBuildingPoint.balanceOf(alice), aliceStakes);
+        assertEq(aspToken.balanceOf(alice), aliceStakes);
         assertEq(devPool.balanceOf(alice), 0);
         assertEq(
-            aspBuildingPoint.balanceOf(address(devPool)),
+            aspToken.balanceOf(address(devPool)),
             bobStakes + carolStakes
         );
         assertEq(devPool.totalSupply(), bobShares + carolShares);
@@ -179,9 +179,9 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(bob, bob);
         factory.withdraw(dev);
         assertEq(devPool.getStakes(), 0);
-        assertEq(aspBuildingPoint.balanceOf(bob), bobStakes);
+        assertEq(aspToken.balanceOf(bob), bobStakes);
         assertEq(devPool.balanceOf(bob), 0);
-        assertEq(aspBuildingPoint.balanceOf(address(devPool)), carolStakes);
+        assertEq(aspToken.balanceOf(address(devPool)), carolStakes);
         assertEq(devPool.totalSupply(), carolShares);
         bobStakedDevs = factory.getStakedDevs(bob);
         assertEq(bobStakedDevs.length, 0);
@@ -190,9 +190,9 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(carol, carol);
         factory.withdraw(dev);
         assertEq(devPool.getStakes(), 0);
-        assertEq(aspBuildingPoint.balanceOf(carol), carolStakes);
+        assertEq(aspToken.balanceOf(carol), carolStakes);
         assertEq(devPool.balanceOf(carol), 0);
-        assertEq(aspBuildingPoint.balanceOf(address(devPool)), 0);
+        assertEq(aspToken.balanceOf(address(devPool)), 0);
         carolStakedDevs = factory.getStakedDevs(carol);
         assertEq(carolStakedDevs.length, 0);
     }
@@ -213,5 +213,236 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(alice, alice);
         vm.expectRevert();
         factory.updateBuildIndex(dev, 100);
+    }
+
+    function testGetDefaultLockPeriod() public view {
+        assertEq(factory.getDefaultLockPeriod(), 0);
+    }
+
+    function testGetUserStakeStats() public {
+        /// -------- Test stake stats --------
+        uint256 unitTime = 300;
+        uint256 mintAmount = 1000e18;
+        uint256 aliceStakes = mintAmount / 10;
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, mintAmount);
+
+        // Alice stakes for dev
+        vm.startPrank(alice, alice);
+        factory.stake(dev, aliceStakes);
+
+        // Update the building progress
+        vm.startPrank(asp, asp);
+        factory.updateBuildIndex(dev, 8e9);
+
+        vm.roll(block.number + unitTime);
+
+        // Check alice stake stats
+        (
+            uint256 aliceBalance,
+            uint256 aliceTotalStaking,
+            uint256 aliceTotalStaked,
+            uint256 aliceUnclaimedStakingRewards,
+            uint256 aliceUnclaimedStakedRewards
+        ) = factory.getUserStakeStats(alice);
+
+        assertEq(aliceBalance, mintAmount - aliceStakes);
+        assertEq(aliceTotalStaking, aliceStakes);
+        assertEq(aliceTotalStaked, 0);
+        assertGt(aliceUnclaimedStakingRewards, 0);
+        assertEq(aliceUnclaimedStakedRewards, 0);
+
+        // Check alice's stats after claiming rewards
+        vm.startPrank(alice, alice);
+        factory.claimStakeReward();
+
+        uint256 aliceBalance1;
+        uint256 aliceTotalStaking1;
+        uint256 aliceUnclaimedStakingRewards1;
+        (
+            aliceBalance1,
+            aliceTotalStaking1,
+            aliceTotalStaked,
+            aliceUnclaimedStakingRewards1,
+            aliceUnclaimedStakedRewards
+        ) = factory.getUserStakeStats(alice);
+
+        assertEq(aliceBalance1, aliceBalance + aliceUnclaimedStakingRewards);
+        assertEq(aliceTotalStaking1, aliceTotalStaking);
+        assertEq(aliceTotalStaked, 0);
+        assertEq(aliceUnclaimedStakingRewards1, 0);
+        assertEq(aliceUnclaimedStakedRewards, 0);
+
+        // Check dev's stats before withdrawing
+        (
+            uint256 devBalance,
+            uint256 devTotalStaking,
+            uint256 devTotalStaked,
+            uint256 devUnclaimedStakingRewards,
+            uint256 devUnclaimedStakedRewards
+        ) = factory.getUserStakeStats(dev);
+
+        assertEq(devBalance, 0);
+        assertEq(devTotalStaking, 0);
+        assertEq(devTotalStaked, aliceStakes);
+        assertEq(devUnclaimedStakingRewards, 0);
+        assertGt(devUnclaimedStakedRewards, 0);
+
+        // Check alice's stats after withdrawing
+        vm.startPrank(alice, alice);
+        factory.withdraw(dev);
+
+        uint256 aliceBalance2;
+        (
+            aliceBalance2,
+            aliceTotalStaking,
+            aliceTotalStaked,
+            aliceUnclaimedStakingRewards,
+            aliceUnclaimedStakedRewards
+        ) = factory.getUserStakeStats(alice);
+
+        assertEq(aliceBalance2, aliceBalance1 + aliceStakes);
+        assertEq(aliceTotalStaking, 0);
+        assertEq(aliceTotalStaked, 0);
+        assertEq(aliceUnclaimedStakingRewards, 0);
+        assertEq(aliceUnclaimedStakedRewards, 0);
+
+        // Check dev's stats after withdrawing
+        (
+            devBalance,
+            devTotalStaking,
+            devTotalStaked,
+            devUnclaimedStakingRewards,
+            devUnclaimedStakedRewards
+        ) = factory.getUserStakeStats(dev);
+
+        assertEq(devBalance, 0);
+        assertEq(devTotalStaking, 0);
+        assertEq(devTotalStaked, 0);
+        assertEq(devUnclaimedStakingRewards, 0);
+        assertGt(devUnclaimedStakedRewards, 0);
+    }
+
+    function testGetDevsTotalStaking() public {
+        uint256 amount = 1000e18;
+        uint256 aliceStakes = amount;
+        uint256 bobStakes = 2 * amount;
+        uint256 carolStakes = 3 * amount;
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, aliceStakes);
+        aspToken.mint(bob, bobStakes);
+        aspToken.mint(carol, carolStakes);
+
+        // Alice stakes for dev
+        vm.startPrank(alice, alice);
+        factory.stake(alice, aliceStakes);
+        // Bob stakes for dev
+        vm.startPrank(bob, bob);
+        factory.stake(bob, bobStakes);
+        // Carol stakes for dev
+        vm.startPrank(carol, carol);
+        factory.stake(carol, carolStakes);
+
+        address[] memory devs = new address[](3);
+        devs[0] = alice;
+        devs[1] = bob;
+        devs[2] = carol;
+
+        uint256[] memory totalStakings = factory.getDevsTotalStaking(devs);
+        for (uint32 i = 0; i < totalStakings.length; i++) {
+            assertEq(totalStakings[i], (i + 1) * aliceStakes);
+        }
+
+        // Clean up
+        vm.startPrank(alice, alice);
+        factory.withdraw(alice);
+        vm.startPrank(bob, bob);
+        factory.withdraw(bob);
+        vm.startPrank(carol, carol);
+        factory.withdraw(carol);
+
+        assertEq(factory.getDevsTotalStaking(devs)[0], 0);
+        assertEq(factory.getDevsTotalStaking(devs)[1], 0);
+        assertEq(factory.getDevsTotalStaking(devs)[2], 0);
+    }
+
+    function testGetUserStakedList() public {
+        uint256 mintAmount = 1000e18;
+        uint256 aliceStakes = mintAmount / 10;
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, mintAmount);
+
+        // Alice stakes for devs
+        vm.startPrank(alice, alice);
+        factory.stake(dev, aliceStakes);
+        factory.stake(bob, 2 * aliceStakes);
+        factory.stake(carol, 3 * aliceStakes);
+
+        address[] memory devs = new address[](3);
+        devs[0] = dev;
+        devs[1] = bob;
+        devs[2] = carol;
+
+        uint256[] memory stakeAmounts = new uint256[](3);
+        uint256[] memory unclaimedStakingRewards = new uint256[](3);
+        uint256[] memory unlockTimes = new uint256[](3);
+
+        (
+            stakeAmounts,
+            unclaimedStakingRewards,
+            unlockTimes
+        ) = factory.getUserStakedList(alice, devs);
+
+        for (uint32 i = 0; i < stakeAmounts.length; i++) {
+            assertEq(stakeAmounts[i], (i + 1) * aliceStakes);
+            assertEq(unclaimedStakingRewards[i], 0);
+            assertEq(unlockTimes[i], block.timestamp + factory.getDefaultLockPeriod());
+        }
+    }
+
+    function testGetTotalStaking() public {
+        uint256 amount = 1000e18;
+        uint256 aliceStakes = amount;
+        uint256 bobStakes = 2 * amount;
+        uint256 carolStakes = 3 * amount;
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, aliceStakes);
+        aspToken.mint(bob, bobStakes);
+        aspToken.mint(carol, carolStakes);
+
+        // Check total staking amount before stake
+        assertEq(factory.getTotalStaking(), 0);
+
+        // Alice stakes for dev
+        vm.startPrank(alice, alice);
+        factory.stake(alice, aliceStakes);
+        assertEq(factory.getTotalStaking(), aliceStakes);
+
+        // Bob stakes for dev
+        vm.startPrank(bob, bob);
+        factory.stake(bob, bobStakes);
+        assertEq(factory.getTotalStaking(), aliceStakes + bobStakes);
+
+        // Carol stakes for dev
+        vm.startPrank(carol, carol);
+        factory.stake(carol, carolStakes);
+        assertEq(factory.getTotalStaking(), aliceStakes + bobStakes + carolStakes);
+
+        // Clean up
+        vm.startPrank(alice, alice);
+        factory.withdraw(alice);
+        assertEq(factory.getTotalStaking(), bobStakes + carolStakes);
+
+        vm.startPrank(bob, bob);
+        factory.withdraw(bob);
+        assertEq(factory.getTotalStaking(), carolStakes);
+
+        vm.startPrank(carol, carol);
+        factory.withdraw(carol);
+        assertEq(factory.getTotalStaking(), 0);
     }
 }

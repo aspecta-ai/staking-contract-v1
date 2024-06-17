@@ -51,12 +51,18 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
         );
+        if (totalStake == 0) {
+            lastRewardedBlockNum = blockNum;
+            return;
+        }
+
         uint256 reward = (totalStake *
             (blockNum - lastRewardedBlockNum) *
             inflationRate *
             buildIndex) /
             MAX_PPB /
             MAX_PPB;
+        totalAccReward += reward;
         rewardPerShare += (reward * FIXED_POINT_SCALING_FACTOR) / totalSupply();
         lastRewardedBlockNum = blockNum;
     }
@@ -86,12 +92,10 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             tx.origin == developer,
             "AspectaDevPool: Only developer can claim dev reward"
         );
-        uint256 reward = (totalSupply() *
-            (rewardCut * (rewardPerShare - devLastRewardPerShare))) /
-            MAX_PPB /
-            FIXED_POINT_SCALING_FACTOR;
+        uint256 reward = (rewardCut * (totalAccReward - devLastReward)) /
+            MAX_PPB;
         IAspectaBuildingPoint(aspectaToken).mint(tx.origin, reward);
-        devLastRewardPerShare = rewardPerShare;
+        devLastReward = totalAccReward;
         IAspectaDevPoolFactory(factory).emitDevRewardClaimed(developer, reward);
     }
 
@@ -147,6 +151,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         token.transfer(staker, stakeAmount);
         _burn(staker, shareAmount);
         stakerState.stakeAmount = 0;
+        stakerState.unlockTime = 0;
 
         if (token.balanceOf(address(this)) > 0) {
             shareCoeff =
@@ -226,7 +231,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
             address(this)
         );
-        uint256 currentRewardPerShare = rewardPerShare;
+        uint256 currentReward = totalAccReward;
         if (totalStake > 0) {
             uint256 reward = (totalStake *
                 (blockNum - lastRewardedBlockNum) *
@@ -234,17 +239,9 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
                 buildIndex) /
                 MAX_PPB /
                 MAX_PPB;
-            currentRewardPerShare +=
-                rewardPerShare +
-                (reward * FIXED_POINT_SCALING_FACTOR) /
-                totalSupply();
+            currentReward += reward;
         }
-        return
-            (rewardCut *
-                totalSupply() *
-                (currentRewardPerShare - devLastRewardPerShare)) /
-            MAX_PPB /
-            FIXED_POINT_SCALING_FACTOR;
+        return (rewardCut * (currentReward - devLastReward)) / MAX_PPB;
     }
 
     /**

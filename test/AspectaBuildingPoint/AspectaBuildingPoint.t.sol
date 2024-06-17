@@ -8,7 +8,7 @@ import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
 
 contract AspectaBuildingPointTest is Test {
-    AspectaBuildingPoint aspectaBuildingPoint;
+    AspectaBuildingPoint aspToken;
 
     address asp;
     uint256 aspPK;
@@ -36,12 +36,30 @@ contract AspectaBuildingPointTest is Test {
             "AspectaBuildingPoint.sol",
             abi.encodeCall(AspectaBuildingPoint.initialize, asp)
         );
-        aspectaBuildingPoint = AspectaBuildingPoint(proxy);
+        aspToken = AspectaBuildingPoint(proxy);
 
-        assertEq(aspectaBuildingPoint.name(), "Aspecta Building Point");
+        assertEq(aspToken.name(), "Aspecta Building Point");
     }
 
-    function test_mint() public view {
-        assertEq(aspectaBuildingPoint.name(), "Aspecta Building Point");
+    function testMint() public {
+        assertEq(aspToken.name(), "Aspecta Building Point");
+
+        aspToken.mint(alice, 1e18);
+        assertEq(aspToken.balanceOf(alice), 1e18);
+    }
+
+    function testBatchMint() public {
+        uint32 batchSize = 100;
+        address[] memory accounts = new address[](batchSize);
+        uint256[] memory amounts = new uint256[](batchSize);
+
+        for (uint32 i = 0; i < batchSize; i++) {
+            accounts[i] = bob;
+            amounts[i] = 1e17;
+        }
+
+        aspToken.batchMint(accounts, amounts);
+
+        assertEq(aspToken.balanceOf(bob), 1e17 * batchSize);
     }
 }

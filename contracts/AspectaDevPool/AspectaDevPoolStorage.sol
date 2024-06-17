@@ -34,11 +34,13 @@ abstract contract AspectaDevPoolStorageV1 is
 
     uint256 public buildIndex;
 
+    uint256 public totalAccReward;
+
     uint256 internal rewardPerShare;
 
     uint256 internal lastRewardedBlockNum;
 
-    uint256 internal devLastRewardPerShare;
+    uint256 internal devLastReward;
 
     uint256 internal shareCoeff;
 
