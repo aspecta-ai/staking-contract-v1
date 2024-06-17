@@ -321,7 +321,7 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(devTotalStaking, 0);
         assertEq(devTotalStaked, 0);
         assertEq(devUnclaimedStakingRewards, 0);
-        assertGt(devUnclaimedStakedRewards, 0); // TODO: bug fix(getClaimableDevReward) dev should hanve unclaimed rewards
+        assertGt(devUnclaimedStakedRewards, 0);
     }
 
     function testGetDevsTotalStaking() public {
