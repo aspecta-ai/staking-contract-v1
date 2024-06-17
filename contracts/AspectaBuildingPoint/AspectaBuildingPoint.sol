@@ -37,7 +37,7 @@ contract AspectaBuildingPoint is Initializable, AspectaBuildingPointStorageV1 {
         uint256[] calldata amountList
     ) public onlyRole(OPERATOR_ROLE) {
         require(
-            toList.length <=100,
+            toList.length <= 100,
             "AspectaBuildingPoint: Exceeds limit of 100 addresses"
         );
         require(

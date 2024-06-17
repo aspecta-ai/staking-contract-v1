@@ -162,6 +162,10 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Claim rewards for a dev
      */
     function claimDevReward() external override {
+        require(
+            devPools[msg.sender] != address(0),
+            "AspectaDevPoolFactory: Pool does not exist for dev"
+        );
         IAspectaDevPool(devPools[msg.sender]).claimDevReward();
     }
 
