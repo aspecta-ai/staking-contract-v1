@@ -34,7 +34,7 @@ npm install
 # Run Unit Tests
 
 ```
-forge test
+npm run test
 ```
 
 # Deploy Contract
