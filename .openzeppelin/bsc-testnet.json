@@ -2,20 +2,20 @@
   "manifestVersion": "3.2",
   "proxies": [
     {
-      "address": "0x4f08c06EeF68Bd7a77c939Adf5fB81Be9435D0a0",
-      "txHash": "0x90f615b5c211386348ddd557b98eb2d7eb67149653cea4cba1090a34da25f2fc",
+      "address": "0x509608DCFF59BA44b17A08798c8E5464809B5E17",
+      "txHash": "0x86dc952387ae49211edd328bf29228328ef0fe2b8e603fc19e78850a815a272b",
       "kind": "uups"
     },
     {
-      "address": "0x680AB87eeec250726Fd9a756Bd9C51c456aDb9Cf",
-      "txHash": "0xf7d1cac60d84a9c467fc774ce413b7ea887b1d1f4d04203b63917e854d992b59",
+      "address": "0xAb65AD6D713D86F938d2b1480e7Ed9Cb4cD105Fa",
+      "txHash": "0x27d9eef5e3c00d8c8998edc7d8d1ba2cfc596a884f4b7b72f50f289b519a8639",
       "kind": "uups"
     }
   ],
   "impls": {
-    "e33a3b2ebf8fa493bd3314d13c110d05b41325f7df8f2bb4e91c579bb90abfe4": {
-      "address": "0x1a590409abd6823ac7D8eA43431611376b0dBc79",
-      "txHash": "0x78ebc828083634ce5958c32c50ea21160aa0fe04d44ee6d83a68d82ff1c70696",
+    "f3b9163185bbf92b424145a7ebe8ffc82cd3c199e170fa83c5ec04f28a2b413b": {
+      "address": "0x6B0334401FE6848bdBE627206b25e973ed9A9DA9",
+      "txHash": "0x07751a51894238d0900aa554b5b6d9620c809498d3ce96b1b3e93bd317407961",
       "layout": {
         "solcVersion": "0.8.25",
         "storage": [
@@ -232,9 +232,9 @@
         }
       }
     },
-    "43faa5d194e907b3fe2a2f92d9901f81a97b1736666f0a59f8269c78b9fa3f6b": {
-      "address": "0x506D549FE9A14c20BfC7f87c2c3e50930a443FB3",
-      "txHash": "0x7e7a661e072f99649e48b52eaf06302c0b58eec72c932bfda58091aa1aef3342",
+    "feb0d2c92d02bad5030fa0bf5973015c8ec639c615b5ce5b3d1ff2c46261dc81": {
+      "address": "0xF27FFb37fd540bbC03574392509484de1226A6Bc",
+      "txHash": "0x157eb30291e9626b0b8ac8a9ce0fae5fdd7328042795892131952117a3b6d8ed",
       "layout": {
         "solcVersion": "0.8.25",
         "storage": [
@@ -303,7 +303,7 @@
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:35"
           },
           {
-            "label": "rewardPerShare",
+            "label": "totalAccReward",
             "offset": 0,
             "slot": "8",
             "type": "t_uint256",
@@ -311,7 +311,7 @@
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:37"
           },
           {
-            "label": "lastRewardedBlockNum",
+            "label": "rewardPerShare",
             "offset": 0,
             "slot": "9",
             "type": "t_uint256",
@@ -319,7 +319,7 @@
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:39"
           },
           {
-            "label": "devLastRewardPerShare",
+            "label": "lastRewardedBlockNum",
             "offset": 0,
             "slot": "10",
             "type": "t_uint256",
@@ -327,7 +327,7 @@
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:41"
           },
           {
-            "label": "shareCoeff",
+            "label": "devLastReward",
             "offset": 0,
             "slot": "11",
             "type": "t_uint256",
@@ -335,20 +335,28 @@
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:43"
           },
           {
-            "label": "stakerStates",
+            "label": "shareCoeff",
             "offset": 0,
             "slot": "12",
-            "type": "t_mapping(t_address,t_struct(StakerState)6726_storage)",
+            "type": "t_uint256",
             "contract": "AspectaDevPoolStorageV1",
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:45"
           },
           {
-            "label": "__gap",
+            "label": "stakerStates",
             "offset": 0,
             "slot": "13",
-            "type": "t_array(t_uint256)50_storage",
+            "type": "t_mapping(t_address,t_struct(StakerState)6938_storage)",
             "contract": "AspectaDevPoolStorageV1",
             "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:47"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:49"
           }
         ],
         "types": {
@@ -450,11 +458,11 @@
             "label": "uint256[50]",
             "numberOfBytes": "1600"
           },
-          "t_mapping(t_address,t_struct(StakerState)6726_storage)": {
+          "t_mapping(t_address,t_struct(StakerState)6938_storage)": {
             "label": "mapping(address => struct IAspectaDevPool.StakerState)",
             "numberOfBytes": "32"
           },
-          "t_struct(StakerState)6726_storage": {
+          "t_struct(StakerState)6938_storage": {
             "label": "struct IAspectaDevPool.StakerState",
             "members": [
               {
@@ -553,9 +561,9 @@
         }
       }
     },
-    "d47e5c1ea1491ef094c9456948d7d6ea71a409276be7dc1c3c7c169d6ebaeebd": {
-      "address": "0x68FB564b24da98dAe48DD32c0740442968A0559D",
-      "txHash": "0xc83a4bd34bd0a722389df9d859cd442b8740bd43e48fcf49a622e34d0728101c",
+    "8529223f0d45ce89b3d62a1185222f639662418e06dfca67abe569a49b5a504f": {
+      "address": "0x21f044870c3f5F108A833a5256d820572C92bef4",
+      "txHash": "0xfd2cd9792aff861ddbcffec2c5b77347241d359241109f866341bf426e8ce705",
       "layout": {
         "solcVersion": "0.8.25",
         "storage": [
@@ -603,7 +611,7 @@
             "label": "aspectaBuildingPoint",
             "offset": 0,
             "slot": "5",
-            "type": "t_contract(AspectaBuildingPoint)5847",
+            "type": "t_contract(AspectaBuildingPoint)5899",
             "contract": "AspectaDevPoolFactoryStorageV1",
             "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:51"
           },
@@ -632,12 +640,20 @@
             "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:60"
           },
           {
-            "label": "__gap",
+            "label": "totalStakingAmount",
             "offset": 0,
             "slot": "9",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:63"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "10",
             "type": "t_array(t_uint256)50_storage",
             "contract": "AspectaDevPoolFactoryStorageV1",
-            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:64"
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:67"
           }
         ],
         "types": {
@@ -737,7 +753,7 @@
             "label": "uint256[50]",
             "numberOfBytes": "1600"
           },
-          "t_contract(AspectaBuildingPoint)5847": {
+          "t_contract(AspectaBuildingPoint)5899": {
             "label": "contract AspectaBuildingPoint",
             "numberOfBytes": "20"
           },

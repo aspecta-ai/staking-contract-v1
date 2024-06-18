@@ -23,6 +23,33 @@ const config: HardhatUserConfig = {
             ],
         },
     },
+    etherscan: {
+        apiKey: {
+            bsc_testnet: process.env.BSCSCAN_API_KEY as string,
+            bsc: process.env.BSCSCAN_API_KEY as string,
+        },
+        customChains: [
+            {
+                network: 'bsc_testnet',
+                chainId: 97,
+                urls: {
+                    apiURL: 'https://api-testnet.bscscan.com/api',
+                    browserURL: 'https://testnet.bscscan.com',
+                },
+            },
+            {
+                network: 'bsc',
+                chainId: 56,
+                urls: {
+                    apiURL: 'https://api.bscscan.com/api',
+                    browserURL: 'https://bscscan.com',
+                },
+            },
+        ],
+    },
+    sourcify: {
+        enabled: true,
+    },
 };
 
 export default config;

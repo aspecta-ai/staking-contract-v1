@@ -43,6 +43,12 @@ forge test
 npm run deploy
 ```
 
+# Verify Contract
+
+```
+npx hardhat verify --network mainnet PROXY_ADDRESS
+```
+
 # Upgrade Contract
 
 **You need to modify the existing contract, instead of creating a new contract.**
