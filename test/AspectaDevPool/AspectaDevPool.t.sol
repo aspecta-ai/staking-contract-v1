@@ -104,10 +104,10 @@ contract AspectaDevPoolTest is Test {
          */
         // bob stakes
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         // carol stakes
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         // bob has more shares than carol
         assertGt(devPool.balanceOf(bob), devPool.balanceOf(carol));
 
@@ -115,10 +115,10 @@ contract AspectaDevPoolTest is Test {
 
         // bob claims reward
         vm.startPrank(bob, bob);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         // carol claims reward
         vm.startPrank(carol, carol);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
 
         // bob and carol should receive reward, no reward for new staker derek
         assertGt(aspToken.balanceOf(bob), 0);
@@ -132,16 +132,16 @@ contract AspectaDevPoolTest is Test {
         uint256 carolReward = aspToken.balanceOf(carol);
         // new staker derek stakes
         vm.startPrank(derek, derek);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
 
         // record derek's reward
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         uint256 derekReward = aspToken.balanceOf(derek);
 
         // carol claims reward again
         vm.startPrank(carol, carol);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
 
         // derek staked so reward for carol increased
         uint256 carolReward2 = aspToken.balanceOf(carol) - carolReward;
@@ -152,11 +152,11 @@ contract AspectaDevPoolTest is Test {
          */
         // bob withdraw, stake again, and claim reward after unit time
         vm.startPrank(bob, bob);
-        devPool.withdraw();
-        devPool.stake(unitStake);
+        factory.withdraw(alice);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
         uint256 bobBalance = aspToken.balanceOf(bob);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         // reward should be same as derek
         uint256 bobReward = aspToken.balanceOf(bob) - bobBalance;
         equalWithTolerance(bobReward, derekReward, 1e18);
@@ -176,52 +176,52 @@ contract AspectaDevPoolTest is Test {
         /// Case 1: claim once at the end
         // derek stakes
         vm.startPrank(derek, derek);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
 
         // bob stakes
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
 
         // carol stakes
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
 
         // derek claims reward
         vm.startPrank(derek, derek);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         uint256 derekReward = aspToken.balanceOf(derek);
 
         // Clean up
-        devPool.withdraw();
+        factory.withdraw(alice);
         vm.startPrank(bob, bob);
-        devPool.withdraw();
+        factory.withdraw(alice);
         vm.startPrank(carol, carol);
-        devPool.withdraw();
+        factory.withdraw(alice);
 
         /// Case 2: claim multiple times
         // derek stakes, claim reward
         vm.startPrank(derek, derek);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         uint256 derekBalance = aspToken.balanceOf(derek);
         vm.roll(block.number + unitTime);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
 
         // bob stakes, derek claim reward
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
         vm.startPrank(derek, derek);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
 
         // carol stakes, derek claim reward
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
         vm.startPrank(derek, derek);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
 
         /// derek should have same reward
         equalWithTolerance(
@@ -240,37 +240,32 @@ contract AspectaDevPoolTest is Test {
 
         // bob stakes
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
 
         // carol stakes
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
 
         // derek stakes
         vm.startPrank(derek, derek);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         vm.roll(block.number + unitTime);
-
-        // bob claims dev reward
-        vm.startPrank(bob, bob);
-        vm.expectRevert("AspectaDevPool: Only developer can claim dev reward");
-        devPool.claimDevReward();
 
         // alice claims dev reward
         vm.startPrank(alice, alice);
         uint256 aliceBalance = aspToken.balanceOf(alice);
-        devPool.claimDevReward();
+        factory.claimDevReward();
         uint256 devReward = aspToken.balanceOf(alice) - aliceBalance;
 
         // alice should be the sum of dev reward / (1 - reward cut)
         vm.startPrank(bob, bob);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         vm.startPrank(carol, carol);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         vm.startPrank(derek, derek);
-        devPool.claimStakeReward();
+        factory.claimStakeReward();
         uint256 totalReward = aspToken.balanceOf(bob) +
             aspToken.balanceOf(carol) +
             aspToken.balanceOf(derek);
@@ -295,10 +290,10 @@ contract AspectaDevPoolTest is Test {
 
         // bob stakes
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
         // carol stakes
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
 
         vm.roll(block.number + unitTime);
 
@@ -309,11 +304,11 @@ contract AspectaDevPoolTest is Test {
         assertGt(bobReward, carolReward);
 
         // Clean up
-        devPool.withdraw();
+        factory.withdraw(alice);
         vm.startPrank(bob, bob);
-        devPool.withdraw();
+        factory.withdraw(alice);
         vm.startPrank(carol, carol);
-        devPool.withdraw();
+        factory.withdraw(alice);
 
         // bob and carol should have no claimable reward
         assertEq(devPool.getClaimableStakeReward(bob), 0);
@@ -348,7 +343,7 @@ contract AspectaDevPoolTest is Test {
 
         // carol stakes
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(bob, unitStake);
         vm.roll(block.number + unitTime);
 
         uint256 devReward2 = devPool.getClaimableDevReward();
@@ -357,7 +352,7 @@ contract AspectaDevPoolTest is Test {
         // bob claims dev reward
         vm.startPrank(bob, bob);
         uint256 bobBalance = aspToken.balanceOf(bob);
-        devPool.claimDevReward();
+        factory.claimDevReward();
         assertEq(aspToken.balanceOf(bob) - bobBalance, devReward2);
         assertEq(devPool.getClaimableDevReward(), 0);
 
@@ -366,9 +361,9 @@ contract AspectaDevPoolTest is Test {
         assertEq(devPool.getClaimableDevReward(), devReward2);
 
         // Clean up
-        devPool.claimDevReward();
+        factory.claimDevReward();
         vm.startPrank(carol, carol);
-        devPool.withdraw();
+        factory.withdraw(bob);
         assertEq(devPool.getClaimableDevReward(), 0);
     }
 
@@ -378,14 +373,14 @@ contract AspectaDevPoolTest is Test {
 
         // bob stakes
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
 
         (uint256 stakeAmount, uint256 unlockTime) = devPool.getStakerState(bob);
         assertEq(stakeAmount, unitStake);
         assertEq(unlockTime, block.timestamp + factory.getDefaultLockPeriod());
 
         // Clean up
-        devPool.withdraw();
+        factory.withdraw(alice);
         (stakeAmount, unlockTime) = devPool.getStakerState(bob);
         assertEq(stakeAmount, 0);
         assertEq(unlockTime, factory.getDefaultLockPeriod());
@@ -403,11 +398,11 @@ contract AspectaDevPoolTest is Test {
         /// -------- Stage 1 ----------
         // bob stakes
         vm.startPrank(bob, bob);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
 
         // carol stakes
         vm.startPrank(carol, carol);
-        devPool.stake(unitStake);
+        factory.stake(alice, unitStake);
 
         vm.roll(block.number + unitTime);
 
@@ -423,15 +418,15 @@ contract AspectaDevPoolTest is Test {
         /// -------- Stage 2 ----------
         // Claim reward and restake
         vm.startPrank(alice, alice);
-        devPool.claimDevReward();
+        factory.claimDevReward();
 
         vm.startPrank(bob, bob);
-        devPool.claimStakeReward();
-        devPool.stake(unitStake);
+        factory.claimStakeReward();
+        factory.stake(alice, unitStake);
 
         vm.startPrank(carol, carol);
-        devPool.claimStakeReward();
-        devPool.stake(unitStake);
+        factory.claimStakeReward();
+        factory.stake(alice, unitStake);
 
         vm.roll(block.number + unitTime);
 
@@ -440,10 +435,8 @@ contract AspectaDevPoolTest is Test {
         uint256 carolReward1 = devPool.getClaimableStakeReward(carol);
         uint256 devReward1 = devPool.getClaimableDevReward();
 
-        (
-            uint256 totalReceivedReward,
-            uint256 totalDistributedReward
-        ) = devPool.getDevRewardStats();
+        (uint256 totalReceivedReward, uint256 totalDistributedReward) = devPool
+            .getTotalAccRewards();
 
         equalWithTolerance(totalReceivedReward, devReward + devReward1, 1e17);
         equalWithTolerance(

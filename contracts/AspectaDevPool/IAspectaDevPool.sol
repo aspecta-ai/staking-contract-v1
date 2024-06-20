@@ -19,18 +19,20 @@ interface IAspectaDevPool {
         uint256 unlockTime;
     }
 
-    function stake(uint256 _amount) external;
+    function stake(address staker, uint256 amount) external;
 
-    function withdraw() external;
+    function withdraw(address staker) external;
 
-    function claimStakeReward() external;
+    function claimStakeReward(address staker) external;
 
     function claimDevReward() external;
 
-    function updateBuildIndex(uint256 _buildIndex) external;
+    function updateBuildIndex(uint256 buildIndex) external;
 
     /// Getters
-    function getClaimableStakeReward(address staker) external view returns (uint256);
+    function getClaimableStakeReward(
+        address staker
+    ) external view returns (uint256);
 
     function getClaimableDevReward() external view returns (uint256);
 
@@ -40,10 +42,9 @@ interface IAspectaDevPool {
      * @return stakeAmount Staker's stake amount
      * @return unlockTime Staker's unlock time
      */
-    function getStakerState(address staker)
-        external
-        view
-        returns (uint256, uint256);
+    function getStakerState(
+        address staker
+    ) external view returns (uint256, uint256);
 
     /**
      * @dev Get staker's share amount
@@ -56,12 +57,27 @@ interface IAspectaDevPool {
      * @dev Get building progress
      * @return Building progress
      */
-    function getBuildingProgress() external view returns (uint256);
+    function getBuildIndex() external view returns (uint256);
+
+    /**
+     * @dev Get new staker's reward per block
+     * @return Staker's reward per block
+     */
+    function getStakeRewardPerBlock() external view returns (uint256);
+
+    /**
+     * @dev Get existing staker's reward per block
+     * @param staker Staker's address
+     * @return Staker's reward per block
+     */
+    function getStakeRewardPerBlock(
+        address staker
+    ) external view returns (uint256);
 
     /**
      * @dev Get dev reward stats
      * @return totalReceivedReward Total received reward by dev
      * @return totalDistributedReward Total distributed reward to staker by dev
      */
-     function getDevRewardStats() external view returns (uint256, uint256);
+    function getTotalAccRewards() external view returns (uint256, uint256);
 }

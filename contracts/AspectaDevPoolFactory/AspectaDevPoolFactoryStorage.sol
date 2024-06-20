@@ -31,6 +31,7 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
 
     // ------------------ access control -----------------
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
+    bytes32 public constant ATTESTOR_ROLE = keccak256("ATTESTOR_ROLE");
 
     // -------------------- business --------------------
     // ----------- default values of the pool -----------

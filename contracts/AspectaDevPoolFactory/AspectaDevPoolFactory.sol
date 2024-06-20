@@ -33,7 +33,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         __Ownable_init(initialOwner);
         __UUPSUpgradeable_init();
         _grantRole(DEFAULT_ADMIN_ROLE, initialOwner);
-        _grantRole(OPERATOR_ROLE, initialOwner);
+        _grantRole(ATTESTOR_ROLE, initialOwner);
 
         beacon = UpgradeableBeacon(beaconAddress);
 
@@ -108,7 +108,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         }
 
         // Stake tokens in dev pool
-        IAspectaDevPool(devPoolAddr).stake(amount);
+        IAspectaDevPool(devPoolAddr).stake(msg.sender, amount);
         stakedDevSet[msg.sender].add(dev);
     }
 
@@ -123,7 +123,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         );
 
         // Withdraw all staked tokens from dev pool
-        IAspectaDevPool(devPools[dev]).withdraw();
+        IAspectaDevPool(devPools[dev]).withdraw(msg.sender);
 
         // Remove dev from staked devs
         stakedDevSet[msg.sender].remove(dev);
@@ -137,7 +137,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev;
         for (uint256 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
-            IAspectaDevPool(devPools[dev]).claimStakeReward();
+            IAspectaDevPool(devPools[dev]).claimStakeReward(msg.sender);
         }
     }
 
@@ -154,7 +154,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev;
         for (uint32 i = 0; i < devs.length; i++) {
             dev = devs[i];
-            IAspectaDevPool(devPools[dev]).claimStakeReward();
+            IAspectaDevPool(devPools[dev]).claimStakeReward(msg.sender);
         }
     }
 
@@ -171,17 +171,17 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
     /**
      * @dev Update the build index
-     * @param _buildIndex New build index
+     * @param buildIndex New build index
      */
     function updateBuildIndex(
         address dev,
-        uint256 _buildIndex
-    ) external override onlyOwner {
+        uint256 buildIndex
+    ) external override onlyRole(ATTESTOR_ROLE) {
         require(
             devPools[dev] != address(0),
             "AspectaDevPoolFactory: Pool does not exist for dev"
         );
-        IAspectaDevPool(devPools[dev]).updateBuildIndex(_buildIndex);
+        IAspectaDevPool(devPools[dev]).updateBuildIndex(buildIndex);
     }
 
     // ------------------- event router ------------------
@@ -244,7 +244,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Get default lock period
      * @return Default lock period
      */
-     function getDefaultLockPeriod() external view returns (uint256) {
+    function getDefaultLockPeriod() external view returns (uint256) {
         return defaultLockPeriod;
     }
 
@@ -270,20 +270,20 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         if (devPools[user] != address(0)) {
             totalStakedAmount = aspectaBuildingPoint.balanceOf(devPools[user]);
-            unclaimedStakedRewards = AspectaDevPool(
-                devPools[user]
-            ).getClaimableDevReward();
+            unclaimedStakedRewards = AspectaDevPool(devPools[user])
+                .getClaimableDevReward();
         }
 
         address dev;
         for (uint32 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
 
-            (stakingAmount, ) = AspectaDevPool(devPools[dev]).getStakerState(user);
+            (stakingAmount, ) = AspectaDevPool(devPools[dev]).getStakerState(
+                user
+            );
             totalStakeAmount += stakingAmount;
-            unclaimedStakingRewards += AspectaDevPool(
-                devPools[dev]
-            ).getClaimableStakeReward(user);
+            unclaimedStakingRewards += AspectaDevPool(devPools[dev])
+                .getClaimableStakeReward(user);
         }
 
         return (
@@ -316,6 +316,50 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     }
 
     /**
+     * @dev Get the amount of rewards received each block for a new staker
+     * @param devs Address list of the developers
+     * @return List of rewards per block
+     */
+    function getStakeRewardPerBlock(
+        address[] calldata devs
+    ) external view returns (uint256[] memory) {
+        require(
+            devs.length <= 100,
+            "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
+        );
+
+        uint256[] memory rewardsPerBlock = new uint256[](devs.length);
+        for (uint32 i = 0; i < devs.length; i++) {
+            if (devPools[devs[i]] == address(0)) {
+                rewardsPerBlock[i] = 0;
+            } else {
+                rewardsPerBlock[i] = IAspectaDevPool(devPools[devs[i]])
+                    .getStakeRewardPerBlock();
+            }
+        }
+        return rewardsPerBlock;
+    }
+
+    /**
+     * @dev Get the amount of rewards received each block for each staked dev for a given staker
+     * @param staker Address of the staker
+     * @return List of rewards per block
+     */
+    function getStakeRewardPerBlock(
+        address staker
+    ) external view returns (uint256[] memory) {
+        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[staker];
+        uint256[] memory rewardsPerBlock = new uint256[](stakedDevs.length());
+        address dev;
+        for (uint256 i = 0; i < stakedDevs.length(); i++) {
+            dev = stakedDevs.at(i);
+            rewardsPerBlock[i] = IAspectaDevPool(devPools[dev])
+                .getStakeRewardPerBlock(staker);
+        }
+        return rewardsPerBlock;
+    }
+
+    /**
      * @dev Get user's stakes history in all developers
      * @param user staker's address
      * @param devs list of developers
@@ -329,11 +373,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     )
         external
         view
-        returns (
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory
-        )
+        returns (uint256[] memory, uint256[] memory, uint256[] memory)
     {
         require(
             devs.length <= 100,
@@ -359,7 +399,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     /**
      * @dev Get total staking amount
      */
-    function getTotalStaking() external view returns(uint256) {
+    function getTotalStaking() external view returns (uint256) {
         return totalStakingAmount;
     }
 
@@ -386,13 +426,13 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Get total claimable stake reward for a dev
      * @return totalClaimableDevReward Total claimable dev reward
      */
-    function getTotalClaimableDevReward()
-        external
-        view
-        override
-        returns (uint256)
-    {
-        return IAspectaDevPool(devPools[msg.sender]).getClaimableDevReward();
+    function getTotalClaimableDevReward(
+        address dev
+    ) external view override returns (uint256) {
+        if (devPools[dev] == address(0)) {
+            return 0;
+        }
+        return IAspectaDevPool(devPools[dev]).getClaimableDevReward();
     }
 
     /**
@@ -417,14 +457,14 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     /**
      * @dev Get dev reward stats
      * @param devs Dev's addresses
-     * @return totalReceivedRewards Total received reward by devs
-     * @return totalDistributedRewards Total distributed rewards to staker by devs
+     * @return totalDevRewards Total received reward by devs
+     * @return totalStakeRewards Total distributed rewards to staker by devs
      */
-     function getDevsRewardStats(
+    function getTotalAccRewards(
         address[] calldata devs
     ) external view returns (uint256[] memory, uint256[] memory) {
-        uint256[] memory totalReceivedRewards = new uint256[](devs.length);
-        uint256[] memory totalDistributedRewards = new uint256[](devs.length);
+        uint256[] memory totalDevRewards = new uint256[](devs.length);
+        uint256[] memory totalStakeRewards = new uint256[](devs.length);
 
         require(
             devs.length <= 20,
@@ -432,18 +472,17 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         );
         for (uint32 i = 0; i < devs.length; i++) {
             if (devPools[devs[i]] == address(0)) {
-                totalReceivedRewards[i] = 0;
-                totalDistributedRewards[i] = 0;
+                totalDevRewards[i] = 0;
+                totalStakeRewards[i] = 0;
                 continue;
             }
 
-            (
-                totalReceivedRewards[i],
-                totalDistributedRewards[i]
-            ) = IAspectaDevPool(devPools[devs[i]]).getDevRewardStats();
+            (totalDevRewards[i], totalStakeRewards[i]) = IAspectaDevPool(
+                devPools[devs[i]]
+            ).getTotalAccRewards();
         }
 
-        return (totalReceivedRewards, totalDistributedRewards);
+        return (totalDevRewards, totalStakeRewards);
     }
 
     /**

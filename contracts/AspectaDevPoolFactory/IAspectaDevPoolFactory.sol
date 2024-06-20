@@ -89,9 +89,9 @@ interface IAspectaDevPoolFactory {
 
     /**
      * @dev Update the build index
-     * @param _buildIndex New build index
+     * @param buildIndex New build index
      */
-    function updateBuildIndex(address dev, uint256 _buildIndex) external;
+    function updateBuildIndex(address dev, uint256 buildIndex) external;
 
     // ------------------- event router ------------------
     function emitStakeRewardClaimed(
@@ -128,7 +128,7 @@ interface IAspectaDevPoolFactory {
      * @dev Get default lock period
      * @return Default lock period
      */
-     function getDefaultLockPeriod() external view returns (uint256);
+    function getDefaultLockPeriod() external view returns (uint256);
 
     /**
      * @dev User stake stats
@@ -153,6 +153,24 @@ interface IAspectaDevPoolFactory {
     ) external view returns (uint256[] memory);
 
     /**
+     * @dev Get the amount of rewards received each block for a new staker
+     * @param devs Address list of the developers
+     * @return List of rewards per block
+     */
+    function getStakeRewardPerBlock(
+        address[] calldata devs
+    ) external view returns (uint256[] memory);
+
+    /**
+     * @dev Get the amount of rewards received each block for each staked dev for a given staker
+     * @param staker Address list of the developers
+     * @return List of rewards per block
+     */
+    function getStakeRewardPerBlock(
+        address staker
+    ) external view returns (uint256[] memory);
+
+    /**
      * @dev Get user's stakes history in all developers
      * @param user staker's address
      * @param devs list of developers
@@ -166,11 +184,7 @@ interface IAspectaDevPoolFactory {
     )
         external
         view
-        returns (
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory
-        );
+        returns (uint256[] memory, uint256[] memory, uint256[] memory);
 
     /**
      * @dev Get total claimable reward for a staker
@@ -183,7 +197,9 @@ interface IAspectaDevPoolFactory {
     /**
      * @dev Get total claimable stake reward for a dev
      */
-    function getTotalClaimableDevReward() external view returns (uint256);
+    function getTotalClaimableDevReward(
+        address dev
+    ) external view returns (uint256);
 
     /**
      * @dev Get total staked amount for a dev/staker
@@ -196,7 +212,7 @@ interface IAspectaDevPoolFactory {
     /**
      * @dev Get total staking amount
      */
-    function getTotalStaking() external view returns(uint256);
+    function getTotalStaking() external view returns (uint256);
 
     /**
      * @dev Get dev reward stats
@@ -204,7 +220,7 @@ interface IAspectaDevPoolFactory {
      * @return totalReceivedRewards Total received reward by devs
      * @return totalDistributedRewards Total distributed rewards to staker by devs
      */
-     function getDevsRewardStats(
+    function getTotalAccRewards(
         address[] calldata devs
     ) external view returns (uint256[] memory, uint256[] memory);
 }

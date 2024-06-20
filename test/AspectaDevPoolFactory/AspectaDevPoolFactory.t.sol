@@ -174,7 +174,7 @@ contract AspectaDevPoolFactoryTest is Test {
         // Dev claims rewards
         vm.startPrank(dev, dev);
         factory.claimDevReward();
-        assertEq(factory.getTotalClaimableDevReward(), 0);
+        assertEq(factory.getTotalClaimableDevReward(dev), 0);
 
         /// ----------------------------------
         /// ---------- Test Withdraw ---------
@@ -675,6 +675,48 @@ contract AspectaDevPoolFactoryTest is Test {
         }
     }
 
+    function testGetRewardPerBlock() public {
+        uint256 unitTime = 300;
+        uint256 mintAmount = 1000e18;
+        uint256 unitStake = 1e18;
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, mintAmount);
+
+        // Alice stakes for devs
+        vm.startPrank(alice, alice);
+        factory.stake(dev, unitStake);
+        factory.stake(bob, unitStake);
+        factory.stake(carol, unitStake);
+        vm.startPrank(asp, asp);
+        factory.updateBuildIndex(dev, 8e8);
+        factory.updateBuildIndex(bob, 8e8);
+        factory.updateBuildIndex(carol, 8e8);
+
+        address[] memory devs = new address[](3);
+        devs[0] = dev;
+        devs[1] = bob;
+        devs[2] = carol;
+
+        uint256[] memory estNewRewards = factory.getStakeRewardPerBlock(devs);
+        assertGt(estNewRewards[0], 0);
+        assertGt(estNewRewards[1], 0);
+        assertGt(estNewRewards[2], 0);
+
+        uint256[] memory estRewards = factory.getStakeRewardPerBlock(alice);
+        vm.roll(block.number + unitTime);
+        uint256 expectedReward = 0;
+        for (uint32 i = 0; i < estRewards.length; i++) {
+            expectedReward += estRewards[i];
+        }
+        expectedReward *= unitTime;
+        uint256 balanceBefore = aspToken.balanceOf(alice);
+        vm.startPrank(alice, alice);
+        factory.claimStakeReward();
+        uint256 actualReward = aspToken.balanceOf(alice) - balanceBefore;
+        equalWithTolerance(expectedReward, actualReward, 1e17);
+    }
+
     function testGetTotalStaking() public {
         uint256 amount = 1000e18;
         uint256 aliceStakes = amount;
@@ -721,7 +763,7 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(factory.getTotalStaking(), 0);
     }
 
-    function testgetDevsRewardStats() public {
+    function testGetTotalAccRewards() public {
         uint256 mintAmount = 4000e18;
         uint256 unitStake = mintAmount / 4;
         uint256 unitTime = 1000;
@@ -752,7 +794,9 @@ contract AspectaDevPoolFactoryTest is Test {
         assertGt(devRewardForbob, 0);
 
         AspectaDevPool carolDevPool = AspectaDevPool(factory.getPool(carol));
-        uint256 aliceRewardFromcarol = carolDevPool.getClaimableStakeReward(alice);
+        uint256 aliceRewardFromcarol = carolDevPool.getClaimableStakeReward(
+            alice
+        );
         uint256 devRewardForcarol = carolDevPool.getClaimableDevReward();
 
         assertGt(aliceRewardFromcarol, 0);
@@ -761,24 +805,25 @@ contract AspectaDevPoolFactoryTest is Test {
         // / -------- Stage 2 ----------
         // Claim dev reward
         vm.startPrank(bob, bob);
-        bobDevPool.claimDevReward();
+        factory.claimDevReward();
 
         vm.startPrank(carol, carol);
-        carolDevPool.claimDevReward();
+        factory.claimDevReward();
 
         // Claim staker reward and restake
         vm.startPrank(alice, alice);
-        bobDevPool.claimStakeReward();
-        carolDevPool.claimStakeReward();
+        factory.claimStakeReward();
 
-        bobDevPool.stake(unitStake);
-        carolDevPool.stake(unitStake);
+        factory.stake(bob, unitStake);
+        factory.stake(carol, unitStake);
 
         vm.roll(block.number + unitTime);
 
         // Record staker's reward and dev reward that can be claimed
         uint256 aliceRewardFrombob1 = bobDevPool.getClaimableStakeReward(alice);
-        uint256 aliceRewardFromcarol1 = carolDevPool.getClaimableStakeReward(alice);
+        uint256 aliceRewardFromcarol1 = carolDevPool.getClaimableStakeReward(
+            alice
+        );
         uint256 devRewardForbob1 = bobDevPool.getClaimableDevReward();
         uint256 devRewardForcarol1 = carolDevPool.getClaimableDevReward();
 
@@ -788,10 +833,8 @@ contract AspectaDevPoolFactoryTest is Test {
         devs[0] = bob;
         devs[1] = carol;
 
-        (
-            totalReceivedRewards,
-            totalDistributedRewards
-        ) = factory.getDevsRewardStats(devs);
+        (totalReceivedRewards, totalDistributedRewards) = factory
+            .getTotalAccRewards(devs);
 
         // Check accuracy of the reward
         equalWithTolerance(
