@@ -91,7 +91,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function _claimDevReward() internal {
         uint256 reward = (rewardCut * (totalAccReward - devLastReward)) /
             MAX_PPB;
-        IAspectaBuildingPoint(aspectaToken).mint(tx.origin, reward);
+        IAspectaBuildingPoint(aspectaToken).mint(developer, reward);
         devLastReward = totalAccReward;
         IAspectaDevPoolFactory(factory).emitDevRewardClaimed(developer, reward);
     }
@@ -255,10 +255,6 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             stakerStates[staker].stakeAmount,
             stakerStates[staker].unlockTime
         );
-    }
-
-    function getStakes() external view returns (uint256) {
-        return stakerStates[tx.origin].stakeAmount;
     }
 
     /**
