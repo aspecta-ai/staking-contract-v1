@@ -88,6 +88,18 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.stopPrank();
     }
 
+    function equalWithTolerance(
+        uint256 a,
+        uint256 b,
+        uint256 tolerance
+    ) internal pure {
+        if (a > b) {
+            assertLt(a - b, tolerance);
+        } else {
+            assertLt(b - a, tolerance);
+        }
+    }
+
     function testAll() public {
         /// ----------------------------------
         /// ----------- Test Stake -----------
@@ -707,6 +719,104 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(carol, carol);
         factory.withdraw(carol);
         assertEq(factory.getTotalStaking(), 0);
+    }
+
+    function testgetDevsRewardStats() public {
+        uint256 mintAmount = 4000e18;
+        uint256 unitStake = mintAmount / 4;
+        uint256 unitTime = 1000;
+
+        // Mint token to alice
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, mintAmount);
+
+        /// -------- Stage 1 ----------
+        // bob stakes for devs
+        vm.startPrank(alice, alice);
+        factory.stake(bob, unitStake);
+        factory.stake(carol, unitStake);
+
+        // update the building progress
+        vm.startPrank(asp, asp);
+        factory.updateBuildIndex(bob, 8e9);
+        factory.updateBuildIndex(carol, 10e9);
+
+        vm.roll(block.number + unitTime);
+
+        // Record staker reward and devs reward
+        AspectaDevPool bobDevPool = AspectaDevPool(factory.getPool(bob));
+        uint256 aliceRewardFrombob = bobDevPool.getClaimableStakeReward(alice);
+        uint256 devRewardForbob = bobDevPool.getClaimableDevReward();
+
+        assertGt(aliceRewardFrombob, 0);
+        assertGt(devRewardForbob, 0);
+
+        AspectaDevPool carolDevPool = AspectaDevPool(factory.getPool(carol));
+        uint256 aliceRewardFromcarol = carolDevPool.getClaimableStakeReward(alice);
+        uint256 devRewardForcarol = carolDevPool.getClaimableDevReward();
+
+        assertGt(aliceRewardFromcarol, 0);
+        assertGt(devRewardForcarol, 0);
+
+        // / -------- Stage 2 ----------
+        // Claim dev reward
+        vm.startPrank(bob, bob);
+        bobDevPool.claimDevReward();
+
+        vm.startPrank(carol, carol);
+        carolDevPool.claimDevReward();
+
+        // Claim staker reward and restake
+        vm.startPrank(alice, alice);
+        bobDevPool.claimStakeReward();
+        carolDevPool.claimStakeReward();
+
+        bobDevPool.stake(unitStake);
+        carolDevPool.stake(unitStake);
+
+        vm.roll(block.number + unitTime);
+
+        // Record staker's reward and dev reward that can be claimed
+        uint256 aliceRewardFrombob1 = bobDevPool.getClaimableStakeReward(alice);
+        uint256 aliceRewardFromcarol1 = carolDevPool.getClaimableStakeReward(alice);
+        uint256 devRewardForbob1 = bobDevPool.getClaimableDevReward();
+        uint256 devRewardForcarol1 = carolDevPool.getClaimableDevReward();
+
+        uint256[] memory totalReceivedRewards = new uint256[](2);
+        uint256[] memory totalDistributedRewards = new uint256[](2);
+        address[] memory devs = new address[](2);
+        devs[0] = bob;
+        devs[1] = carol;
+
+        (
+            totalReceivedRewards,
+            totalDistributedRewards
+        ) = factory.getDevsRewardStats(devs);
+
+        // Check accuracy of the reward
+        equalWithTolerance(
+            totalReceivedRewards[0],
+            devRewardForbob + devRewardForbob1,
+            1e17
+        );
+
+        equalWithTolerance(
+            totalDistributedRewards[0],
+            aliceRewardFrombob + aliceRewardFrombob1,
+            1e17
+        );
+
+        equalWithTolerance(
+            totalReceivedRewards[1],
+            devRewardForcarol + devRewardForcarol1,
+            1e17
+        );
+
+        equalWithTolerance(
+            totalDistributedRewards[1],
+            aliceRewardFromcarol + aliceRewardFromcarol1,
+            1e17
+        );
     }
 
     function testGetBeacon() public view {

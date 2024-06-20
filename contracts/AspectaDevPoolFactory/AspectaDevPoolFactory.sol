@@ -263,7 +263,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[user];
 
         uint256 stakingAmount;
-        uint256 totalStakingAmount = 0;
+        uint256 totalStakeAmount = 0; // Staker total staking amount in all devs
         uint256 totalStakedAmount = 0;
         uint256 unclaimedStakingRewards = 0;
         uint256 unclaimedStakedRewards = 0;
@@ -280,7 +280,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             dev = stakedDevs.at(i);
 
             (stakingAmount, ) = AspectaDevPool(devPools[dev]).getStakerState(user);
-            totalStakingAmount += stakingAmount;
+            totalStakeAmount += stakingAmount;
             unclaimedStakingRewards += AspectaDevPool(
                 devPools[dev]
             ).getClaimableStakeReward(user);
@@ -288,7 +288,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         return (
             aspectaBuildingPoint.balanceOf(user),
-            totalStakingAmount,
+            totalStakeAmount,
             totalStakedAmount,
             unclaimedStakingRewards,
             unclaimedStakedRewards
@@ -412,6 +412,38 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             shares[i] = AspectaDevPool(devPools[dev]).balanceOf(user);
         }
         return (stakedDevs.values(), shares);
+    }
+
+    /**
+     * @dev Get dev reward stats
+     * @param devs Dev's addresses
+     * @return totalReceivedRewards Total received reward by devs
+     * @return totalDistributedRewards Total distributed rewards to staker by devs
+     */
+     function getDevsRewardStats(
+        address[] calldata devs
+    ) external view returns (uint256[] memory, uint256[] memory) {
+        uint256[] memory totalReceivedRewards = new uint256[](devs.length);
+        uint256[] memory totalDistributedRewards = new uint256[](devs.length);
+
+        require(
+            devs.length <= 20,
+            "AspectaDevPoolFactory: Exceeds limit of 20 addresses"
+        );
+        for (uint32 i = 0; i < devs.length; i++) {
+            if (devPools[devs[i]] == address(0)) {
+                totalReceivedRewards[i] = 0;
+                totalDistributedRewards[i] = 0;
+                continue;
+            }
+
+            (
+                totalReceivedRewards[i],
+                totalDistributedRewards[i]
+            ) = IAspectaDevPool(devPools[devs[i]]).getDevRewardStats();
+        }
+
+        return (totalReceivedRewards, totalDistributedRewards);
     }
 
     /**

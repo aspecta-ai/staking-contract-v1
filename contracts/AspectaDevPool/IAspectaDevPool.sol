@@ -57,4 +57,11 @@ interface IAspectaDevPool {
      * @return Building progress
      */
     function getBuildingProgress() external view returns (uint256);
+
+    /**
+     * @dev Get dev reward stats
+     * @return totalReceivedReward Total received reward by dev
+     * @return totalDistributedReward Total distributed reward to staker by dev
+     */
+     function getDevRewardStats() external view returns (uint256, uint256);
 }

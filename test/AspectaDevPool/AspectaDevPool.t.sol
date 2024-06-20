@@ -390,4 +390,66 @@ contract AspectaDevPoolTest is Test {
         assertEq(stakeAmount, 0);
         assertEq(unlockTime, factory.getDefaultLockPeriod());
     }
+
+    function testGetDevRewardStats() public {
+        uint256 mintAmount = 2000e18;
+        uint256 unitStake = mintAmount / 2;
+        uint256 unitTime = 1000;
+
+        // Mint token to bob and carol
+        aspToken.mint(bob, mintAmount);
+        aspToken.mint(carol, mintAmount);
+
+        /// -------- Stage 1 ----------
+        // bob stakes
+        vm.startPrank(bob, bob);
+        devPool.stake(unitStake);
+
+        // carol stakes
+        vm.startPrank(carol, carol);
+        devPool.stake(unitStake);
+
+        vm.roll(block.number + unitTime);
+
+        // Record staker reward and dev reward
+        uint256 bobReward = devPool.getClaimableStakeReward(bob);
+        uint256 carolReward = devPool.getClaimableStakeReward(carol);
+        uint256 devReward = devPool.getClaimableDevReward();
+
+        assertGt(bobReward, 0);
+        assertGt(carolReward, 0);
+        assertGt(devReward, 0);
+
+        /// -------- Stage 2 ----------
+        // Claim reward and restake
+        vm.startPrank(alice, alice);
+        devPool.claimDevReward();
+
+        vm.startPrank(bob, bob);
+        devPool.claimStakeReward();
+        devPool.stake(unitStake);
+
+        vm.startPrank(carol, carol);
+        devPool.claimStakeReward();
+        devPool.stake(unitStake);
+
+        vm.roll(block.number + unitTime);
+
+        // Record staker reward and dev reward
+        uint256 bobReward1 = devPool.getClaimableStakeReward(bob);
+        uint256 carolReward1 = devPool.getClaimableStakeReward(carol);
+        uint256 devReward1 = devPool.getClaimableDevReward();
+
+        (
+            uint256 totalReceivedReward,
+            uint256 totalDistributedReward
+        ) = devPool.getDevRewardStats();
+
+        equalWithTolerance(totalReceivedReward, devReward + devReward1, 1e17);
+        equalWithTolerance(
+            totalDistributedReward,
+            bobReward + carolReward + bobReward1 + carolReward1,
+            1e17
+        );
+    }
 }

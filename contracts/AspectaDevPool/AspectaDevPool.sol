@@ -279,4 +279,36 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function getBuildingProgress() external view returns (uint256) {
         return buildIndex;
     }
+
+    /**
+     * @dev Get dev reward stats
+     * @return totalReceivedReward Total received reward by dev
+     * @return totalDistributedReward Total distributed reward to staker by dev
+     */
+     function getDevRewardStats() external view returns (uint256, uint256) {
+        uint256 totalStake = IAspectaBuildingPoint(aspectaToken).balanceOf(
+            address(this)
+        );
+
+        uint256 reward = (totalStake *
+            (block.number - lastRewardedBlockNum) *
+            inflationRate *
+            buildIndex) /
+            MAX_PPB /
+            MAX_PPB;
+
+        uint256 currentTotalAccReward = totalAccReward + reward;        
+        uint256 totalReceivedReward = (
+            rewardCut *
+            currentTotalAccReward /
+            MAX_PPB
+        );
+        uint256 totalDistributedReward = (
+            (MAX_PPB - rewardCut) *
+            currentTotalAccReward /
+            MAX_PPB
+        );
+
+        return (totalReceivedReward, totalDistributedReward);
+     }
 }

@@ -197,4 +197,14 @@ interface IAspectaDevPoolFactory {
      * @dev Get total staking amount
      */
     function getTotalStaking() external view returns(uint256);
+
+    /**
+     * @dev Get dev reward stats
+     * @param devs Dev's addresses
+     * @return totalReceivedRewards Total received reward by devs
+     * @return totalDistributedRewards Total distributed rewards to staker by devs
+     */
+     function getDevsRewardStats(
+        address[] calldata devs
+    ) external view returns (uint256[] memory, uint256[] memory);
 }
