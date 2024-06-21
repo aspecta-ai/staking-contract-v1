@@ -70,3 +70,9 @@ npm run upgrade-bc
 ```
 npm run upgrade-pf
 ```
+
+4. Upgrade the PoolFactoryGetters contract
+
+```
+npm run upgrade-fg
+```

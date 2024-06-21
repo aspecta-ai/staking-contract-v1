@@ -131,96 +131,18 @@ interface IAspectaDevPoolFactory {
     function getDefaultLockPeriod() external view returns (uint256);
 
     /**
-     * @dev User stake stats
-     * @param user Dev/Staker address
-     * @return Available balance
-     * @return Total staking amount
-     * @return Total staked amount
-     * @return Unclaimed staking rewards
-     * @return Unclaimed staked rewards
+     * @dev Get dev pool
+     * @param dev Dev address
+     * @return Address of the dev pool contract
      */
-    function getUserStakeStats(
+    function getPool(address dev) external view returns (address);
+
+    /**
+     * @dev Get all staked devs for a staker
+     * @param user Staker address
+     * @return Addresses of the staked devs
+     */
+    function getStakedDevs(
         address user
-    ) external view returns (uint256, uint256, uint256, uint256, uint256);
-
-    /**
-     * @dev Get the amount of stakes developers received
-     * @param devs Address list of the developers
-     * @return List of their total staked amount
-     */
-    function getDevsTotalStaking(
-        address[] calldata devs
-    ) external view returns (uint256[] memory);
-
-    /**
-     * @dev Get the amount of rewards received each block for a new staker
-     * @param devs Address list of the developers
-     * @return List of rewards per block
-     */
-    function getStakeRewardPerBlock(
-        address[] calldata devs
-    ) external view returns (uint256[] memory);
-
-    /**
-     * @dev Get the amount of rewards received each block for each staked dev for a given staker
-     * @param staker Address list of the developers
-     * @return List of rewards per block
-     */
-    function getStakeRewardPerBlock(
-        address staker
-    ) external view returns (uint256[] memory);
-
-    /**
-     * @dev Get user's stakes history in all developers
-     * @param user staker's address
-     * @param devs list of developers
-     * @return List of stake amount
-     * @return List of unclaimed staking rewards
-     * @return List of stake unlock time
-     */
-    function getUserStakedList(
-        address user,
-        address[] calldata devs
-    )
-        external
-        view
-        returns (uint256[] memory, uint256[] memory, uint256[] memory);
-
-    /**
-     * @dev Get total claimable reward for a staker
-     * @param staker Staker address
-     */
-    function getTotalClaimableStakeReward(
-        address staker
-    ) external view returns (uint256);
-
-    /**
-     * @dev Get total claimable stake reward for a dev
-     */
-    function getTotalClaimableDevReward(
-        address dev
-    ) external view returns (uint256);
-
-    /**
-     * @dev Get total staked amount for a dev/staker
-     * @param user Dev/Staker address
-     */
-    function getStakingList(
-        address user
-    ) external view returns (address[] memory, uint256[] memory);
-
-    /**
-     * @dev Get total staking amount
-     */
-    function getTotalStaking() external view returns (uint256);
-
-    /**
-     * @dev Get dev reward stats
-     * @param devs Dev's addresses
-     * @return totalReceivedRewards Total received reward by devs
-     * @return totalDistributedRewards Total distributed rewards to staker by devs
-     */
-    function getTotalAccRewards(
-        address[] calldata devs
-    ) external view returns (uint256[] memory, uint256[] memory);
+    ) external view returns (address[] memory);
 }

@@ -90,6 +90,18 @@ async function main() {
         await aspectaBuildingPoint.getFactoryRole(),
         await aspectaDevPoolFactory.getAddress(),
     );
+
+    const PoolFactoryGetters =
+        await ethers.getContractFactory('PoolFactoryGetters');
+    const poolFactoryGetters = await upgrades.deployProxy(PoolFactoryGetters, [
+        await signer.getAddress(),
+        await aspectaDevPoolFactory.getAddress(),
+    ]);
+    await poolFactoryGetters.waitForDeployment();
+    console.log(
+        'PoolFactoryGetters deployed to:',
+        await poolFactoryGetters.getAddress(),
+    );
 }
 
 main()
