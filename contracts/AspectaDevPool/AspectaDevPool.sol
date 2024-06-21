@@ -247,23 +247,16 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
      * @param staker Staker's address
      * @return stakeAmount Staker's stake amount
      * @return unlockTime Staker's unlock time
+     * @return shareAmount Staker's share amount
      */
     function getStakerState(
         address staker
-    ) external view returns (uint256, uint256) {
+    ) external view returns (uint256, uint256, uint256) {
         return (
             stakerStates[staker].stakeAmount,
-            stakerStates[staker].unlockTime
+            stakerStates[staker].unlockTime,
+            balanceOf(staker)
         );
-    }
-
-    /**
-     * @dev Get staker's share amount
-     * @param staker Staker's address
-     * @return stakeAmount Staker's share amount
-     */
-    function getStakerShare(address staker) external view returns (uint256) {
-        return balanceOf(staker);
     }
 
     /**

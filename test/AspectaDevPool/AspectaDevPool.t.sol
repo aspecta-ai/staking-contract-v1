@@ -69,12 +69,7 @@ contract AspectaDevPoolTest is Test {
         );
         factory = AspectaDevPoolFactory(pfProxy);
         aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
-
-        aspToken.mint(alice, 1e18);
-        factory.stake(alice, 1e18);
-        factory.withdraw(alice);
         factory.updateBuildIndex(alice, 8e9);
-
         devPool = AspectaDevPool(factory.getPool(alice));
     }
 
@@ -326,11 +321,6 @@ contract AspectaDevPoolTest is Test {
         aspToken.mint(bob, unitStake);
         aspToken.mint(carol, unitStake);
 
-        // Create a new pool
-        vm.startPrank(bob, bob);
-        factory.stake(bob, 1e18);
-        factory.withdraw(bob);
-
         // Update build index
         vm.startPrank(alice, alice);
         factory.updateBuildIndex(bob, 8e9);
@@ -375,13 +365,14 @@ contract AspectaDevPoolTest is Test {
         vm.startPrank(bob, bob);
         factory.stake(alice, unitStake);
 
-        (uint256 stakeAmount, uint256 unlockTime) = devPool.getStakerState(bob);
+        (uint256 stakeAmount, uint256 unlockTime, uint256 shares) = devPool
+            .getStakerState(bob);
         assertEq(stakeAmount, unitStake);
         assertEq(unlockTime, block.timestamp + factory.getDefaultLockPeriod());
 
         // Clean up
         factory.withdraw(alice);
-        (stakeAmount, unlockTime) = devPool.getStakerState(bob);
+        (stakeAmount, unlockTime, shares) = devPool.getStakerState(bob);
         assertEq(stakeAmount, 0);
         assertEq(unlockTime, factory.getDefaultLockPeriod());
     }

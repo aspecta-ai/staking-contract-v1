@@ -41,17 +41,11 @@ interface IAspectaDevPool {
      * @param staker Staker's address
      * @return stakeAmount Staker's stake amount
      * @return unlockTime Staker's unlock time
+     * @return shares Staker's shares
      */
     function getStakerState(
         address staker
-    ) external view returns (uint256, uint256);
-
-    /**
-     * @dev Get staker's share amount
-     * @param staker Staker's address
-     * @return stakeAmount Staker's share amount
-     */
-    function getStakerShare(address staker) external view returns (uint256);
+    ) external view returns (uint256, uint256, uint256);
 
     /**
      * @dev Get building progress

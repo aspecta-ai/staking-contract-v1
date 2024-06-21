@@ -123,19 +123,22 @@ contract AspectaDevPoolFactoryTest is Test {
         assertNotEq(factory.getPool(dev), address(0));
 
         devPool = AspectaDevPool(factory.getPool(dev));
-        assertEq(aliceStakes, devPool.getStakes());
+        (uint256 stakeAmount, , ) = devPool.getStakerState(alice);
+        assertEq(aliceStakes, stakeAmount);
         assertEq(aspToken.balanceOf(alice), 0);
 
         // Bob stakes for dev
         vm.startPrank(bob, bob);
         factory.stake(dev, bobStakes);
-        assertEq(bobStakes, devPool.getStakes());
+        (stakeAmount, , ) = devPool.getStakerState(bob);
+        assertEq(bobStakes, stakeAmount);
         assertEq(aspToken.balanceOf(bob), 0);
 
         // Carol stakes for dev
         vm.startPrank(carol, carol);
         factory.stake(dev, carolStakes);
-        assertEq(carolStakes, devPool.getStakes());
+        (stakeAmount, , ) = devPool.getStakerState(carol);
+        assertEq(carolStakes, stakeAmount);
         assertEq(aspToken.balanceOf(carol), 0);
 
         // Check the total stake is correct
@@ -183,7 +186,8 @@ contract AspectaDevPoolFactoryTest is Test {
         // Alice withdraws
         vm.startPrank(alice, alice);
         factory.withdraw(dev);
-        assertEq(devPool.getStakes(), 0);
+        (stakeAmount, , ) = devPool.getStakerState(alice);
+        assertEq(stakeAmount, 0);
         assertEq(aspToken.balanceOf(alice), aliceStakes);
         assertEq(devPool.balanceOf(alice), 0);
         assertEq(aspToken.balanceOf(address(devPool)), bobStakes + carolStakes);
@@ -194,7 +198,8 @@ contract AspectaDevPoolFactoryTest is Test {
         // Bob withdraws
         vm.startPrank(bob, bob);
         factory.withdraw(dev);
-        assertEq(devPool.getStakes(), 0);
+        (stakeAmount, , ) = devPool.getStakerState(bob);
+        assertEq(stakeAmount, 0);
         assertEq(aspToken.balanceOf(bob), bobStakes);
         assertEq(devPool.balanceOf(bob), 0);
         assertEq(aspToken.balanceOf(address(devPool)), carolStakes);
@@ -205,7 +210,8 @@ contract AspectaDevPoolFactoryTest is Test {
         // Carol withdraws
         vm.startPrank(carol, carol);
         factory.withdraw(dev);
-        assertEq(devPool.getStakes(), 0);
+        (stakeAmount, , ) = devPool.getStakerState(carol);
+        assertEq(stakeAmount, 0);
         assertEq(aspToken.balanceOf(carol), carolStakes);
         assertEq(devPool.balanceOf(carol), 0);
         assertEq(aspToken.balanceOf(address(devPool)), 0);

@@ -93,19 +93,22 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         return address(poolProxy);
     }
 
+    function _getPool(address dev) internal returns (address) {
+        // If pool does not exist, create one
+        if (devPools[dev] == address(0)) {
+            return _createPool(dev);
+        } else {
+            return devPools[dev];
+        }
+    }
+
     /**
      * @dev Stake tokens for a dev
      * @param dev Dev address
      * @param amount Amount to stake
      */
     function stake(address dev, uint256 amount) external override {
-        address devPoolAddr;
-        // If pool does not exist, create one
-        if (devPools[dev] == address(0)) {
-            devPoolAddr = _createPool(dev);
-        } else {
-            devPoolAddr = devPools[dev];
-        }
+        address devPoolAddr = _getPool(dev);
 
         // Stake tokens in dev pool
         IAspectaDevPool(devPoolAddr).stake(msg.sender, amount);
@@ -177,11 +180,8 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev,
         uint256 buildIndex
     ) external override onlyRole(ATTESTOR_ROLE) {
-        require(
-            devPools[dev] != address(0),
-            "AspectaDevPoolFactory: Pool does not exist for dev"
-        );
-        IAspectaDevPool(devPools[dev]).updateBuildIndex(buildIndex);
+        address devPoolAddr = _getPool(dev);
+        IAspectaDevPool(devPoolAddr).updateBuildIndex(buildIndex);
     }
 
     // ------------------- event router ------------------
@@ -278,7 +278,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         for (uint32 i = 0; i < stakedDevs.length(); i++) {
             dev = stakedDevs.at(i);
 
-            (stakingAmount, ) = AspectaDevPool(devPools[dev]).getStakerState(
+            (stakingAmount, , ) = AspectaDevPool(devPools[dev]).getStakerState(
                 user
             );
             totalStakeAmount += stakingAmount;
@@ -390,7 +390,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
             devPool = AspectaDevPool(devPools[devs[i]]);
 
             unclaimedStakingRewards[i] = devPool.getClaimableStakeReward(user);
-            (stakeAmounts[i], unlockTimes[i]) = devPool.getStakerState(user);
+            (stakeAmounts[i], unlockTimes[i], ) = devPool.getStakerState(user);
         }
 
         return (stakeAmounts, unclaimedStakingRewards, unlockTimes);
