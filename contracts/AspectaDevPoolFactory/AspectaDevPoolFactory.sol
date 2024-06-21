@@ -294,4 +294,19 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         defaultInflationRate = _defaultInflationRate;
         return defaultInflationRate;
     }
+
+    /**
+     * @notice Set default lock period
+     * @param _defaultLockPeriod New default lock period
+     */
+    function setDefaultLockPeriod(
+        uint256 _defaultLockPeriod
+    ) external override onlyOwner {
+        defaultLockPeriod = _defaultLockPeriod;
+        for (uint256 i = 0; i < allPools.length; i++) {
+            IAspectaDevPool(allPools[i]).setDefaultLockPeriod(
+                _defaultLockPeriod
+            );
+        }
+    }
 }
