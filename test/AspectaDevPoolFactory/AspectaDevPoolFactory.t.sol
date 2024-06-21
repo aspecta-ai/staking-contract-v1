@@ -948,4 +948,31 @@ contract AspectaDevPoolFactoryTest is Test {
 
         assertGt(aliceBalance, newAliceBalance);
     }
+
+    function testSetDefaultLockPeriod() public {
+        uint256 amount = 10 ** 18;
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, amount);
+
+        // Update the default lock period
+        uint256 newLockPeriod = 1 days;
+        factory.setDefaultLockPeriod(newLockPeriod);
+
+        // Alice stakes for dev
+        vm.startPrank(alice, alice);
+        factory.stake(dev, amount);
+
+        // update the building progress
+        vm.startPrank(asp, asp);
+        factory.updateBuildIndex(dev, 8e9);
+
+        // update block timesteap
+        vm.roll(vm.getBlockNumber() + 100); // for a short time
+
+        // Alice withdraws should fail
+        vm.startPrank(alice, alice);
+        vm.expectRevert();
+        factory.withdraw(dev);
+    }
 }

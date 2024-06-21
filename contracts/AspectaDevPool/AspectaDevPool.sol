@@ -286,4 +286,13 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
         return (totalDevReward, totalStakeReward);
     }
+
+    /// Setters
+
+    // @dev Set default lock period
+    function setDefaultLockPeriod(
+        uint256 _defaultLockPeriod
+    ) external override onlyOwner {
+        defaultLockPeriod = _defaultLockPeriod;
+    }
 }

@@ -74,4 +74,7 @@ interface IAspectaDevPool {
      * @return totalDistributedReward Total distributed reward to staker by dev
      */
     function getTotalAccRewards() external view returns (uint256, uint256);
+
+    /// Setters
+    function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
 }
