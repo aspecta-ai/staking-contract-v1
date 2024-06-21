@@ -6,10 +6,12 @@ import {Test, console} from "forge-std/Test.sol";
 import {Upgrades} from "openzeppelin-foundry-upgrades/Upgrades.sol";
 import "@openzeppelin/contracts/proxy/beacon/BeaconProxy.sol";
 import "@openzeppelin/contracts/utils/structs/EnumerableSet.sol";
+import "@openzeppelin/contracts/proxy/beacon/UpgradeableBeacon.sol";
 
-import "../../contracts/AspectaDevPoolFactory/AspectaDevPoolFactory.sol";
-import "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
-import "../../contracts/AspectaDevPool/AspectaDevPool.sol";
+import {AspectaDevPoolFactory} from "../../contracts/AspectaDevPoolFactory/AspectaDevPoolFactory.sol";
+import {AspectaBuildingPoint} from "../../contracts/AspectaBuildingPoint/AspectaBuildingPoint.sol";
+import {AspectaDevPool} from "../../contracts/AspectaDevPool/AspectaDevPool.sol";
+import {PoolFactoryGetters} from "../../contracts/PoolFactoryGetters/PoolFactoryGetters.sol";
 
 contract AspectaDevPoolFactoryTest is Test {
     uint256 private constant MAX_PPB = 1e9;
@@ -18,6 +20,7 @@ contract AspectaDevPoolFactoryTest is Test {
     AspectaDevPoolFactory factory;
     AspectaBuildingPoint aspToken;
     AspectaDevPool devPool;
+    PoolFactoryGetters factoryGetters;
 
     UpgradeableBeacon beacon;
 
@@ -84,6 +87,13 @@ contract AspectaDevPoolFactoryTest is Test {
         factory = AspectaDevPoolFactory(pfProxy);
 
         aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
+
+        // Deploy factory getters contract
+        address pfgProxy = Upgrades.deployUUPSProxy(
+            "PoolFactoryGetters.sol",
+            abi.encodeCall(PoolFactoryGetters.initialize, (asp, pfProxy))
+        );
+        factoryGetters = PoolFactoryGetters(pfgProxy);
 
         vm.stopPrank();
     }
@@ -172,12 +182,18 @@ contract AspectaDevPoolFactoryTest is Test {
         // Alice claims rewards
         vm.startPrank(alice, alice);
         factory.claimStakeReward();
-        assertEq(factory.getTotalClaimableStakeReward(alice), 0);
+        (, , , uint256 aliceClaimableStakeRewards, ) = factoryGetters
+            .getUserStakeStats(alice);
+
+        assertEq(aliceClaimableStakeRewards, 0);
 
         // Dev claims rewards
         vm.startPrank(dev, dev);
         factory.claimDevReward();
-        assertEq(factory.getTotalClaimableDevReward(dev), 0);
+        (, , , , uint256 devClaimableDevRewards) = factoryGetters
+            .getUserStakeStats(dev);
+
+        assertEq(devClaimableDevRewards, 0);
 
         /// ----------------------------------
         /// ---------- Test Withdraw ---------
@@ -247,7 +263,6 @@ contract AspectaDevPoolFactoryTest is Test {
         factory.stake(dev, amount);
 
         // Derek withdraws and claims rewards
-        factory.getUserStakeStats(derek);
         factory.claimStakeReward();
         assertEq(aspToken.balanceOf(derek), 0);
         factory.withdraw(dev);
@@ -523,7 +538,7 @@ contract AspectaDevPoolFactoryTest is Test {
             uint256 aliceTotalStaked,
             uint256 aliceUnclaimedStakingRewards,
             uint256 aliceUnclaimedStakedRewards
-        ) = factory.getUserStakeStats(alice);
+        ) = factoryGetters.getUserStakeStats(alice);
 
         assertEq(aliceBalance, mintAmount - aliceStakes);
         assertEq(aliceTotalStaking, aliceStakes);
@@ -544,7 +559,7 @@ contract AspectaDevPoolFactoryTest is Test {
             aliceTotalStaked,
             aliceUnclaimedStakingRewards1,
             aliceUnclaimedStakedRewards
-        ) = factory.getUserStakeStats(alice);
+        ) = factoryGetters.getUserStakeStats(alice);
 
         assertEq(aliceBalance1, aliceBalance + aliceUnclaimedStakingRewards);
         assertEq(aliceTotalStaking1, aliceTotalStaking);
@@ -559,7 +574,7 @@ contract AspectaDevPoolFactoryTest is Test {
             uint256 devTotalStaked,
             uint256 devUnclaimedStakingRewards,
             uint256 devUnclaimedStakedRewards
-        ) = factory.getUserStakeStats(dev);
+        ) = factoryGetters.getUserStakeStats(dev);
 
         assertEq(devBalance, 0);
         assertEq(devTotalStaking, 0);
@@ -578,7 +593,7 @@ contract AspectaDevPoolFactoryTest is Test {
             aliceTotalStaked,
             aliceUnclaimedStakingRewards,
             aliceUnclaimedStakedRewards
-        ) = factory.getUserStakeStats(alice);
+        ) = factoryGetters.getUserStakeStats(alice);
 
         assertEq(aliceBalance2, aliceBalance1 + aliceStakes);
         assertEq(aliceTotalStaking, 0);
@@ -593,7 +608,7 @@ contract AspectaDevPoolFactoryTest is Test {
             devTotalStaked,
             devUnclaimedStakingRewards,
             devUnclaimedStakedRewards
-        ) = factory.getUserStakeStats(dev);
+        ) = factoryGetters.getUserStakeStats(dev);
 
         assertEq(devBalance, 0);
         assertEq(devTotalStaking, 0);
@@ -628,9 +643,11 @@ contract AspectaDevPoolFactoryTest is Test {
         devs[1] = bob;
         devs[2] = carol;
 
-        uint256[] memory totalStakings = factory.getDevsTotalStaking(devs);
-        for (uint32 i = 0; i < totalStakings.length; i++) {
-            assertEq(totalStakings[i], (i + 1) * aliceStakes);
+        uint256[] memory totalStakeds = factoryGetters.getTotalStakedAmount(
+            devs
+        );
+        for (uint32 i = 0; i < totalStakeds.length; i++) {
+            assertEq(totalStakeds[i], (i + 1) * aliceStakes);
         }
 
         // Clean up
@@ -641,9 +658,9 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(carol, carol);
         factory.withdraw(carol);
 
-        assertEq(factory.getDevsTotalStaking(devs)[0], 0);
-        assertEq(factory.getDevsTotalStaking(devs)[1], 0);
-        assertEq(factory.getDevsTotalStaking(devs)[2], 0);
+        assertEq(factoryGetters.getTotalStakedAmount(devs)[0], 0);
+        assertEq(factoryGetters.getTotalStakedAmount(devs)[1], 0);
+        assertEq(factoryGetters.getTotalStakedAmount(devs)[2], 0);
     }
 
     function testGetUserStakedList() public {
@@ -668,8 +685,8 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256[] memory unclaimedStakingRewards = new uint256[](3);
         uint256[] memory unlockTimes = new uint256[](3);
 
-        (stakeAmounts, unclaimedStakingRewards, unlockTimes) = factory
-            .getUserStakedList(alice, devs);
+        (stakeAmounts, unclaimedStakingRewards, unlockTimes) = factoryGetters
+            .getStakingHistory(alice, devs);
 
         for (uint32 i = 0; i < stakeAmounts.length; i++) {
             assertEq(stakeAmounts[i], (i + 1) * aliceStakes);
@@ -704,12 +721,16 @@ contract AspectaDevPoolFactoryTest is Test {
         devs[1] = bob;
         devs[2] = carol;
 
-        uint256[] memory estNewRewards = factory.getStakeRewardPerBlock(devs);
+        uint256[] memory estNewRewards = factoryGetters.getStakeRewardPerBlock(
+            devs
+        );
         assertGt(estNewRewards[0], 0);
         assertGt(estNewRewards[1], 0);
         assertGt(estNewRewards[2], 0);
 
-        uint256[] memory estRewards = factory.getStakeRewardPerBlock(alice);
+        uint256[] memory estRewards = factoryGetters.getStakeRewardPerBlock(
+            alice
+        );
         vm.roll(block.number + unitTime);
         uint256 expectedReward = 0;
         for (uint32 i = 0; i < estRewards.length; i++) {
@@ -735,38 +756,44 @@ contract AspectaDevPoolFactoryTest is Test {
         aspToken.mint(carol, carolStakes);
 
         // Check total staking amount before stake
-        assertEq(factory.getTotalStaking(), 0);
+        assertEq(factoryGetters.getTotalStakingAmount(), 0);
 
         // Alice stakes for dev
         vm.startPrank(alice, alice);
         factory.stake(alice, aliceStakes);
-        assertEq(factory.getTotalStaking(), aliceStakes);
+        assertEq(factoryGetters.getTotalStakingAmount(), aliceStakes);
 
         // Bob stakes for dev
         vm.startPrank(bob, bob);
         factory.stake(bob, bobStakes);
-        assertEq(factory.getTotalStaking(), aliceStakes + bobStakes);
+        assertEq(
+            factoryGetters.getTotalStakingAmount(),
+            aliceStakes + bobStakes
+        );
 
         // Carol stakes for dev
         vm.startPrank(carol, carol);
         factory.stake(carol, carolStakes);
         assertEq(
-            factory.getTotalStaking(),
+            factoryGetters.getTotalStakingAmount(),
             aliceStakes + bobStakes + carolStakes
         );
 
         // Clean up
         vm.startPrank(alice, alice);
         factory.withdraw(alice);
-        assertEq(factory.getTotalStaking(), bobStakes + carolStakes);
+        assertEq(
+            factoryGetters.getTotalStakingAmount(),
+            bobStakes + carolStakes
+        );
 
         vm.startPrank(bob, bob);
         factory.withdraw(bob);
-        assertEq(factory.getTotalStaking(), carolStakes);
+        assertEq(factoryGetters.getTotalStakingAmount(), carolStakes);
 
         vm.startPrank(carol, carol);
         factory.withdraw(carol);
-        assertEq(factory.getTotalStaking(), 0);
+        assertEq(factoryGetters.getTotalStakingAmount(), 0);
     }
 
     function testGetTotalAccRewards() public {
@@ -839,7 +866,7 @@ contract AspectaDevPoolFactoryTest is Test {
         devs[0] = bob;
         devs[1] = carol;
 
-        (totalReceivedRewards, totalDistributedRewards) = factory
+        (totalReceivedRewards, totalDistributedRewards) = factoryGetters
             .getTotalAccRewards(devs);
 
         // Check accuracy of the reward
