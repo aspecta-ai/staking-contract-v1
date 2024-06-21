@@ -76,6 +76,9 @@ contract PoolFactoryGetters is
             user
         );
         for (uint32 i = 0; i < stakingDevs.length; i++) {
+            devPool = AspectaDevPool(
+                aspectaDevPoolFactory.getPool(stakingDevs[i])
+            );
             (stakingAmount, , ) = devPool.getStakerState(user);
             totalStakingAmount += stakingAmount;
             claimableStakeRewards += devPool.getClaimableStakeReward(user);
