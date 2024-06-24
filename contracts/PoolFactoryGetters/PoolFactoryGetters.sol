@@ -45,6 +45,17 @@ contract PoolFactoryGetters is
     }
 
     /**
+     * @dev Get the list of staked devs
+     * @param user Dev/Staker address
+     * @return List of staked devs
+     */
+    function getStakedDevs(
+        address user
+    ) external view returns (address[] memory) {
+        return aspectaDevPoolFactory.getStakedDevs(user);
+    }
+
+    /**
      * @dev User stake stats
      * @param user Dev/Staker address
      * @return Available balance
@@ -147,37 +158,14 @@ contract PoolFactoryGetters is
     }
 
     /**
-     * @dev Get the amount of rewards received each block for each staked dev for a given staker
-     * @param staker Address of the staker
-     * @return List of rewards per block
-     */
-    function getStakeRewardPerBlock(
-        address staker
-    ) external view returns (uint256[] memory) {
-        address[] memory stakingDevs = aspectaDevPoolFactory.getStakedDevs(
-            staker
-        );
-        uint256[] memory rewardsPerBlock = new uint256[](stakingDevs.length);
-
-        AspectaDevPool devPool;
-        for (uint256 i = 0; i < stakingDevs.length; i++) {
-            devPool = AspectaDevPool(
-                aspectaDevPoolFactory.getPool(stakingDevs[i])
-            );
-
-            rewardsPerBlock[i] = devPool.getStakeRewardPerBlock(staker);
-        }
-
-        return rewardsPerBlock;
-    }
-
-    /**
      * @dev Get staker's staking history
      * @param staker staker's address
      * @param devs list of developers
      * @return List of stake amount
      * @return List of claimable staking rewards
      * @return List of stake unlock time
+     * @return List of shares
+     * @return List of reward per block
      */
     function getStakingHistory(
         address staker,
@@ -185,7 +173,13 @@ contract PoolFactoryGetters is
     )
         external
         view
-        returns (uint256[] memory, uint256[] memory, uint256[] memory)
+        returns (
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory,
+            uint256[] memory
+        )
     {
         require(
             devs.length <= 100,
@@ -195,18 +189,26 @@ contract PoolFactoryGetters is
         uint256[] memory stakeAmounts = new uint256[](devs.length);
         uint256[] memory claimableStakeRewards = new uint256[](devs.length);
         uint256[] memory unlockTimes = new uint256[](devs.length);
+        uint256[] memory shares = new uint256[](devs.length);
+        uint256[] memory rewardsPerBlock = new uint256[](devs.length);
 
         AspectaDevPool devPool;
         for (uint32 i = 0; i < devs.length; i++) {
             devPool = AspectaDevPool(aspectaDevPoolFactory.getPool(devs[i]));
 
             claimableStakeRewards[i] = devPool.getClaimableStakeReward(staker);
-            (stakeAmounts[i], unlockTimes[i], ) = devPool.getStakerState(
-                staker
-            );
+            (stakeAmounts[i], unlockTimes[i], shares[i]) = devPool
+                .getStakerState(staker);
+            rewardsPerBlock[i] = devPool.getStakeRewardPerBlock(staker);
         }
 
-        return (stakeAmounts, claimableStakeRewards, unlockTimes);
+        return (
+            stakeAmounts,
+            claimableStakeRewards,
+            unlockTimes,
+            shares,
+            rewardsPerBlock
+        );
     }
 
     /**
@@ -214,32 +216,6 @@ contract PoolFactoryGetters is
      */
     function getTotalStakingAmount() external view returns (uint256) {
         return aspectaDevPoolFactory.totalStakingAmount();
-    }
-
-    /**
-     * @dev Get staking devs and holding shares
-     * @param staker Staker's address
-     * @return List of staking devs
-     * @return List of holding shares
-     */
-    function getStakingList(
-        address staker
-    ) external view returns (address[] memory, uint256[] memory) {
-        address[] memory stakingDevs = aspectaDevPoolFactory.getStakedDevs(
-            staker
-        );
-        uint256[] memory shares = new uint256[](stakingDevs.length);
-
-        AspectaDevPool devPool;
-        for (uint256 i = 0; i < stakingDevs.length; i++) {
-            devPool = AspectaDevPool(
-                aspectaDevPoolFactory.getPool(stakingDevs[i])
-            );
-
-            shares[i] = devPool.balanceOf(staker);
-        }
-
-        return (stakingDevs, shares);
     }
 
     /**

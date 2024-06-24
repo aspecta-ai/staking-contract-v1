@@ -685,8 +685,13 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256[] memory unclaimedStakingRewards = new uint256[](3);
         uint256[] memory unlockTimes = new uint256[](3);
 
-        (stakeAmounts, unclaimedStakingRewards, unlockTimes) = factoryGetters
-            .getStakingHistory(alice, devs);
+        (
+            stakeAmounts,
+            unclaimedStakingRewards,
+            unlockTimes,
+            ,
+
+        ) = factoryGetters.getStakingHistory(alice, devs);
 
         for (uint32 i = 0; i < stakeAmounts.length; i++) {
             assertEq(stakeAmounts[i], (i + 1) * aliceStakes);
@@ -728,9 +733,8 @@ contract AspectaDevPoolFactoryTest is Test {
         assertGt(estNewRewards[1], 0);
         assertGt(estNewRewards[2], 0);
 
-        uint256[] memory estRewards = factoryGetters.getStakeRewardPerBlock(
-            alice
-        );
+        (, , , , uint256[] memory estRewards) = factoryGetters
+            .getStakingHistory(alice, devs);
         vm.roll(block.number + unitTime);
         uint256 expectedReward = 0;
         for (uint32 i = 0; i < estRewards.length; i++) {
