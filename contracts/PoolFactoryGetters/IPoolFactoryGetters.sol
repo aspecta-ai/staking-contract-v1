@@ -12,7 +12,7 @@ interface IPoolFactoryGetters {
      * @param user Dev/Staker address
      * @return List of staked devs
      */
-    function getStakedDevs(
+    function getStakingDevs(
         address user
     ) external view returns (address[] memory);
 

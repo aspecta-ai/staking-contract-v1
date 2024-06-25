@@ -112,7 +112,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         // Stake tokens in dev pool
         IAspectaDevPool(devPoolAddr).stake(msg.sender, amount);
-        stakedDevSet[msg.sender].add(dev);
+        stakingDevSet[msg.sender].add(dev);
     }
 
     /**
@@ -129,17 +129,17 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         IAspectaDevPool(devPools[dev]).withdraw(msg.sender);
 
         // Remove dev from staked devs
-        stakedDevSet[msg.sender].remove(dev);
+        stakingDevSet[msg.sender].remove(dev);
     }
 
     /**
      * @dev Claim rewards for a staker with all staked devs
      */
     function claimStakeReward() external override {
-        EnumerableSet.AddressSet storage stakedDevs = stakedDevSet[msg.sender];
+        EnumerableSet.AddressSet storage stakingDevs = stakingDevSet[msg.sender];
         address dev;
-        for (uint256 i = 0; i < stakedDevs.length(); i++) {
-            dev = stakedDevs.at(i);
+        for (uint256 i = 0; i < stakingDevs.length(); i++) {
+            dev = stakingDevs.at(i);
             IAspectaDevPool(devPools[dev]).claimStakeReward(msg.sender);
         }
     }
@@ -260,10 +260,10 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Get all staked devs for a staker
      * @return Addresses of the staking devs
      */
-    function getStakedDevs(
+    function getStakingDevs(
         address user
     ) external view returns (address[] memory) {
-        return stakedDevSet[user].values();
+        return stakingDevSet[user].values();
     }
 
     // --------------------- beacon ---------------------

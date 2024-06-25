@@ -58,7 +58,8 @@ abstract contract AspectaDevPoolFactoryStorageV1 is
     mapping(address => address) devPools;
 
     /// @notice Staker address to staking dev address mapping
-    mapping(address => EnumerableSet.AddressSet) stakedDevSet;
+    /// @custom:oz-renamed-from stakedDevSet
+    mapping(address => EnumerableSet.AddressSet) stakingDevSet;
 
     /// @notice Total staking amount
     uint256 public totalStakingAmount;

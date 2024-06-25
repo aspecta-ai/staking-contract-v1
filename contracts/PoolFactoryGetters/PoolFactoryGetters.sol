@@ -49,10 +49,10 @@ contract PoolFactoryGetters is
      * @param user Dev/Staker address
      * @return List of staked devs
      */
-    function getStakedDevs(
+    function getStakingDevs(
         address user
     ) external view returns (address[] memory) {
-        return aspectaDevPoolFactory.getStakedDevs(user);
+        return aspectaDevPoolFactory.getStakingDevs(user);
     }
 
     /**
@@ -83,7 +83,7 @@ contract PoolFactoryGetters is
         }
 
         uint256 stakingAmount;
-        address[] memory stakingDevs = aspectaDevPoolFactory.getStakedDevs(
+        address[] memory stakingDevs = aspectaDevPoolFactory.getStakingDevs(
             user
         );
         for (uint32 i = 0; i < stakingDevs.length; i++) {
@@ -161,11 +161,11 @@ contract PoolFactoryGetters is
      * @dev Get staker's staking history
      * @param staker staker's address
      * @param devs list of developers
-     * @return List of stake amount
-     * @return List of claimable staking rewards
-     * @return List of stake unlock time
-     * @return List of shares
-     * @return List of reward per block
+     * @return stakeAmounts List of stake amount
+     * @return claimableStakeRewards List of claimable staking rewards
+     * @return unlockTimes List of stake unlock time
+     * @return shares List of shares
+     * @return rewardsPerBlock List of reward per block
      */
     function getStakingHistory(
         address staker,
@@ -174,11 +174,11 @@ contract PoolFactoryGetters is
         external
         view
         returns (
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory
+            uint256[] memory stakeAmounts,
+            uint256[] memory claimableStakeRewards,
+            uint256[] memory unlockTimes,
+            uint256[] memory shares,
+            uint256[] memory rewardsPerBlock
         )
     {
         require(
@@ -186,11 +186,11 @@ contract PoolFactoryGetters is
             "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
         );
 
-        uint256[] memory stakeAmounts = new uint256[](devs.length);
-        uint256[] memory claimableStakeRewards = new uint256[](devs.length);
-        uint256[] memory unlockTimes = new uint256[](devs.length);
-        uint256[] memory shares = new uint256[](devs.length);
-        uint256[] memory rewardsPerBlock = new uint256[](devs.length);
+        stakeAmounts = new uint256[](devs.length);
+        claimableStakeRewards = new uint256[](devs.length);
+        unlockTimes = new uint256[](devs.length);
+        shares = new uint256[](devs.length);
+        rewardsPerBlock = new uint256[](devs.length);
 
         AspectaDevPool devPool;
         for (uint32 i = 0; i < devs.length; i++) {

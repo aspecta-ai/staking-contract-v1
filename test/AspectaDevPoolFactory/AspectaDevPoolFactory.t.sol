@@ -163,13 +163,13 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256 carolShares = devPool.balanceOf(carol);
         assertEq(devPool.totalSupply(), aliceShares + bobShares + carolShares);
 
-        // Check the stakedDevSet is correct
-        address[] memory aliceStakedDevs = factory.getStakedDevs(alice);
-        assert(aliceStakedDevs[0] == dev);
-        address[] memory bobStakedDevs = factory.getStakedDevs(bob);
-        assert(bobStakedDevs[0] == dev);
-        address[] memory carolStakedDevs = factory.getStakedDevs(carol);
-        assert(carolStakedDevs[0] == dev);
+        // Check the stakingDevSet is correct
+        address[] memory aliceStakingDevs = factory.getStakingDevs(alice);
+        assert(aliceStakingDevs[0] == dev);
+        address[] memory bobStakingDevs = factory.getStakingDevs(bob);
+        assert(bobStakingDevs[0] == dev);
+        address[] memory carolStakingDevs = factory.getStakingDevs(carol);
+        assert(carolStakingDevs[0] == dev);
 
         /// ----------------------------------
         /// -------- Test claimRewards -------
@@ -208,8 +208,8 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(devPool.balanceOf(alice), 0);
         assertEq(aspToken.balanceOf(address(devPool)), bobStakes + carolStakes);
         assertEq(devPool.totalSupply(), bobShares + carolShares);
-        aliceStakedDevs = factory.getStakedDevs(alice);
-        assertEq(aliceStakedDevs.length, 0);
+        aliceStakingDevs = factory.getStakingDevs(alice);
+        assertEq(aliceStakingDevs.length, 0);
 
         // Bob withdraws
         vm.startPrank(bob, bob);
@@ -220,8 +220,8 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(devPool.balanceOf(bob), 0);
         assertEq(aspToken.balanceOf(address(devPool)), carolStakes);
         assertEq(devPool.totalSupply(), carolShares);
-        bobStakedDevs = factory.getStakedDevs(bob);
-        assertEq(bobStakedDevs.length, 0);
+        bobStakingDevs = factory.getStakingDevs(bob);
+        assertEq(bobStakingDevs.length, 0);
 
         // Carol withdraws
         vm.startPrank(carol, carol);
@@ -231,8 +231,8 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(aspToken.balanceOf(carol), carolStakes);
         assertEq(devPool.balanceOf(carol), 0);
         assertEq(aspToken.balanceOf(address(devPool)), 0);
-        carolStakedDevs = factory.getStakedDevs(carol);
-        assertEq(carolStakedDevs.length, 0);
+        carolStakingDevs = factory.getStakingDevs(carol);
+        assertEq(carolStakingDevs.length, 0);
     }
 
     function testAllComplex1() public {

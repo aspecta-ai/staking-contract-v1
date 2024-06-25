@@ -93,7 +93,6 @@ interface IAspectaDevPoolFactory {
      */
     function updateBuildIndex(address dev, uint256 buildIndex) external;
 
-
     // ------------------- event router ------------------
     function emitStakeRewardClaimed(
         address devAddress,
@@ -143,7 +142,7 @@ interface IAspectaDevPoolFactory {
      * @param user Staker address
      * @return Addresses of the staked devs
      */
-    function getStakedDevs(
+    function getStakingDevs(
         address user
     ) external view returns (address[] memory);
 
@@ -153,5 +152,4 @@ interface IAspectaDevPoolFactory {
      * @param _defaultLockPeriod New default lock period
      */
     function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
-
 }
