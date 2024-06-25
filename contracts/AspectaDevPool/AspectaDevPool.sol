@@ -43,6 +43,8 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         shareCoeff = FIXED_POINT_SCALING_FACTOR;
     }
 
+    /// Internal functions
+
     function _getRewardPerBlock() internal view returns (uint256) {
         return
             (IAspectaBuildingPoint(aspectaToken).balanceOf(address(this)) *
@@ -165,29 +167,31 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         );
     }
 
-    function stake(address staker, uint256 amount) external onlyOwner {
+    /// External functions
+
+    function stake(address staker, uint256 amount) external override onlyOwner {
         _updateRewardPool();
         _claimStakeReward(staker);
         _stake(staker, amount);
     }
 
-    function withdraw(address staker) external onlyOwner {
+    function withdraw(address staker) external override onlyOwner {
         _updateRewardPool();
         _claimStakeReward(staker);
         _withdraw(staker);
     }
 
-    function claimStakeReward(address staker) external onlyOwner {
+    function claimStakeReward(address staker) external override onlyOwner {
         _updateRewardPool();
         _claimStakeReward(staker);
     }
 
-    function claimDevReward() external onlyOwner {
+    function claimDevReward() external override onlyOwner {
         _updateRewardPool();
         _claimDevReward();
     }
 
-    function updateBuildIndex(uint256 _buildIndex) external onlyOwner {
+    function updateBuildIndex(uint256 _buildIndex) external override onlyOwner {
         buildIndex = _buildIndex;
     }
 
@@ -225,7 +229,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         return (rewardCut * (currentReward - devLastReward)) / MAX_PPB;
     }
 
-    function getStakeRewardPerBlock() external view returns (uint256) {
+    function getStakeRewardPerBlock() external view override returns (uint256) {
         uint256 defaultShares = _stakeToShare(10 ** decimals());
         return
             (defaultShares * (MAX_PPB - rewardCut) * _getRewardPerBlock()) /
@@ -235,7 +239,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     function getStakeRewardPerBlock(
         address staker
-    ) external view returns (uint256) {
+    ) external view override returns (uint256) {
         return
             (balanceOf(staker) * (MAX_PPB - rewardCut) * _getRewardPerBlock()) /
             MAX_PPB /
@@ -251,7 +255,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
      */
     function getStakerState(
         address staker
-    ) external view returns (uint256, uint256, uint256) {
+    ) external view override returns (uint256, uint256, uint256) {
         return (
             stakerStates[staker].stakeAmount,
             stakerStates[staker].unlockTime,
@@ -263,16 +267,21 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
      * @dev Get build index
      * @return Build index
      */
-    function getBuildIndex() external view returns (uint256) {
+    function getBuildIndex() external view override returns (uint256) {
         return buildIndex;
     }
 
     /**
      * @dev Get dev reward stats
-     * @return totalReceivedReward Total received reward by dev
-     * @return totalDistributedReward Total distributed reward to staker by dev
+     * @return totalDevReward Total received reward by dev
+     * @return totalStakeReward Total distributed reward to staker by dev
      */
-    function getTotalAccRewards() external view returns (uint256, uint256) {
+    function getTotalAccRewards()
+        external
+        view
+        override
+        returns (uint256 totalDevReward, uint256 totalStakeReward)
+    {
         uint256 currentTotalAccReward = totalAccReward;
         if (totalSupply() > 0) {
             currentTotalAccReward +=
@@ -280,11 +289,8 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
                 _getRewardPerBlock();
         }
 
-        uint256 totalDevReward = ((rewardCut * currentTotalAccReward) /
-            MAX_PPB);
-        uint256 totalStakeReward = currentTotalAccReward - totalDevReward;
-
-        return (totalDevReward, totalStakeReward);
+        totalDevReward = ((rewardCut * currentTotalAccReward) / MAX_PPB);
+        totalStakeReward = currentTotalAccReward - totalDevReward;
     }
 
     /// Setters
