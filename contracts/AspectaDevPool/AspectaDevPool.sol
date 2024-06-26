@@ -71,11 +71,13 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         lastRewardedBlockNum = blockNum;
     }
 
-    function _claimStakeReward(address _staker) internal {
+    function _claimStakeReward(
+        address _staker
+    ) internal returns (uint256 reward) {
         StakerState storage stakerState = stakerStates[_staker];
         uint256 shareAmount = balanceOf(_staker);
         if (shareAmount > 0) {
-            uint256 reward = ((MAX_PPB - rewardCut) *
+            reward = ((MAX_PPB - rewardCut) *
                 (rewardPerShare - stakerState.lastRewardPerShare) *
                 shareAmount) /
                 MAX_PPB /
@@ -90,9 +92,8 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         stakerState.lastRewardPerShare = rewardPerShare;
     }
 
-    function _claimDevReward() internal {
-        uint256 reward = (rewardCut * (totalAccReward - devLastReward)) /
-            MAX_PPB;
+    function _claimDevReward() internal returns (uint256 reward) {
+        reward = (rewardCut * (totalAccReward - devLastReward)) / MAX_PPB;
         IAspectaBuildingPoint(aspectaToken).mint(developer, reward);
         devLastReward = totalAccReward;
         IAspectaDevPoolFactory(factory).emitDevRewardClaimed(developer, reward);
@@ -118,9 +119,13 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             _expectedTotalShare(totalStake);
     }
 
-    function _stake(address _staker, uint256 _amount) internal {
+    function _stake(
+        address _staker,
+        uint256 _amount
+    ) internal returns (uint256 shareAmount) {
         IAspectaBuildingPoint token = IAspectaBuildingPoint(aspectaToken);
-        uint256 shareAmount = (_stakeToShare(_amount) * shareCoeff) /
+        shareAmount =
+            (_stakeToShare(_amount) * shareCoeff) /
             FIXED_POINT_SCALING_FACTOR;
         token.transferFrom(_staker, address(this), _amount);
         _mint(_staker, shareAmount);
@@ -136,15 +141,17 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         );
     }
 
-    function _withdraw(address _staker) internal {
+    function _withdraw(
+        address _staker
+    ) internal returns (uint256 stakeAmount, uint256 shareAmount) {
         require(
             stakerStates[_staker].unlockTime <= block.timestamp,
             "AspectaDevPool: Stake is locked"
         );
         IAspectaBuildingPoint token = IAspectaBuildingPoint(aspectaToken);
         StakerState storage stakerState = stakerStates[_staker];
-        uint256 shareAmount = balanceOf(_staker);
-        uint256 stakeAmount = stakerState.stakeAmount;
+        shareAmount = balanceOf(_staker);
+        stakeAmount = stakerState.stakeAmount;
         token.transfer(_staker, stakeAmount);
         _burn(_staker, shareAmount);
         stakerState.stakeAmount = 0;
@@ -169,26 +176,52 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     /// External functions
 
-    function stake(address staker, uint256 amount) external override onlyOwner {
+    function stake(
+        address staker,
+        uint256 amount
+    )
+        external
+        override
+        onlyOwner
+        returns (uint256 claimedReward, uint256 shareAmount)
+    {
         _updateRewardPool();
-        _claimStakeReward(staker);
-        _stake(staker, amount);
+        claimedReward = _claimStakeReward(staker);
+        shareAmount = _stake(staker, amount);
     }
 
-    function withdraw(address staker) external override onlyOwner {
+    function withdraw(
+        address staker
+    )
+        external
+        override
+        onlyOwner
+        returns (
+            uint256 claimedReward,
+            uint256 stakeAmount,
+            uint256 shareAmount
+        )
+    {
         _updateRewardPool();
-        _claimStakeReward(staker);
-        _withdraw(staker);
+        claimedReward = _claimStakeReward(staker);
+        (stakeAmount, shareAmount) = _withdraw(staker);
     }
 
-    function claimStakeReward(address staker) external override onlyOwner {
+    function claimStakeReward(
+        address staker
+    ) external override onlyOwner returns (uint256 claimedReward) {
         _updateRewardPool();
-        _claimStakeReward(staker);
+        claimedReward = _claimStakeReward(staker);
     }
 
-    function claimDevReward() external override onlyOwner {
+    function claimDevReward()
+        external
+        override
+        onlyOwner
+        returns (uint256 claimedReward)
+    {
         _updateRewardPool();
-        _claimDevReward();
+        claimedReward = _claimDevReward();
     }
 
     function updateBuildIndex(uint256 _buildIndex) external override onlyOwner {

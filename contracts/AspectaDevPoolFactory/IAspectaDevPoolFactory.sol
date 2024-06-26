@@ -57,35 +57,46 @@ interface IAspectaDevPoolFactory {
         uint256 _defaultInflationRate
     ) external returns (uint256);
 
+    /**
+     * @dev Set the default lock period
+     * @param _defaultLockPeriod New default lock period
+     */
+    function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
+
     // ----------- functions for the factory ------------
     /**
      * @dev Stake tokens for a dev
      * @param dev Dev address
      * @param amount Amount to stake
      */
-    function stake(address dev, uint256 amount) external;
+    function stake(
+        address dev,
+        uint256 amount
+    ) external returns (uint256, uint256);
 
     /**
      * @dev Withdraw tokens for a dev
      * @param dev Dev address
      */
-    function withdraw(address dev) external;
+    function withdraw(address dev) external returns (uint256, uint256, uint256);
 
     /**
      * @dev Claim rewards for a staker with all staked devs
      */
-    function claimStakeReward() external;
+    function claimStakeReward() external returns (uint256);
 
     /**
      * @dev Claim rewards in multiple devs
      * @param devs List of devs addresses
      */
-    function claimStakeReward(address[] calldata devs) external;
+    function claimStakeReward(
+        address[] calldata devs
+    ) external returns (uint256);
 
     /**
      * @dev Claim rewards for a dev
      */
-    function claimDevReward() external;
+    function claimDevReward() external returns (uint256);
 
     /**
      * @dev Update the build index
@@ -145,11 +156,4 @@ interface IAspectaDevPoolFactory {
     function getStakingDevs(
         address user
     ) external view returns (address[] memory);
-
-    // ------------------- setters ------------------
-    /**
-     * @dev Set the default lock period
-     * @param _defaultLockPeriod New default lock period
-     */
-    function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
 }

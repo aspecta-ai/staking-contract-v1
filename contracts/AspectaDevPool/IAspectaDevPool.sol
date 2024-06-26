@@ -19,13 +19,18 @@ interface IAspectaDevPool {
         uint256 unlockTime;
     }
 
-    function stake(address staker, uint256 amount) external;
+    function stake(
+        address staker,
+        uint256 amount
+    ) external returns (uint256, uint256);
 
-    function withdraw(address staker) external;
+    function withdraw(
+        address staker
+    ) external returns (uint256, uint256, uint256);
 
-    function claimStakeReward(address staker) external;
+    function claimStakeReward(address staker) external returns (uint256);
 
-    function claimDevReward() external;
+    function claimDevReward() external returns (uint256);
 
     function updateBuildIndex(uint256 buildIndex) external;
 

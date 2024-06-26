@@ -107,11 +107,21 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @param dev Dev address
      * @param amount Amount to stake
      */
-    function stake(address dev, uint256 amount) external override {
+    function stake(
+        address dev,
+        uint256 amount
+    )
+        external
+        override
+        returns (uint256 claimedReward, uint256 shareAmount)
+    {
         address devPoolAddr = _getPool(dev);
 
         // Stake tokens in dev pool
-        IAspectaDevPool(devPoolAddr).stake(msg.sender, amount);
+        (claimedReward, shareAmount) = IAspectaDevPool(devPoolAddr).stake(
+            msg.sender,
+            amount
+        );
         stakingDevSet[msg.sender].add(dev);
     }
 
@@ -119,14 +129,26 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @dev Withdraw tokens from a dev pool
      * @param dev Dev address
      */
-    function withdraw(address dev) external override {
+    function withdraw(
+        address dev
+    )
+        external
+        override
+        returns (
+            uint256 claimedReward,
+            uint256 stakeAmount,
+            uint256 shareAmount
+        )
+    {
         require(
             devPools[dev] != address(0),
             "AspectaDevPoolFactory: Pool does not exist for dev"
         );
 
         // Withdraw all staked tokens from dev pool
-        IAspectaDevPool(devPools[dev]).withdraw(msg.sender);
+        (claimedReward, stakeAmount, shareAmount) = IAspectaDevPool(
+            devPools[dev]
+        ).withdraw(msg.sender);
 
         // Remove dev from staked devs
         stakingDevSet[msg.sender].remove(dev);
@@ -135,12 +157,20 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     /**
      * @dev Claim rewards for a staker with all staked devs
      */
-    function claimStakeReward() external override {
-        EnumerableSet.AddressSet storage stakingDevs = stakingDevSet[msg.sender];
+    function claimStakeReward()
+        external
+        override
+        returns (uint256 totalClaimedReward)
+    {
+        EnumerableSet.AddressSet storage stakingDevs = stakingDevSet[
+            msg.sender
+        ];
         address dev;
         for (uint256 i = 0; i < stakingDevs.length(); i++) {
             dev = stakingDevs.at(i);
-            IAspectaDevPool(devPools[dev]).claimStakeReward(msg.sender);
+            uint256 claimedReward = IAspectaDevPool(devPools[dev])
+                .claimStakeReward(msg.sender);
+            totalClaimedReward += claimedReward;
         }
     }
 
@@ -149,7 +179,9 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      * @notice Allows the owner to claim rewards for max 10 devs at a time
      * @param devs Dev addresses
      */
-    function claimStakeReward(address[] calldata devs) external override {
+    function claimStakeReward(
+        address[] calldata devs
+    ) external override returns (uint256 totalClaimedReward) {
         require(
             devs.length <= 10,
             "AspectaDevPoolFactory: Max 10 devs can be claimed at a time"
@@ -157,19 +189,25 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev;
         for (uint32 i = 0; i < devs.length; i++) {
             dev = devs[i];
-            IAspectaDevPool(devPools[dev]).claimStakeReward(msg.sender);
+            uint256 claimedReward = IAspectaDevPool(devPools[dev])
+                .claimStakeReward(msg.sender);
+            totalClaimedReward += claimedReward;
         }
     }
 
     /**
      * @dev Claim rewards for a dev
      */
-    function claimDevReward() external override {
+    function claimDevReward()
+        external
+        override
+        returns (uint256 claimedReward)
+    {
         require(
             devPools[msg.sender] != address(0),
             "AspectaDevPoolFactory: Pool does not exist for dev"
         );
-        IAspectaDevPool(devPools[msg.sender]).claimDevReward();
+        claimedReward = IAspectaDevPool(devPools[msg.sender]).claimDevReward();
     }
 
     /**
