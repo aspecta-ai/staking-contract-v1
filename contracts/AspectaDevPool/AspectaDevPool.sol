@@ -181,7 +181,6 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 amount
     )
         external
-        override
         onlyOwner
         returns (uint256 claimedReward, uint256 shareAmount)
     {
@@ -194,7 +193,6 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         address staker
     )
         external
-        override
         onlyOwner
         returns (
             uint256 claimedReward,
@@ -209,14 +207,13 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     function claimStakeReward(
         address staker
-    ) external override onlyOwner returns (uint256 claimedReward) {
+    ) external onlyOwner returns (uint256 claimedReward) {
         _updateRewardPool();
         claimedReward = _claimStakeReward(staker);
     }
 
     function claimDevReward()
         external
-        override
         onlyOwner
         returns (uint256 claimedReward)
     {
@@ -224,7 +221,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         claimedReward = _claimDevReward();
     }
 
-    function updateBuildIndex(uint256 _buildIndex) external override onlyOwner {
+    function updateBuildIndex(uint256 _buildIndex) external onlyOwner {
         buildIndex = _buildIndex;
     }
 
@@ -232,7 +229,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     function getClaimableStakeReward(
         address staker
-    ) external view override returns (uint256) {
+    ) external view returns (uint256) {
         uint256 blockNum = block.number;
         uint256 currentRewardPerShare = rewardPerShare;
         if (totalSupply() > 0) {
@@ -251,7 +248,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
             FIXED_POINT_SCALING_FACTOR;
     }
 
-    function getClaimableDevReward() external view override returns (uint256) {
+    function getClaimableDevReward() external view returns (uint256) {
         uint256 blockNum = block.number;
         uint256 currentReward = totalAccReward;
         if (totalSupply() > 0) {
@@ -262,7 +259,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         return (rewardCut * (currentReward - devLastReward)) / MAX_PPB;
     }
 
-    function getStakeRewardPerBlock() external view override returns (uint256) {
+    function getStakeRewardPerBlock() external view returns (uint256) {
         uint256 defaultShares = _stakeToShare(10 ** decimals());
         return
             (defaultShares * (MAX_PPB - rewardCut) * _getRewardPerBlock()) /
@@ -272,7 +269,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     function getStakeRewardPerBlock(
         address staker
-    ) external view override returns (uint256) {
+    ) external view returns (uint256) {
         return
             (balanceOf(staker) * (MAX_PPB - rewardCut) * _getRewardPerBlock()) /
             MAX_PPB /
@@ -288,7 +285,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
      */
     function getStakerState(
         address staker
-    ) external view override returns (uint256, uint256, uint256) {
+    ) external view returns (uint256, uint256, uint256) {
         return (
             stakerStates[staker].stakeAmount,
             stakerStates[staker].unlockTime,
@@ -300,7 +297,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
      * @dev Get build index
      * @return Build index
      */
-    function getBuildIndex() external view override returns (uint256) {
+    function getBuildIndex() external view returns (uint256) {
         return buildIndex;
     }
 
@@ -312,7 +309,6 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function getTotalAccRewards()
         external
         view
-        override
         returns (uint256 totalDevReward, uint256 totalStakeReward)
     {
         uint256 currentTotalAccReward = totalAccReward;
@@ -331,7 +327,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     // @dev Set default lock period
     function setDefaultLockPeriod(
         uint256 _defaultLockPeriod
-    ) external override onlyOwner {
+    ) external onlyOwner {
         defaultLockPeriod = _defaultLockPeriod;
     }
 }

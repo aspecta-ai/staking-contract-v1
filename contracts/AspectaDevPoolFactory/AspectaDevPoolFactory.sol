@@ -112,7 +112,6 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 amount
     )
         external
-        override
         returns (uint256 claimedReward, uint256 shareAmount)
     {
         address devPoolAddr = _getPool(dev);
@@ -133,7 +132,6 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address dev
     )
         external
-        override
         returns (
             uint256 claimedReward,
             uint256 stakeAmount,
@@ -159,7 +157,6 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      */
     function claimStakeReward()
         external
-        override
         returns (uint256 totalClaimedReward)
     {
         EnumerableSet.AddressSet storage stakingDevs = stakingDevSet[
@@ -181,7 +178,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      */
     function claimStakeReward(
         address[] calldata devs
-    ) external override returns (uint256 totalClaimedReward) {
+    ) external returns (uint256 totalClaimedReward) {
         require(
             devs.length <= 10,
             "AspectaDevPoolFactory: Max 10 devs can be claimed at a time"
@@ -200,7 +197,6 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      */
     function claimDevReward()
         external
-        override
         returns (uint256 claimedReward)
     {
         require(
@@ -217,7 +213,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function updateBuildIndex(
         address dev,
         uint256 buildIndex
-    ) external override onlyRole(ATTESTOR_ROLE) {
+    ) external onlyRole(ATTESTOR_ROLE) {
         address devPoolAddr = _getPool(dev);
         IAspectaDevPool(devPoolAddr).updateBuildIndex(buildIndex);
     }
@@ -227,14 +223,14 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         address devAddress,
         address stakerAddress,
         uint256 claimedAmount
-    ) public override onlyRole(OPERATOR_ROLE) {
+    ) public onlyRole(OPERATOR_ROLE) {
         emit StakeRewardClaimed(devAddress, stakerAddress, claimedAmount);
     }
 
     function emitDevRewardClaimed(
         address devAddress,
         uint256 claimedAmount
-    ) public override onlyRole(OPERATOR_ROLE) {
+    ) public onlyRole(OPERATOR_ROLE) {
         emit DevRewardClaimed(devAddress, claimedAmount);
     }
 
@@ -245,7 +241,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 shareAmount,
         uint256 totalStake,
         uint256 totalShare
-    ) public override onlyRole(OPERATOR_ROLE) {
+    ) public onlyRole(OPERATOR_ROLE) {
         totalStakingAmount += stakeAmount;
         emit DevStaked(
             devAddress,
@@ -264,7 +260,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
         uint256 shareAmount,
         uint256 totalStake,
         uint256 totalShare
-    ) public override onlyRole(OPERATOR_ROLE) {
+    ) public onlyRole(OPERATOR_ROLE) {
         totalStakingAmount -= stakeAmount;
         emit StakeWithdrawn(
             devAddress,
@@ -339,7 +335,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
      */
     function setDefaultLockPeriod(
         uint256 _defaultLockPeriod
-    ) external override onlyOwner {
+    ) external onlyOwner {
         defaultLockPeriod = _defaultLockPeriod;
         for (uint256 i = 0; i < allPools.length; i++) {
             IAspectaDevPool(allPools[i]).setDefaultLockPeriod(
