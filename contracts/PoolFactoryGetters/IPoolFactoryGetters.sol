@@ -17,17 +17,38 @@ interface IPoolFactoryGetters {
     ) external view returns (address[] memory);
 
     /**
-     * @dev User stake stats
-     * @param user address of the dev/staker
-     * @return Available balance
-     * @return Total staking amount
-     * @return Total staked amount
-     * @return Claimable stake rewards
-     * @return Claimable dev rewards
+     * @dev Get user stake stats
+     * @param user Dev/Staker address
+     * @return balance Available balance
+     * @return totalStakingAmount Total staking amount to devs
+     * @return totalStakedAmount Total staked amount by stakers
      */
     function getUserStakeStats(
         address user
-    ) external view returns (uint256, uint256, uint256, uint256, uint256);
+    )
+        external
+        view
+        returns (
+            uint256 balance,
+            uint256 totalStakingAmount,
+            uint256 totalStakedAmount
+        );
+
+    /**
+     * @dev Get user reward stats
+     * @param user Dev/Staker address
+     * @return claimableStakeRewards Claimable staker rewards
+     * @return claimableDevRewards Claimable dev rewards
+     */
+    function getUserRewardStats(
+        address user
+    ) 
+        external
+        view
+        returns (
+            uint256 claimableStakeRewards,
+            uint256 claimableDevRewards
+        );
 
     /**
      * @dev Get the amount of stakes developers received
@@ -48,14 +69,25 @@ interface IPoolFactoryGetters {
     ) external view returns (uint256[] memory);
 
     /**
+     * @dev Get staked history on a dev
+     * @param stakers List of staker's address
+     * @param dev address of the dev
+     * @return stakeAmounts List of stake amount
+     */
+     function getStakedHistoryOnDev(
+        address[] calldata stakers,
+        address dev
+     ) external view returns (uint256[] memory stakeAmounts);
+
+    /**
      * @dev Get staker's staking history
-     * @param staker staker's address
-     * @param devs list of developers
-     * @return List of stake amount
-     * @return List of claimable staking rewards
-     * @return List of stake unlock time
-     * @return List of shares
-     * @return List of reward per block
+     * @param staker Address of the staker
+     * @param devs List of developer's address
+     * @return stakeAmounts List of stake amount
+     * @return claimableStakeRewards List of claimable staking rewards
+     * @return unlockTimes List of stake unlock time
+     * @return shares List of shares
+     * @return rewardsPerBlock List of reward per block
      */
     function getStakingHistory(
         address staker,
@@ -64,11 +96,11 @@ interface IPoolFactoryGetters {
         external
         view
         returns (
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory,
-            uint256[] memory
+            uint256[] memory stakeAmounts,
+            uint256[] memory claimableStakeRewards,
+            uint256[] memory unlockTimes,
+            uint256[] memory shares,
+            uint256[] memory rewardsPerBlock
         );
 
     /**

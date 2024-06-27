@@ -182,16 +182,16 @@ contract AspectaDevPoolFactoryTest is Test {
         // Alice claims rewards
         vm.startPrank(alice, alice);
         factory.claimStakeReward();
-        (, , , uint256 aliceClaimableStakeRewards, ) = factoryGetters
-            .getUserStakeStats(alice);
+        (uint256 aliceClaimableStakeRewards, ) = factoryGetters
+            .getUserRewardStats(alice);
 
         assertEq(aliceClaimableStakeRewards, 0);
 
         // Dev claims rewards
         vm.startPrank(dev, dev);
         factory.claimDevReward();
-        (, , , , uint256 devClaimableDevRewards) = factoryGetters
-            .getUserStakeStats(dev);
+        (, uint256 devClaimableDevRewards) = factoryGetters
+            .getUserRewardStats(dev);
 
         assertEq(devClaimableDevRewards, 0);
 
@@ -512,7 +512,7 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(factory.getDefaultLockPeriod(), 0);
     }
 
-    function testGetUserStakeStats() public {
+    function testGetUserStakeStatsAndRewardStats() public {
         /// -------- Test stake stats --------
         uint256 unitTime = 300;
         uint256 mintAmount = 1000e18;
@@ -535,10 +535,13 @@ contract AspectaDevPoolFactoryTest is Test {
         (
             uint256 aliceBalance,
             uint256 aliceTotalStaking,
-            uint256 aliceTotalStaked,
+            uint256 aliceTotalStaked
+        ) = factoryGetters.getUserStakeStats(alice);
+
+        (
             uint256 aliceUnclaimedStakingRewards,
             uint256 aliceUnclaimedStakedRewards
-        ) = factoryGetters.getUserStakeStats(alice);
+        ) = factoryGetters.getUserRewardStats(alice);
 
         assertEq(aliceBalance, mintAmount - aliceStakes);
         assertEq(aliceTotalStaking, aliceStakes);
@@ -556,10 +559,13 @@ contract AspectaDevPoolFactoryTest is Test {
         (
             aliceBalance1,
             aliceTotalStaking1,
-            aliceTotalStaked,
+            aliceTotalStaked
+        ) = factoryGetters.getUserStakeStats(alice);
+
+        (
             aliceUnclaimedStakingRewards1,
             aliceUnclaimedStakedRewards
-        ) = factoryGetters.getUserStakeStats(alice);
+        ) = factoryGetters.getUserRewardStats(alice);
 
         assertEq(aliceBalance1, aliceBalance + aliceUnclaimedStakingRewards);
         assertEq(aliceTotalStaking1, aliceTotalStaking);
@@ -571,10 +577,13 @@ contract AspectaDevPoolFactoryTest is Test {
         (
             uint256 devBalance,
             uint256 devTotalStaking,
-            uint256 devTotalStaked,
+            uint256 devTotalStaked
+        ) = factoryGetters.getUserStakeStats(dev);
+
+        (
             uint256 devUnclaimedStakingRewards,
             uint256 devUnclaimedStakedRewards
-        ) = factoryGetters.getUserStakeStats(dev);
+        ) = factoryGetters.getUserRewardStats(dev);
 
         assertEq(devBalance, 0);
         assertEq(devTotalStaking, 0);
@@ -590,10 +599,13 @@ contract AspectaDevPoolFactoryTest is Test {
         (
             aliceBalance2,
             aliceTotalStaking,
-            aliceTotalStaked,
+            aliceTotalStaked
+        ) = factoryGetters.getUserStakeStats(alice);
+
+        (
             aliceUnclaimedStakingRewards,
             aliceUnclaimedStakedRewards
-        ) = factoryGetters.getUserStakeStats(alice);
+        ) = factoryGetters.getUserRewardStats(alice);
 
         assertEq(aliceBalance2, aliceBalance1 + aliceStakes);
         assertEq(aliceTotalStaking, 0);
@@ -605,10 +617,13 @@ contract AspectaDevPoolFactoryTest is Test {
         (
             devBalance,
             devTotalStaking,
-            devTotalStaked,
+            devTotalStaked
+        ) = factoryGetters.getUserStakeStats(dev);
+
+        (
             devUnclaimedStakingRewards,
             devUnclaimedStakedRewards
-        ) = factoryGetters.getUserStakeStats(dev);
+        ) = factoryGetters.getUserRewardStats(dev);
 
         assertEq(devBalance, 0);
         assertEq(devTotalStaking, 0);
@@ -617,7 +632,7 @@ contract AspectaDevPoolFactoryTest is Test {
         assertGt(devUnclaimedStakedRewards, 0);
     }
 
-    function testGetDevsTotalStaking() public {
+    function testGetTotalStakedAmount() public {
         uint256 amount = 1000e18;
         uint256 aliceStakes = amount;
         uint256 bobStakes = 2 * amount;
@@ -663,7 +678,60 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(factoryGetters.getTotalStakedAmount(devs)[2], 0);
     }
 
-    function testGetUserStakedList() public {
+    function testGetStakedHistoryOnDev() public {
+        uint256 aliceStakes = 1000e18;
+        uint256 bobStakes = 2 * aliceStakes;
+        uint256 carolStakes = 3 * aliceStakes;
+
+        // Mint tokens for stakers
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, aliceStakes);
+        aspToken.mint(bob, bobStakes);
+        aspToken.mint(carol, carolStakes);
+
+        // Alice stakes for dev
+        vm.startPrank(alice, alice);
+        factory.stake(dev, aliceStakes);
+        // Bob stakes for dev
+        vm.startPrank(bob, bob);
+        factory.stake(dev, bobStakes);
+        // Carol stakes for dev
+        vm.startPrank(carol, carol);
+        factory.stake(dev, carolStakes);
+
+        address[] memory stakers = new address[](3);
+        stakers[0] = alice;
+        stakers[1] = bob;
+        stakers[2] = carol;
+
+        uint256[] memory stakeAmounts = factoryGetters.getStakedHistoryOnDev(
+            stakers,
+            dev
+        );
+
+        assertEq(stakeAmounts[0], aliceStakes);
+        assertEq(stakeAmounts[1], bobStakes);
+        assertEq(stakeAmounts[2], carolStakes);
+
+        // Clean up
+        vm.startPrank(alice, alice);
+        factory.withdraw(dev);
+        vm.startPrank(bob, bob);
+        factory.withdraw(dev);
+        vm.startPrank(carol, carol);
+        factory.withdraw(dev);
+
+        stakeAmounts = factoryGetters.getStakedHistoryOnDev(
+            stakers,
+            dev
+        );
+        assertEq(
+            stakeAmounts[0] + stakeAmounts[1] + stakeAmounts[2],
+            0
+        );
+    }
+
+    function testGetStakingHistory() public {
         uint256 mintAmount = 1000e18;
         uint256 aliceStakes = mintAmount / 10;
 

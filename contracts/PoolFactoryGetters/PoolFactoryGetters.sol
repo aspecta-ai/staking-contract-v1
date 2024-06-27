@@ -51,45 +51,36 @@ contract PoolFactoryGetters is
      */
     function getStakingDevs(
         address user
-    ) external view override returns (address[] memory) {
+    ) external view returns (address[] memory) {
         return aspectaDevPoolFactory.getStakingDevs(user);
     }
 
     /**
-     * @dev User stake stats
+     * @dev Get user stake stats
      * @param user Dev/Staker address
      * @return balance Available balance
-     * @return totalStakingAmount Total staking amount
-     * @return totalStakedAmount Total staked amount
-     * @return claimableStakeRewards Claimable stake rewards
-     * @return claimeableDevRewards Claimable dev rewards
+     * @return totalStakingAmount Total staking amount to devs
+     * @return totalStakedAmount Total staked amount by stakers
      */
     function getUserStakeStats(
         address user
     )
         external
         view
-        override
         returns (
             uint256 balance,
             uint256 totalStakingAmount,
-            uint256 totalStakedAmount,
-            uint256 claimableStakeRewards,
-            uint256 claimeableDevRewards
+            uint256 totalStakedAmount
         )
     {
         balance = aspectaBuildingPoint.balanceOf(user);
 
-        AspectaDevPool devPool = AspectaDevPool(
-            aspectaDevPoolFactory.getPool(user)
-        );
-        if (address(devPool) != address(0)) {
-            totalStakedAmount = aspectaBuildingPoint.balanceOf(
-                address(devPool)
-            );
-            claimeableDevRewards = devPool.getClaimableDevReward();
+        address devPoolAddress = aspectaDevPoolFactory.getPool(user);
+        if (devPoolAddress != address(0)) {
+            totalStakedAmount = aspectaBuildingPoint.balanceOf(devPoolAddress);
         }
 
+        AspectaDevPool devPool;
         uint256 stakingAmount;
         address[] memory stakingDevs = aspectaDevPoolFactory.getStakingDevs(
             user
@@ -98,8 +89,41 @@ contract PoolFactoryGetters is
             devPool = AspectaDevPool(
                 aspectaDevPoolFactory.getPool(stakingDevs[i])
             );
-            (stakingAmount, , ) = devPool.getStakerState(user);
+            (stakingAmount, ,) = devPool.getStakerState(user);
             totalStakingAmount += stakingAmount;
+        }
+    }
+
+     /**
+     * @dev Get user reward stats
+     * @param user Dev/Staker address
+     * @return claimableStakeRewards Claimable staker rewards
+     * @return claimableDevRewards Claimable dev rewards
+     */
+    function getUserRewardStats(
+        address user
+    ) 
+        external
+        view
+        returns (
+            uint256 claimableStakeRewards,
+            uint256 claimableDevRewards
+        )
+    {
+        AspectaDevPool devPool = AspectaDevPool(
+            aspectaDevPoolFactory.getPool(user)
+        );
+        if (address(devPool) != address(0)) {
+            claimableDevRewards = devPool.getClaimableDevReward();
+        }
+
+        address[] memory stakingDevs = aspectaDevPoolFactory.getStakingDevs(
+            user
+        );
+        for (uint32 i = 0; i < stakingDevs.length; i++) {
+            devPool = AspectaDevPool(
+                aspectaDevPoolFactory.getPool(stakingDevs[i])
+            );
             claimableStakeRewards += devPool.getClaimableStakeReward(user);
         }
     }
@@ -111,7 +135,7 @@ contract PoolFactoryGetters is
      */
     function getTotalStakedAmount(
         address[] calldata devs
-    ) external view override returns (uint256[] memory totalStakedAmount) {
+    ) external view returns (uint256[] memory totalStakedAmount) {
         require(
             devs.length <= 100,
             "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
@@ -133,7 +157,7 @@ contract PoolFactoryGetters is
      */
     function getStakeRewardPerBlock(
         address[] calldata devs
-    ) external view override returns (uint256[] memory rewardsPerBlock) {
+    ) external view returns (uint256[] memory rewardsPerBlock) {
         require(
             devs.length <= 100,
             "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
@@ -154,9 +178,39 @@ contract PoolFactoryGetters is
     }
 
     /**
+     * @dev Get staked history on a dev
+     * @param stakers List of staker's address
+     * @param dev address of the dev
+     * @return stakeAmounts List of stake amount
+     */
+     function getStakedHistoryOnDev(
+        address[] calldata stakers,
+        address dev
+     ) external view returns (uint256[] memory stakeAmounts) {
+        require(
+            stakers.length <= 100,
+            "AspectaDevPoolFactory: Exceeds limit of 100 addresses"
+        );
+
+        stakeAmounts = new uint256[](stakers.length);
+        AspectaDevPool devPool = AspectaDevPool(
+            aspectaDevPoolFactory.getPool(dev)
+        );
+
+        require(
+            address(devPool) != address(0),
+            "AspectaDevPoolFactory: Dev pool not found"
+        );
+
+        for (uint32 i = 0; i < stakers.length; i++) {
+            (stakeAmounts[i], ,) = devPool.getStakerState(stakers[i]);
+        }
+     }
+
+    /**
      * @dev Get staker's staking history
-     * @param staker staker's address
-     * @param devs list of developers
+     * @param staker Address of the staker
+     * @param devs List of developer's address
      * @return stakeAmounts List of stake amount
      * @return claimableStakeRewards List of claimable staking rewards
      * @return unlockTimes List of stake unlock time
@@ -169,7 +223,6 @@ contract PoolFactoryGetters is
     )
         external
         view
-        override
         returns (
             uint256[] memory stakeAmounts,
             uint256[] memory claimableStakeRewards,
@@ -211,12 +264,12 @@ contract PoolFactoryGetters is
     /**
      * @dev Get total staking amount
      */
-    function getTotalStakingAmount() external view override returns (uint256) {
+    function getTotalStakingAmount() external view returns (uint256) {
         return aspectaDevPoolFactory.totalStakingAmount();
     }
 
     /**
-     * @dev Get dev reward stats
+     * @dev Get dev and staker's total accumulated rewards
      * @param devs Dev's addresses
      * @return totalDevRewards Total received reward by devs
      * @return totalStakeRewards Total distributed rewards to staker by devs
@@ -226,7 +279,6 @@ contract PoolFactoryGetters is
     )
         external
         view
-        override
         returns (
             uint256[] memory totalDevRewards,
             uint256[] memory totalStakeRewards
