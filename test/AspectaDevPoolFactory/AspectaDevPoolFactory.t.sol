@@ -509,7 +509,7 @@ contract AspectaDevPoolFactoryTest is Test {
     }
 
     function testGetDefaultLockPeriod() public view {
-        assertEq(factory.getDefaultLockPeriod(), 0);
+        assertEq(factoryGetters.getDefaultLockPeriod(), 0);
     }
 
     function testGetUserStakeStatsAndRewardStats() public {
@@ -766,7 +766,7 @@ contract AspectaDevPoolFactoryTest is Test {
             assertEq(unclaimedStakingRewards[i], 0);
             assertEq(
                 unlockTimes[i],
-                block.timestamp + factory.getDefaultLockPeriod()
+                block.timestamp + factoryGetters.getDefaultLockPeriod()
             );
         }
     }
