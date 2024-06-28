@@ -45,6 +45,14 @@ contract PoolFactoryGetters is
     }
 
     /**
+     * @dev Get default lock period
+     * @return Default lock period
+     */
+    function getDefaultLockPeriod() external view returns (uint256) {
+        return aspectaDevPoolFactory.getDefaultLockPeriod();
+    }
+
+    /**
      * @dev Get the list of staked devs
      * @param user Dev/Staker address
      * @return List of staked devs

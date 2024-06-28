@@ -8,6 +8,12 @@ pragma solidity ^0.8.25;
  */
 interface IPoolFactoryGetters {
     /**
+     * @dev Get default lock period
+     * @return Default lock period
+     */
+    function getDefaultLockPeriod() external view returns (uint256);
+
+    /**
      * @dev Get the list of staked devs
      * @param user Dev/Staker address
      * @return List of staked devs
