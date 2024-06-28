@@ -28,7 +28,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         uint256 _inflationRate,
         uint256 _shareDecayRate,
         uint256 _rewardCut,
-        uint256 _defaultLockPeriod
+        uint256 _lockPeriod
     ) public initializer {
         __ERC20_init("Aspecta Dev Pool", "ADP");
         __Ownable_init(msg.sender);
@@ -38,7 +38,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         inflationRate = _inflationRate;
         shareDecayRate = _shareDecayRate;
         rewardCut = _rewardCut;
-        defaultLockPeriod = _defaultLockPeriod;
+        lockPeriod = _lockPeriod;
         lastRewardedBlockNum = block.number;
         shareCoeff = FIXED_POINT_SCALING_FACTOR;
     }
@@ -130,7 +130,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         token.transferFrom(_staker, address(this), _amount);
         _mint(_staker, shareAmount);
         stakerStates[_staker].stakeAmount += _amount;
-        stakerStates[_staker].unlockTime = block.timestamp + defaultLockPeriod;
+        stakerStates[_staker].unlockTime = block.timestamp + lockPeriod;
         IAspectaDevPoolFactory(factory).emitDevStaked(
             developer,
             _staker,
@@ -324,10 +324,23 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
 
     /// Setters
 
-    // @dev Set default lock period
-    function setDefaultLockPeriod(
-        uint256 _defaultLockPeriod
-    ) external onlyOwner {
-        defaultLockPeriod = _defaultLockPeriod;
+    // @dev Set lock period
+    function setLockPeriod(uint256 _lockPeriod) external onlyOwner {
+        lockPeriod = _lockPeriod;
+    }
+
+    // @dev Set inflation rate
+    function setInflationRate(uint256 _inflationRate) external onlyOwner {
+        inflationRate = _inflationRate;
+    }
+
+    // @dev Set share decay rate
+    function setShareDecayRate(uint256 _shareDecayRate) external onlyOwner {
+        shareDecayRate = _shareDecayRate;
+    }
+
+    // @dev Set reward cut
+    function setRewardCut(uint256 _rewardCut) external onlyOwner {
+        rewardCut = _rewardCut;
     }
 }

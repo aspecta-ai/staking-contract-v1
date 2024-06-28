@@ -30,7 +30,8 @@ abstract contract AspectaDevPoolStorageV1 is
 
     uint256 public rewardCut;
 
-    uint256 public defaultLockPeriod;
+    /// @custom:oz-renamed-from defaultLockPeriod
+    uint256 public lockPeriod;
 
     uint256 public buildIndex;
 

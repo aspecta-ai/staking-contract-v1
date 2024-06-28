@@ -81,5 +81,8 @@ interface IAspectaDevPool {
     function getTotalAccRewards() external view returns (uint256, uint256);
 
     /// Setters
-    function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
+    function setLockPeriod(uint256 _lockPeriod) external;
+    function setInflationRate(uint256 _inflationRate) external;
+    function setShareDecayRate(uint256 _shareDecayRate) external;
+    function setRewardCut(uint256 _rewardCut) external;
 }

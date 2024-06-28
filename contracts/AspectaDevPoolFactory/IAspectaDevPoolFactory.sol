@@ -49,13 +49,10 @@ interface IAspectaDevPoolFactory {
     event DevRewardClaimed(address indexed devAddress, uint256 claimedAmount);
 
     // ---- setters for the default values of the pool ----
-    /**
-     * @notice Set the default inflationRate
-     * @param _defaultInflationRate New default inflationRate
-     */
-    function setDefaultInflationRate(
-        uint256 _defaultInflationRate
-    ) external returns (uint256);
+    function setDefaultInflationRate(uint256 _defaultInflationRate) external;
+    function setDefaultShareDecayRate(uint256 _defaultShareDecayRate) external;
+    function setDefaultRewardCut(uint256 _defaultRewardCut) external;
+    function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
 
     /**
      * @dev Set the default lock period

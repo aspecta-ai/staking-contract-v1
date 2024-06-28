@@ -320,17 +320,23 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     // --------------------- setters ---------------------
     /**
      * @notice Set the default inflation rate
+     * @notice Only used for debugging
      * @param _defaultInflationRate New default inflation rate
      */
     function setDefaultInflationRate(
         uint256 _defaultInflationRate
-    ) public onlyOwner returns (uint256) {
+    ) public onlyOwner {
         defaultInflationRate = _defaultInflationRate;
-        return defaultInflationRate;
+        for (uint256 i = 0; i < allPools.length; i++) {
+            IAspectaDevPool(allPools[i]).setInflationRate(
+                _defaultInflationRate
+            );
+        }
     }
 
     /**
      * @notice Set default lock period
+     * @notice Only used for debugging
      * @param _defaultLockPeriod New default lock period
      */
     function setDefaultLockPeriod(
@@ -338,9 +344,35 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     ) external onlyOwner {
         defaultLockPeriod = _defaultLockPeriod;
         for (uint256 i = 0; i < allPools.length; i++) {
-            IAspectaDevPool(allPools[i]).setDefaultLockPeriod(
-                _defaultLockPeriod
+            IAspectaDevPool(allPools[i]).setLockPeriod(_defaultLockPeriod);
+        }
+    }
+
+    /**
+     * @notice Set default share decay rate
+     * @notice Only used for debugging
+     * @param _defaultShareDecayRate New default share decay rate
+     */
+    function setDefaultShareDecayRate(
+        uint256 _defaultShareDecayRate
+    ) external onlyOwner {
+        defaultShareDecayRate = _defaultShareDecayRate;
+        for (uint256 i = 0; i < allPools.length; i++) {
+            IAspectaDevPool(allPools[i]).setShareDecayRate(
+                _defaultShareDecayRate
             );
+        }
+    }
+
+    /**
+     * @notice Set default reward cut
+     * @notice Only used for debugging
+     * @param _defaultRewardCut New default reward cut
+     */
+    function setDefaultRewardCut(uint256 _defaultRewardCut) external onlyOwner {
+        defaultRewardCut = _defaultRewardCut;
+        for (uint256 i = 0; i < allPools.length; i++) {
+            IAspectaDevPool(allPools[i]).setRewardCut(_defaultRewardCut);
         }
     }
 }
