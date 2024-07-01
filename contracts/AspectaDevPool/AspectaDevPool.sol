@@ -77,9 +77,10 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
         StakerState storage stakerState = stakerStates[_staker];
         uint256 shareAmount = balanceOf(_staker);
         if (shareAmount > 0) {
-            reward = ((MAX_PPB - rewardCut) *
-                (rewardPerShare - stakerState.lastRewardPerShare) *
-                shareAmount) /
+            reward =
+                ((MAX_PPB - rewardCut) *
+                    (rewardPerShare - stakerState.lastRewardPerShare) *
+                    shareAmount) /
                 MAX_PPB /
                 FIXED_POINT_SCALING_FACTOR;
             IAspectaBuildingPoint(aspectaToken).mint(_staker, reward);
@@ -102,11 +103,15 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function _expectedTotalShare(
         uint256 _totalStake
     ) internal view returns (uint256) {
+        // total_share = sqrt(1 + total_stake / share_decay_rate) - 1
         return
             Math.sqrt(
                 FIXED_POINT_SCALING_FACTOR *
-                    FIXED_POINT_SCALING_FACTOR *
-                    (1 + _totalStake / shareDecayRate)
+                    FIXED_POINT_SCALING_FACTOR +
+                    (FIXED_POINT_SCALING_FACTOR *
+                        FIXED_POINT_SCALING_FACTOR *
+                        _totalStake) /
+                    shareDecayRate
             ) - FIXED_POINT_SCALING_FACTOR;
     }
 
@@ -179,11 +184,7 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function stake(
         address staker,
         uint256 amount
-    )
-        external
-        onlyOwner
-        returns (uint256 claimedReward, uint256 shareAmount)
-    {
+    ) external onlyOwner returns (uint256 claimedReward, uint256 shareAmount) {
         _updateRewardPool();
         claimedReward = _claimStakeReward(staker);
         shareAmount = _stake(staker, amount);
@@ -260,9 +261,17 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     }
 
     function getStakeRewardPerBlock() external view returns (uint256) {
-        uint256 defaultShares = _stakeToShare(10 ** decimals());
+        uint256 defaultStakeAmount = 10 ** decimals();
+        uint256 defaultShares = (_stakeToShare(defaultStakeAmount) *
+            shareCoeff) / FIXED_POINT_SCALING_FACTOR;
+        uint256 rewardPerBlock = ((defaultStakeAmount +
+            IAspectaBuildingPoint(aspectaToken).balanceOf(address(this))) *
+            inflationRate *
+            buildIndex) /
+            MAX_PPB /
+            MAX_PPB;
         return
-            (defaultShares * (MAX_PPB - rewardCut) * _getRewardPerBlock()) /
+            (defaultShares * (MAX_PPB - rewardCut) * rewardPerBlock) /
             MAX_PPB /
             (totalSupply() + defaultShares);
     }

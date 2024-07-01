@@ -190,8 +190,9 @@ contract AspectaDevPoolFactoryTest is Test {
         // Dev claims rewards
         vm.startPrank(dev, dev);
         factory.claimDevReward();
-        (, uint256 devClaimableDevRewards) = factoryGetters
-            .getUserRewardStats(dev);
+        (, uint256 devClaimableDevRewards) = factoryGetters.getUserRewardStats(
+            dev
+        );
 
         assertEq(devClaimableDevRewards, 0);
 
@@ -556,11 +557,8 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256 aliceBalance1;
         uint256 aliceTotalStaking1;
         uint256 aliceUnclaimedStakingRewards1;
-        (
-            aliceBalance1,
-            aliceTotalStaking1,
-            aliceTotalStaked
-        ) = factoryGetters.getUserStakeStats(alice);
+        (aliceBalance1, aliceTotalStaking1, aliceTotalStaked) = factoryGetters
+            .getUserStakeStats(alice);
 
         (
             aliceUnclaimedStakingRewards1,
@@ -596,11 +594,8 @@ contract AspectaDevPoolFactoryTest is Test {
         factory.withdraw(dev);
 
         uint256 aliceBalance2;
-        (
-            aliceBalance2,
-            aliceTotalStaking,
-            aliceTotalStaked
-        ) = factoryGetters.getUserStakeStats(alice);
+        (aliceBalance2, aliceTotalStaking, aliceTotalStaked) = factoryGetters
+            .getUserStakeStats(alice);
 
         (
             aliceUnclaimedStakingRewards,
@@ -614,16 +609,11 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(aliceUnclaimedStakedRewards, 0);
 
         // Check dev's stats after withdrawing
-        (
-            devBalance,
-            devTotalStaking,
-            devTotalStaked
-        ) = factoryGetters.getUserStakeStats(dev);
+        (devBalance, devTotalStaking, devTotalStaked) = factoryGetters
+            .getUserStakeStats(dev);
 
-        (
-            devUnclaimedStakingRewards,
-            devUnclaimedStakedRewards
-        ) = factoryGetters.getUserRewardStats(dev);
+        (devUnclaimedStakingRewards, devUnclaimedStakedRewards) = factoryGetters
+            .getUserRewardStats(dev);
 
         assertEq(devBalance, 0);
         assertEq(devTotalStaking, 0);
@@ -721,14 +711,8 @@ contract AspectaDevPoolFactoryTest is Test {
         vm.startPrank(carol, carol);
         factory.withdraw(dev);
 
-        stakeAmounts = factoryGetters.getStakedHistoryOnDev(
-            stakers,
-            dev
-        );
-        assertEq(
-            stakeAmounts[0] + stakeAmounts[1] + stakeAmounts[2],
-            0
-        );
+        stakeAmounts = factoryGetters.getStakedHistoryOnDev(stakers, dev);
+        assertEq(stakeAmounts[0] + stakeAmounts[1] + stakeAmounts[2], 0);
     }
 
     function testGetStakingHistory() public {
@@ -778,13 +762,6 @@ contract AspectaDevPoolFactoryTest is Test {
 
         vm.startPrank(asp, asp);
         aspToken.mint(alice, mintAmount);
-
-        // Alice stakes for devs
-        vm.startPrank(alice, alice);
-        factory.stake(dev, unitStake);
-        factory.stake(bob, unitStake);
-        factory.stake(carol, unitStake);
-        vm.startPrank(asp, asp);
         factory.updateBuildIndex(dev, 8e8);
         factory.updateBuildIndex(bob, 8e8);
         factory.updateBuildIndex(carol, 8e8);
@@ -800,6 +777,12 @@ contract AspectaDevPoolFactoryTest is Test {
         assertGt(estNewRewards[0], 0);
         assertGt(estNewRewards[1], 0);
         assertGt(estNewRewards[2], 0);
+
+        // Alice stakes for devs
+        vm.startPrank(alice, alice);
+        factory.stake(dev, unitStake);
+        factory.stake(bob, unitStake);
+        factory.stake(carol, unitStake);
 
         (, , , , uint256[] memory estRewards) = factoryGetters
             .getStakingHistory(alice, devs);

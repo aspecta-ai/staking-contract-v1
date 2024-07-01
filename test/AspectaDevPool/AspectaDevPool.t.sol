@@ -61,7 +61,7 @@ contract AspectaDevPoolTest is Test {
                     address(aspToken),
                     beacon,
                     (3 * MAX_PPB) / 1e7,
-                    1e3,
+                    1e22,
                     rewardCut,
                     0 seconds
                 )
@@ -105,6 +105,7 @@ contract AspectaDevPoolTest is Test {
         factory.stake(alice, unitStake);
         // bob has more shares than carol
         assertGt(devPool.balanceOf(bob), devPool.balanceOf(carol));
+        console.log(devPool.balanceOf(bob), devPool.balanceOf(carol));
 
         vm.roll(block.number + unitTime);
 
