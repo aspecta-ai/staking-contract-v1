@@ -2251,6 +2251,749 @@
           ]
         }
       }
+    },
+    "962e8302d5df956005a932257c538d349a11c6cd0088e60a7c96723f254c84ff": {
+      "address": "0x1D640bcc6a08b6Ead457733c0dF9FaABb4Fc8917",
+      "txHash": "0x9feb188d1bcb8ea15952f064091646af9f5cc5755790b62ba0fabf947c1cc653",
+      "layout": {
+        "solcVersion": "0.8.25",
+        "storage": [
+          {
+            "label": "factory",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_address",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:21"
+          },
+          {
+            "label": "developer",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:23"
+          },
+          {
+            "label": "aspectaToken",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:25"
+          },
+          {
+            "label": "inflationRate",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:27"
+          },
+          {
+            "label": "shareDecayRate",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:29"
+          },
+          {
+            "label": "rewardCut",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:31"
+          },
+          {
+            "label": "lockPeriod",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:34",
+            "renamedFrom": "defaultLockPeriod"
+          },
+          {
+            "label": "buildIndex",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:36"
+          },
+          {
+            "label": "totalAccReward",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:38"
+          },
+          {
+            "label": "rewardPerShare",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:40"
+          },
+          {
+            "label": "lastRewardedBlockNum",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:42"
+          },
+          {
+            "label": "devLastReward",
+            "offset": 0,
+            "slot": "11",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:44"
+          },
+          {
+            "label": "shareCoeff",
+            "offset": 0,
+            "slot": "12",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:46"
+          },
+          {
+            "label": "stakerStates",
+            "offset": 0,
+            "slot": "13",
+            "type": "t_mapping(t_address,t_struct(StakerState)7039_storage)",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:48"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "14",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "AspectaDevPoolStorageV1",
+            "src": "contracts/AspectaDevPool/AspectaDevPoolStorage.sol:50"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_uint256))": {
+            "label": "mapping(address => mapping(address => uint256))",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_uint256)": {
+            "label": "mapping(address => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_string_storage": {
+            "label": "string",
+            "numberOfBytes": "32"
+          },
+          "t_struct(ERC20Storage)286_storage": {
+            "label": "struct ERC20Upgradeable.ERC20Storage",
+            "members": [
+              {
+                "label": "_balances",
+                "type": "t_mapping(t_address,t_uint256)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_allowances",
+                "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "_totalSupply",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              },
+              {
+                "label": "_name",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "3"
+              },
+              {
+                "label": "_symbol",
+                "type": "t_string_storage",
+                "offset": 0,
+                "slot": "4"
+              }
+            ],
+            "numberOfBytes": "160"
+          },
+          "t_struct(InitializableStorage)150_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)99_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_mapping(t_address,t_struct(StakerState)7039_storage)": {
+            "label": "mapping(address => struct IAspectaDevPool.StakerState)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(StakerState)7039_storage": {
+            "label": "struct IAspectaDevPool.StakerState",
+            "members": [
+              {
+                "label": "stakeAmount",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "lastRewardPerShare",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "1"
+              },
+              {
+                "label": "unlockTime",
+                "type": "t_uint256",
+                "offset": 0,
+                "slot": "2"
+              }
+            ],
+            "numberOfBytes": "96"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.ERC20": [
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_balances",
+              "type": "t_mapping(t_address,t_uint256)",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:38",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_allowances",
+              "type": "t_mapping(t_address,t_mapping(t_address,t_uint256))",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:40",
+              "offset": 0,
+              "slot": "1"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_totalSupply",
+              "type": "t_uint256",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:42",
+              "offset": 0,
+              "slot": "2"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_name",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:44",
+              "offset": 0,
+              "slot": "3"
+            },
+            {
+              "contract": "ERC20Upgradeable",
+              "label": "_symbol",
+              "type": "t_string_storage",
+              "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
+              "offset": 0,
+              "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "ad140e2fd2298ae2ba4960318769f62f84fc4d00450b3125c9e9eb1150847a6a": {
+      "address": "0x3b6Ec437e906B6C0f555e1201B274FFA4B6d7d86",
+      "txHash": "0x2845050854d44df448e90e122717ca8f7b0d4437214892639ae2a97116671190",
+      "layout": {
+        "solcVersion": "0.8.25",
+        "storage": [
+          {
+            "label": "beacon",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(UpgradeableBeacon)2927",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:30"
+          },
+          {
+            "label": "defaultInflationRate",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:39"
+          },
+          {
+            "label": "defaultShareDecayRate",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:42"
+          },
+          {
+            "label": "defaultRewardCut",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:45"
+          },
+          {
+            "label": "defaultLockPeriod",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:48"
+          },
+          {
+            "label": "aspectaBuildingPoint",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_contract(AspectaBuildingPoint)5899",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:52"
+          },
+          {
+            "label": "allPools",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:55"
+          },
+          {
+            "label": "devPools",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_mapping(t_address,t_address)",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:58"
+          },
+          {
+            "label": "stakingDevSet",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_mapping(t_address,t_struct(AddressSet)5401_storage)",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:62",
+            "renamedFrom": "stakedDevSet"
+          },
+          {
+            "label": "totalStakingAmount",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:65"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "10",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "AspectaDevPoolFactoryStorageV1",
+            "src": "contracts/AspectaDevPoolFactory/AspectaDevPoolFactoryStorage.sol:69"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_bytes32": {
+            "label": "bytes32",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_struct(RoleData)25_storage)": {
+            "label": "mapping(bytes32 => struct AccessControlUpgradeable.RoleData)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AccessControlStorage)35_storage": {
+            "label": "struct AccessControlUpgradeable.AccessControlStorage",
+            "members": [
+              {
+                "label": "_roles",
+                "type": "t_mapping(t_bytes32,t_struct(RoleData)25_storage)",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(InitializableStorage)150_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)99_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(RoleData)25_storage": {
+            "label": "struct AccessControlUpgradeable.RoleData",
+            "members": [
+              {
+                "label": "hasRole",
+                "type": "t_mapping(t_address,t_bool)",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "adminRole",
+                "type": "t_bytes32",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_bytes32)dyn_storage": {
+            "label": "bytes32[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_contract(AspectaBuildingPoint)5899": {
+            "label": "contract AspectaBuildingPoint",
+            "numberOfBytes": "20"
+          },
+          "t_contract(UpgradeableBeacon)2927": {
+            "label": "contract UpgradeableBeacon",
+            "numberOfBytes": "20"
+          },
+          "t_mapping(t_address,t_address)": {
+            "label": "mapping(address => address)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_struct(AddressSet)5401_storage)": {
+            "label": "mapping(address => struct EnumerableSet.AddressSet)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_bytes32,t_uint256)": {
+            "label": "mapping(bytes32 => uint256)",
+            "numberOfBytes": "32"
+          },
+          "t_struct(AddressSet)5401_storage": {
+            "label": "struct EnumerableSet.AddressSet",
+            "members": [
+              {
+                "label": "_inner",
+                "type": "t_struct(Set)5086_storage",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_struct(Set)5086_storage": {
+            "label": "struct EnumerableSet.Set",
+            "members": [
+              {
+                "label": "_values",
+                "type": "t_array(t_bytes32)dyn_storage",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_positions",
+                "type": "t_mapping(t_bytes32,t_uint256)",
+                "offset": 0,
+                "slot": "1"
+              }
+            ],
+            "numberOfBytes": "64"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.AccessControl": [
+            {
+              "contract": "AccessControlUpgradeable",
+              "label": "_roles",
+              "type": "t_mapping(t_bytes32,t_struct(RoleData)25_storage)",
+              "src": "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol:61",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "0745940808c13a5441495148a7f0ea8879f53464ce296f41b664000f5d090065": {
+      "address": "0xEFDd0Fb0eeF2FD731511F96d8fC95B42d2F5C8f4",
+      "txHash": "0xff1156575813c0562057423de5a6554e6d10905f99b14f44ed034a401b31ba6c",
+      "layout": {
+        "solcVersion": "0.8.25",
+        "storage": [
+          {
+            "label": "aspectaDevPoolFactory",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(AspectaDevPoolFactory)7944",
+            "contract": "PoolFactoryGetters",
+            "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:26"
+          },
+          {
+            "label": "aspectaBuildingPoint",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(AspectaBuildingPoint)5899",
+            "contract": "PoolFactoryGetters",
+            "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:27"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "PoolFactoryGetters",
+            "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:29"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)150_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)99_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_contract(AspectaBuildingPoint)5899": {
+            "label": "contract AspectaBuildingPoint",
+            "numberOfBytes": "20"
+          },
+          "t_contract(AspectaDevPoolFactory)7944": {
+            "label": "contract AspectaDevPoolFactory",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
     }
   }
 }

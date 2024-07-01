@@ -54,12 +54,6 @@ interface IAspectaDevPoolFactory {
     function setDefaultRewardCut(uint256 _defaultRewardCut) external;
     function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
 
-    /**
-     * @dev Set the default lock period
-     * @param _defaultLockPeriod New default lock period
-     */
-    function setDefaultLockPeriod(uint256 _defaultLockPeriod) external;
-
     // ----------- functions for the factory ------------
     /**
      * @dev Stake tokens for a dev
