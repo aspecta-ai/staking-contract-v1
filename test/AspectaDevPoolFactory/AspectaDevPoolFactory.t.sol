@@ -86,7 +86,7 @@ contract AspectaDevPoolFactoryTest is Test {
         );
         factory = AspectaDevPoolFactory(pfProxy);
 
-        aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
+        aspToken.grantRole(aspToken.FACTORY_ROLE(), address(factory));
 
         // Deploy factory getters contract
         address pfgProxy = Upgrades.deployUUPSProxy(

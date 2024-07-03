@@ -20,10 +20,6 @@ interface IAspectaBuildingPoint {
         uint256[] calldata amountList
     ) external;
 
-    function getOperatorRole() external view returns (bytes32);
-
-    function getFactoryRole() external view returns (bytes32);
-
     function transfer(address _to, uint256 _value) external returns (bool);
 
     function transferFrom(

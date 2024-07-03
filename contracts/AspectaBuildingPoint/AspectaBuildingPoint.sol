@@ -24,21 +24,22 @@ contract AspectaBuildingPoint is Initializable, AspectaBuildingPointStorageV1 {
         _setRoleAdmin(OPERATOR_ROLE, FACTORY_ROLE);
     }
 
-    function mint(address to, uint256 amount) public onlyRole(OPERATOR_ROLE) {
+    function mint(address to, uint256 amount) public {
+        require(
+            hasRole(MINTER_ROLE, msg.sender) ||
+                hasRole(OPERATOR_ROLE, msg.sender),
+            "AspectaBuildingPoint: Caller is not a Minter or Operator"
+        );
         _mint(to, amount);
-    }
-
-    function getOperatorRole() public pure returns (bytes32) {
-        return OPERATOR_ROLE;
     }
 
     function batchMint(
         address[] calldata toList,
         uint256[] calldata amountList
-    ) public onlyRole(OPERATOR_ROLE) {
+    ) public onlyRole(MINTER_ROLE) {
         require(
-            toList.length <= 100,
-            "AspectaBuildingPoint: Exceeds limit of 100 addresses"
+            toList.length <= 200,
+            "AspectaBuildingPoint: Exceeds limit of 200 addresses"
         );
         require(
             toList.length == amountList.length,
@@ -48,10 +49,6 @@ contract AspectaBuildingPoint is Initializable, AspectaBuildingPointStorageV1 {
         for (uint32 i = 0; i < toList.length; i++) {
             _mint(toList[i], amountList[i]);
         }
-    }
-
-    function getFactoryRole() public pure returns (bytes32) {
-        return FACTORY_ROLE;
     }
 
     /**

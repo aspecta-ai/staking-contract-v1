@@ -48,6 +48,15 @@ contract AspectaBuildingPointTest is Test {
         assertEq(aspToken.balanceOf(alice), 1e18);
     }
 
+    function testMintWithMinterRole() public {
+        bytes32 minterRole = aspToken.MINTER_ROLE();
+        aspToken.grantRole(minterRole, alice);
+
+        vm.startPrank(alice);
+        aspToken.mint(bob, 1e18);
+        assertEq(aspToken.balanceOf(bob), 1e18);
+    }
+
     function testBatchMint() public {
         uint32 batchSize = 100;
         address[] memory accounts = new address[](batchSize);
@@ -57,6 +66,10 @@ contract AspectaBuildingPointTest is Test {
             accounts[i] = bob;
             amounts[i] = 1e17;
         }
+
+        bytes32 minterRole = aspToken.MINTER_ROLE();
+        aspToken.grantRole(minterRole, alice);
+        vm.startPrank(alice);
 
         aspToken.batchMint(accounts, amounts);
 

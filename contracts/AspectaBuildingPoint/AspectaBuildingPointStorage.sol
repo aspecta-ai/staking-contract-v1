@@ -20,6 +20,7 @@ abstract contract AspectaBuildingPointStorageV1 is
 {
     bytes32 public constant OPERATOR_ROLE = keccak256("OPERATOR_ROLE");
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
+    bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");
 
     uint256[50] private __gap;
 }

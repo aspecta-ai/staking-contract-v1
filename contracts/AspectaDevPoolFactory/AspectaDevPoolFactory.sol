@@ -82,7 +82,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
 
         // Grant operator role of AspectaBuildingPoint to pool
         aspectaBuildingPoint.grantRole(
-            aspectaBuildingPoint.getOperatorRole(),
+            aspectaBuildingPoint.OPERATOR_ROLE(),
             address(poolProxy)
         );
 
@@ -110,10 +110,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     function stake(
         address dev,
         uint256 amount
-    )
-        external
-        returns (uint256 claimedReward, uint256 shareAmount)
-    {
+    ) external returns (uint256 claimedReward, uint256 shareAmount) {
         address devPoolAddr = _getPool(dev);
 
         // Stake tokens in dev pool
@@ -155,10 +152,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     /**
      * @dev Claim rewards for a staker with all staked devs
      */
-    function claimStakeReward()
-        external
-        returns (uint256 totalClaimedReward)
-    {
+    function claimStakeReward() external returns (uint256 totalClaimedReward) {
         EnumerableSet.AddressSet storage stakingDevs = stakingDevSet[
             msg.sender
         ];
@@ -195,10 +189,7 @@ contract AspectaDevPoolFactory is AspectaDevPoolFactoryStorageV1 {
     /**
      * @dev Claim rewards for a dev
      */
-    function claimDevReward()
-        external
-        returns (uint256 claimedReward)
-    {
+    function claimDevReward() external returns (uint256 claimedReward) {
         require(
             devPools[msg.sender] != address(0),
             "AspectaDevPoolFactory: Pool does not exist for dev"

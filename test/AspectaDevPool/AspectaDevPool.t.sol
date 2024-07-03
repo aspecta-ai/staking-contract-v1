@@ -68,7 +68,7 @@ contract AspectaDevPoolTest is Test {
             )
         );
         factory = AspectaDevPoolFactory(pfProxy);
-        aspToken.grantRole(aspToken.getFactoryRole(), address(factory));
+        aspToken.grantRole(aspToken.FACTORY_ROLE(), address(factory));
         factory.updateBuildIndex(alice, 8e9);
         devPool = AspectaDevPool(factory.getPool(alice));
     }

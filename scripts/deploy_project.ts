@@ -91,7 +91,7 @@ async function main() {
     );
 
     await aspectaBuildingPoint.grantRole(
-        await aspectaBuildingPoint.getFactoryRole(),
+        await aspectaBuildingPoint.FACTORY_ROLE(),
         await aspectaDevPoolFactory.getAddress(),
     );
 
