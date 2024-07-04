@@ -97,6 +97,11 @@ contract PoolFactoryGetters is
             devPool = AspectaDevPool(
                 aspectaDevPoolFactory.getPool(stakingDevs[i])
             );
+
+            if (address(devPool) == address(0)) {
+                continue;
+            }
+
             (stakingAmount, ,) = devPool.getStakerState(user);
             totalStakingAmount += stakingAmount;
         }
@@ -132,6 +137,11 @@ contract PoolFactoryGetters is
             devPool = AspectaDevPool(
                 aspectaDevPoolFactory.getPool(stakingDevs[i])
             );
+
+            if (address(devPool) == address(0)) {
+                continue;
+            }
+
             claimableStakeRewards += devPool.getClaimableStakeReward(user);
         }
     }
@@ -151,7 +161,14 @@ contract PoolFactoryGetters is
 
         totalStakedAmount = new uint256[](devs.length);
 
+        address devPoolAddress;
         for (uint32 i = 0; i < devs.length; i++) {
+            devPoolAddress = aspectaDevPoolFactory.getPool(devs[i]);
+            if (devPoolAddress == address(0)) {
+                totalStakedAmount[i] = 0;
+                continue;
+            }
+
             totalStakedAmount[i] = aspectaBuildingPoint.balanceOf(
                 aspectaDevPoolFactory.getPool(devs[i])
             );
@@ -205,13 +222,14 @@ contract PoolFactoryGetters is
             aspectaDevPoolFactory.getPool(dev)
         );
 
-        require(
-            address(devPool) != address(0),
-            "AspectaDevPoolFactory: Dev pool not found"
-        );
-
-        for (uint32 i = 0; i < stakers.length; i++) {
-            (stakeAmounts[i], ,) = devPool.getStakerState(stakers[i]);
+        if (address(devPool) == address(0)) {
+            for (uint32 i = 0; i < stakers.length; i++) {
+                stakeAmounts[i] = 0;
+            }
+        } else {
+            for (uint32 i = 0; i < stakers.length; i++) {
+                (stakeAmounts[i], ,) = devPool.getStakerState(stakers[i]);
+            }
         }
      }
 
@@ -253,20 +271,20 @@ contract PoolFactoryGetters is
         AspectaDevPool devPool;
         for (uint32 i = 0; i < devs.length; i++) {
             devPool = AspectaDevPool(aspectaDevPoolFactory.getPool(devs[i]));
+            if (address(devPool) == address(0)) {
+                claimableStakeRewards[i] = 0;
+                stakeAmounts[i] = 0;
+                unlockTimes[i] = 0;
+                shares[i] = 0;
+                rewardsPerBlock[i] = 0;
+                continue;
+            }
 
             claimableStakeRewards[i] = devPool.getClaimableStakeReward(staker);
             (stakeAmounts[i], unlockTimes[i], shares[i]) = devPool
                 .getStakerState(staker);
             rewardsPerBlock[i] = devPool.getStakeRewardPerBlock(staker);
         }
-
-        return (
-            stakeAmounts,
-            claimableStakeRewards,
-            unlockTimes,
-            shares,
-            rewardsPerBlock
-        );
     }
 
     /**
