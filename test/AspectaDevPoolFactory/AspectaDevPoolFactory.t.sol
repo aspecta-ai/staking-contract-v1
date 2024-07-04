@@ -532,6 +532,24 @@ contract AspectaDevPoolFactoryTest is Test {
 
         vm.roll(block.number + unitTime);
 
+        // Check empty stake stats
+        (
+            uint256 carolBalance,
+            uint256 carolTotalStakingAmount,
+            uint256 carolTotalStakedAmount
+        ) = factoryGetters.getUserStakeStats(carol);
+
+        (
+            uint256 carolUnclaimedStakingRewards,
+            uint256 carolUnclaimedStakedRewards
+        ) = factoryGetters.getUserRewardStats(carol);
+
+        assertEq(carolBalance, 0);
+        assertEq(carolTotalStakingAmount, 0);
+        assertEq(carolTotalStakedAmount, 0);
+        assertEq(carolUnclaimedStakingRewards, 0);
+        assertEq(carolUnclaimedStakedRewards, 0);
+
         // Check alice stake stats
         (
             uint256 aliceBalance,
@@ -628,6 +646,14 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256 bobStakes = 2 * amount;
         uint256 carolStakes = 3 * amount;
 
+        address[] memory devs = new address[](3);
+        devs[0] = alice;
+        devs[1] = bob;
+        devs[2] = carol;
+
+        // Check empty total staked amount
+        assertEq(factoryGetters.getTotalStakedAmount(devs)[0], 0);
+
         vm.startPrank(asp, asp);
         aspToken.mint(alice, aliceStakes);
         aspToken.mint(bob, bobStakes);
@@ -642,11 +668,6 @@ contract AspectaDevPoolFactoryTest is Test {
         // Carol stakes for dev
         vm.startPrank(carol, carol);
         factory.stake(carol, carolStakes);
-
-        address[] memory devs = new address[](3);
-        devs[0] = alice;
-        devs[1] = bob;
-        devs[2] = carol;
 
         uint256[] memory totalStakeds = factoryGetters.getTotalStakedAmount(
             devs
@@ -694,11 +715,20 @@ contract AspectaDevPoolFactoryTest is Test {
         stakers[1] = bob;
         stakers[2] = carol;
 
+        // Check empty staked history on dev who not staked
         uint256[] memory stakeAmounts = factoryGetters.getStakedHistoryOnDev(
+            stakers,
+            alice
+        );
+        assertEq(stakeAmounts[0], 0);
+        assertEq(stakeAmounts[1], 0);
+        assertEq(stakeAmounts[2], 0);
+
+        // Check staked history
+        stakeAmounts = factoryGetters.getStakedHistoryOnDev(
             stakers,
             dev
         );
-
         assertEq(stakeAmounts[0], aliceStakes);
         assertEq(stakeAmounts[1], bobStakes);
         assertEq(stakeAmounts[2], carolStakes);
@@ -719,15 +749,6 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256 mintAmount = 1000e18;
         uint256 aliceStakes = mintAmount / 10;
 
-        vm.startPrank(asp, asp);
-        aspToken.mint(alice, mintAmount);
-
-        // Alice stakes for devs
-        vm.startPrank(alice, alice);
-        factory.stake(dev, aliceStakes);
-        factory.stake(bob, 2 * aliceStakes);
-        factory.stake(carol, 3 * aliceStakes);
-
         address[] memory devs = new address[](3);
         devs[0] = dev;
         devs[1] = bob;
@@ -737,15 +758,36 @@ contract AspectaDevPoolFactoryTest is Test {
         uint256[] memory unclaimedStakingRewards = new uint256[](3);
         uint256[] memory unlockTimes = new uint256[](3);
 
+        // Check empty staking history
         (
             stakeAmounts,
             unclaimedStakingRewards,
             unlockTimes,
             ,
+        ) = factoryGetters.getStakingHistory(alice, devs);
+        for (uint32 i = 0; i < devs.length; i++) {
+            assertEq(stakeAmounts[i], 0);
+            assertEq(unclaimedStakingRewards[i], 0);
+            assertEq(unlockTimes[i], 0);
+        }
 
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, mintAmount);
+
+        // Alice stakes for devs
+        vm.startPrank(alice, alice);
+        factory.stake(dev, aliceStakes);
+        factory.stake(bob, 2 * aliceStakes);
+        factory.stake(carol, 3 * aliceStakes);
+
+        (
+            stakeAmounts,
+            unclaimedStakingRewards,
+            unlockTimes,
+            ,
         ) = factoryGetters.getStakingHistory(alice, devs);
 
-        for (uint32 i = 0; i < stakeAmounts.length; i++) {
+        for (uint32 i = 0; i < devs.length; i++) {
             assertEq(stakeAmounts[i], (i + 1) * aliceStakes);
             assertEq(unclaimedStakingRewards[i], 0);
             assertEq(
