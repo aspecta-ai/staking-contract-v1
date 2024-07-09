@@ -279,6 +279,9 @@ contract AspectaDevPool is Initializable, AspectaDevPoolStorageV1 {
     function getStakeRewardPerBlock(
         address staker
     ) external view returns (uint256) {
+        if (totalSupply() == 0) {
+            return 0;
+        }
         return
             (balanceOf(staker) * (MAX_PPB - rewardCut) * _getRewardPerBlock()) /
             MAX_PPB /
