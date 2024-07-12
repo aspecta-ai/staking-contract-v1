@@ -3733,7 +3733,7 @@
             "label": "aspectaDevPoolFactory",
             "offset": 0,
             "slot": "0",
-            "type": "t_contract(AspectaDevPoolFactory)7935",
+            "type": "t_contract(AspectaDevPoolFactory)7943",
             "contract": "PoolFactoryGetters",
             "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:26"
           },
@@ -3805,7 +3805,7 @@
             "label": "contract AspectaBuildingPoint",
             "numberOfBytes": "20"
           },
-          "t_contract(AspectaDevPoolFactory)7935": {
+          "t_contract(AspectaDevPoolFactory)7943": {
             "label": "contract AspectaDevPoolFactory",
             "numberOfBytes": "20"
           },
@@ -4153,6 +4153,129 @@
               "src": "@openzeppelin/contracts-upgradeable/token/ERC20/ERC20Upgradeable.sol:45",
               "offset": 0,
               "slot": "4"
+            }
+          ],
+          "erc7201:openzeppelin.storage.Initializable": [
+            {
+              "contract": "Initializable",
+              "label": "_initialized",
+              "type": "t_uint64",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:69",
+              "offset": 0,
+              "slot": "0"
+            },
+            {
+              "contract": "Initializable",
+              "label": "_initializing",
+              "type": "t_bool",
+              "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:73",
+              "offset": 8,
+              "slot": "0"
+            }
+          ]
+        }
+      }
+    },
+    "6f3fd4e5c4002306a006c0352f0fed9979c8aaa801a79dd5360889d7f227abb0": {
+      "address": "0x5dAbB60898A4Df333f0815893A53737a1F41d886",
+      "txHash": "0x529a8b8f7c9ff2a313171c4315dfe17e2912fe1f9c22fe27e09552912e057e99",
+      "layout": {
+        "solcVersion": "0.8.25",
+        "storage": [
+          {
+            "label": "aspectaDevPoolFactory",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_contract(AspectaDevPoolFactory)7943",
+            "contract": "PoolFactoryGetters",
+            "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:26"
+          },
+          {
+            "label": "aspectaBuildingPoint",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_contract(AspectaBuildingPoint)5895",
+            "contract": "PoolFactoryGetters",
+            "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:27"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "PoolFactoryGetters",
+            "src": "contracts/PoolFactoryGetters/PoolFactoryGetters.sol:29"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_struct(InitializableStorage)150_storage": {
+            "label": "struct Initializable.InitializableStorage",
+            "members": [
+              {
+                "label": "_initialized",
+                "type": "t_uint64",
+                "offset": 0,
+                "slot": "0"
+              },
+              {
+                "label": "_initializing",
+                "type": "t_bool",
+                "offset": 8,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_struct(OwnableStorage)99_storage": {
+            "label": "struct OwnableUpgradeable.OwnableStorage",
+            "members": [
+              {
+                "label": "_owner",
+                "type": "t_address",
+                "offset": 0,
+                "slot": "0"
+              }
+            ],
+            "numberOfBytes": "32"
+          },
+          "t_uint64": {
+            "label": "uint64",
+            "numberOfBytes": "8"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_contract(AspectaBuildingPoint)5895": {
+            "label": "contract AspectaBuildingPoint",
+            "numberOfBytes": "20"
+          },
+          "t_contract(AspectaDevPoolFactory)7943": {
+            "label": "contract AspectaDevPoolFactory",
+            "numberOfBytes": "20"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          }
+        },
+        "namespaces": {
+          "erc7201:openzeppelin.storage.Ownable": [
+            {
+              "contract": "OwnableUpgradeable",
+              "label": "_owner",
+              "type": "t_address",
+              "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:24",
+              "offset": 0,
+              "slot": "0"
             }
           ],
           "erc7201:openzeppelin.storage.Initializable": [
