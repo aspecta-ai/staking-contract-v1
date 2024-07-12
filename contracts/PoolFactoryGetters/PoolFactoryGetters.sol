@@ -176,6 +176,34 @@ contract PoolFactoryGetters is
     }
 
     /**
+     * @dev Get the rewards of the developers
+     * @param devs Address list of the devs
+     * @return claimableRewards List of their total claimble rewards
+     */
+     function getTotalStakedRewards(
+        address[] calldata devs
+     ) external view returns (uint256[] memory claimableRewards) {
+        require(
+            devs.length <= 50,
+            "AspectaDevPoolFactory: Exceeds limit of 50 addresses"
+        );
+
+        claimableRewards = new uint256[](devs.length);
+
+        AspectaDevPool devPool;
+        for (uint32 i = 0; i < devs.length; i++) {
+            devPool = AspectaDevPool(aspectaDevPoolFactory.getPool(devs[i]));
+
+            if (address(devPool) == address(0)) {
+                claimableRewards[i] = 0;
+                continue;
+            }
+
+            claimableRewards[i] = devPool.getClaimableDevReward();
+        }
+     }
+
+    /**
      * @dev Get the amount of rewards received each block for a new staker
      * @param devs Address list of the developers
      * @return rewardsPerBlock List of rewards per block

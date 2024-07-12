@@ -66,6 +66,15 @@ interface IPoolFactoryGetters {
     ) external view returns (uint256[] memory);
 
     /**
+     * @dev Get the rewards of the developers
+     * @param devs Address list of the devs
+     * @return claimableRewards List of their total claimble rewards
+     */
+     function getTotalStakedRewards(
+        address[] calldata devs
+     ) external view returns (uint256[] memory claimableRewards);
+
+    /**
      * @dev Get the amount of rewards received each block for a new staker
      * @param devs Address list of the developers
      * @return List of rewards per block

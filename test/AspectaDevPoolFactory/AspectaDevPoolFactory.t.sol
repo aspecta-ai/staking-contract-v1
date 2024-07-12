@@ -689,6 +689,59 @@ contract AspectaDevPoolFactoryTest is Test {
         assertEq(factoryGetters.getTotalStakedAmount(devs)[2], 0);
     }
 
+    function testGetTotalStakedRewards() public {
+        uint256 mintAmount = 1000e18;
+        uint256 aliceStakes = mintAmount / 10;
+        uint256 unitTime = 300;
+
+        address[] memory devs = new address[](3);
+        devs[0] = dev;
+        devs[1] = bob;
+        devs[2] = carol;
+
+        uint256[] memory totalStakedRewards = factoryGetters
+            .getTotalStakedRewards(devs);
+        for (uint32 i = 0; i < devs.length; i++) {
+            assertEq(totalStakedRewards[i], 0);
+        }
+
+        vm.startPrank(asp, asp);
+        aspToken.mint(alice, mintAmount);
+
+        // Alice stakes for devs
+        vm.startPrank(alice, alice);
+        factory.stake(dev, aliceStakes);
+        factory.stake(bob, 2 * aliceStakes);
+        factory.stake(carol, 3 * aliceStakes);
+
+        vm.roll(block.number + unitTime);
+
+        // Update the building progress
+        vm.startPrank(asp, asp);
+        factory.updateBuildIndex(dev, 8e8);
+        factory.updateBuildIndex(bob, 8e8);
+        factory.updateBuildIndex(carol, 8e8);
+
+        // Check total staked rewards
+        totalStakedRewards = factoryGetters.getTotalStakedRewards(devs);
+        for (uint32 i = 0; i < devs.length; i++) {
+            assertGt(totalStakedRewards[i], 0);
+        }
+
+        // Clean up
+        vm.startPrank(dev, dev);
+        factory.claimDevReward();
+        vm.startPrank(bob, bob);
+        factory.claimDevReward();
+        vm.startPrank(carol, carol);
+        factory.claimDevReward();
+
+        totalStakedRewards = factoryGetters.getTotalStakedRewards(devs);
+        for (uint32 i = 0; i < devs.length; i++) {
+            assertEq(totalStakedRewards[i], 0);
+        }
+    }
+
     function testGetStakedHistoryOnDev() public {
         uint256 aliceStakes = 1000e18;
         uint256 bobStakes = 2 * aliceStakes;
