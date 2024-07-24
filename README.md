@@ -1,4 +1,8 @@
-# contract-v1-core
+# Aspecta Staking Contract V1
+
+# Introduction
+
+This contract implements the Aspecta staking contract. Users can stake on their champion devs or projects and earn rewards based on their Build Index. Devs and projects also earn rewards for being staked and maintaining good Build Index.
 
 # Setup Environment
 
